@@ -1,6 +1,6 @@
 user:
   name: Adityaomer
-  github: Testrepo
+  github: Testrespo
 
 language: "python"
 python_version: "3.10"
