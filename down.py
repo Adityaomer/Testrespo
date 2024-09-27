@@ -73,11 +73,35 @@ def handle_message(update: Update, context: CallbackContext) -> None:
             urls = response['data']['urls']
 
             # Handle different content types based on the number of URLs
-            if len(urls) > 1:  # Check for multiple URLs
-                # Handle the specific content type here
-                # ...
-
-            else:  # Handle the single URL case
+            if len(urls) == 2:
+                bot.sendVideo(
+                chat_id=message.chat.id,
+                    video=urls[0],
+                    caption=f"🎉 *Good news!* Your requested content from {platform} is ready to watch. Enjoy the video! 🎬✨",
+                    parse_mode="Markdown"
+            )
+            elif len(urls) > 2:
+                for url in urls:
+                    bot.sendPhoto(
+                    chat_id=message.chat.id,
+                    photo=url,
+                    caption=f"🎉 *Here you go!* Your requested content from {platform} is ready. Swipe through the images and enjoy! 📸✨",
+                        parse_mode="Markdown"
+                )
+            else:
+                for url in urls:
+                    bot.sendDocument(
+                        chat_id=message.chat.id,
+                        document=url,
+                        caption=f"📁 *Here it is!* Your requested content from {platform} is ready for download. Enjoy! 📂✨",
+                        parse_mode="Markdown"
+                )
+    else:
+        bot.sendMessage(
+            chat_id=message.chat.id,
+            text="⚠️ *Sorry, I couldn't fetch the content.* Please check the link and try again later.",
+            parse_mode="Markdown"
+        )
                 # ...
         else:
             # Handle case where the status is not success or data is missing
