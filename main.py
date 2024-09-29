@@ -2,6 +2,8 @@ import sqlite3
 import asyncio 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CommandHandler, CallbackContext, Application
+import logging 
+import psycopg2.extras 
 import re
 import time
 import requests
