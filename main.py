@@ -8,6 +8,7 @@ import requests
 import os
 import shutil
 import psycopg2 
+from urllib.parse import quote_plus
 
 cluster_id = '390aab70-1739-403d-aa1e-c7c19ed76107'
 username = "testing"
