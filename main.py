@@ -42,18 +42,128 @@ badges = {
 }
 USERS_PER_PAGE = 10
 
-db_path = 'iota.db'  # Path to your SQLite database
-backup_path = 'iota_backup.db'  # Path to save the backup
+db_path = 'iota.db'  
 
-def backup_database():
-    if os.path.exists(db_path):
-        shutil.copy(db_path, backup_path)
-        print("Database backup successful!")
+def init_pool():
+    return psycopg2.pool.SimpleConnectionPool(
+        1,  # minconn
+        10,  # maxconn
+        DATABASE_URL,
+        sslrootcert=os.environ["ROOT_CERT_PATH"]
+    )
 
-def restore_database():
-    if os.path.exists(backup_path):
-        shutil.copy(backup_path, db_path)
-        print("Database restoration successful!")
+def connect_to_cockroachdb():
+    try:
+        pool = init_pool()  # Only creates a pool when required
+        logger.info("Connected to CockroachDB")
+        return pool
+    except Exception as e:
+        logger.error(f"Failed to connect to CockroachDB: {e}")
+        return None
+
+# Function to migrate data from SQLite3 (iota.db) to CockroachDB
+def migrate_data_to_cockroachdb():
+    # Connect to SQLite3
+    sqlite_conn = sqlite3.connect('iota.db')
+    cursor = sqlite_conn.cursor()
+
+    try:
+        # Fetch data from SQLite3 (Replace 'your_table_name' with actual table name)
+        cursor.execute("SELECT * FROM your_table_name")  # Change this to your actual SQLite table
+        rows = cursor.fetchall()
+
+        # Connect to CockroachDB
+        pool = connect_to_cockroachdb()
+        if pool:
+            # Get a connection from the CockroachDB pool
+            conn = pool.getconn()
+            try:
+                with conn.cursor() as cockroach_cursor:
+                    # Insert data into CockroachDB (Replace with your actual CockroachDB table and columns)
+                    for row in rows:
+                        cockroach_cursor.execute("""
+                            INSERT INTO your_cockroach_table (column1, column2, column3) 
+                            VALUES (%s, %s, %s)
+                        """, (row[0], row[1], row[2]))  # Adjust based on your schema
+
+                    # Commit the transaction to save changes
+                    conn.commit()
+
+                logger.info("Data migration from SQLite3 to CockroachDB completed successfully.")
+            finally:
+                # Release the CockroachDB connection back to the pool
+                pool.putconn(conn)
+                logger.info("Disconnected from CockroachDB")
+
+    except Exception as e:
+        logger.error(f"Error during migration: {e}")
+    finally:
+        # Close the SQLite connection
+        sqlite_conn.close()
+        logger.info("SQLite connection closed.")
+
+# Run the migration function
+migrate_data_to_cockroachdb()
+def get_connection():
+    return pool.getconn()
+
+# Return a connection to the pool
+def return_connection(conn):
+    if conn:
+        pool.putconn(conn)
+
+# Function to transfer data from CockroachDB to SQLite3 (iota.db)
+def transfer_data_to_sqlite():
+    # Connect to SQLite3
+    sqlite_conn = sqlite3.connect('iota.db')
+    sqlite_cursor = sqlite_conn.cursor()
+
+    # Create table in SQLite if it doesn't exist
+    sqlite_cursor.execute("""
+        CREATE TABLE IF NOT EXISTS your_table_name (
+            column1 TEXT,
+            column2 TEXT,
+            column3 TEXT
+        )
+    """)  # Adjust this schema based on your needs
+
+    try:
+        # Connect to CockroachDB
+        pool = connect_to_cockroachdb()
+        if pool:
+            # Get a connection from the CockroachDB pool
+            conn = pool.getconn()
+            try:
+                with conn.cursor() as cockroach_cursor:
+                    # Fetch data from CockroachDB (Replace with your actual CockroachDB table and columns)
+                    cockroach_cursor.execute("SELECT * FROM your_cockroach_table")  # Change this to your actual CockroachDB table
+                    rows = cockroach_cursor.fetchall()
+
+                    # Insert data into SQLite3
+                    sqlite_cursor.executemany("""
+                        INSERT INTO your_table_name (column1, column2, column3) 
+                        VALUES (?, ?, ?)
+                    """, rows)  # Adjust based on your schema
+
+                # Commit the transaction to save changes
+                sqlite_conn.commit()
+                logger.info("Data transfer from CockroachDB to SQLite3 completed successfully.")
+
+            finally:
+                # Release the CockroachDB connection back to the pool
+                pool.putconn(conn)
+                logger.info("Disconnected from CockroachDB")
+
+    except Exception as e:
+        logger.error(f"Error during data transfer: {e}")
+    finally:
+        # Close the SQLite connection
+        sqlite_conn.close()
+        logger.info("SQLite connection closed.")
+
+# Run the transfer function
+transfer_data_to_sqlite()
+
 def create_tables():
     conn = sqlite3.connect('iota.db')
     c = conn.cursor()
@@ -642,8 +752,8 @@ def main():
     application.add_handler(CommandHandler("broadcast", broadcast_message))
     application.add_handler(CommandHandler("leaderboard", leaderboard_command))
     application.add_handler(CommandHandler("users", users_command))
-    application.add_handler(CommandHandler("backup", backup_command))
-    application.add_handler(CommandHandler("restore", restore_command))
+    application.add_handler(CommandHandler("backup", migrate_data_to_cockroachdb))
+    application.add_handler(CommandHandler("restore", transfer_data_to_sqlite))
 
     application.run_polling()
 
