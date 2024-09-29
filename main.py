@@ -12,21 +12,6 @@ import shutil
 import psycopg2 
 from urllib.parse import quote_plus
 
-cluster_id = '390aab70-1739-403d-aa1e-c7c19ed76107'
-username = "testing"
-password = "bqWrQ1YIyJvWbt_KtSPdGQ"
-database = "Testgit"
-
-os.system(f"curl --create-dirs -o ~/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/{cluster_id}/cert'")
-os.environ["ROOT_CERT_PATH"] = os.path.expanduser("~/.postgresql/root.crt")
-
-encoded_password = quote_plus(password)
-DATABASE_URL = f"postgresql://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full"
-root_cert_path = os.environ.get("ROOT_CERT_PATH")
-
-# Set up logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 API_TOKEN = '7396022246:AAHwQozG_vH7eNjT2iPGPT_3-kW9UgyysTo'
 OWNER_ID = 7048431897
@@ -58,26 +43,37 @@ badges = {
 USERS_PER_PAGE = 10
 
 db_path = 'iota.db'  
+   
+# Set up logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def init_pool():
-    return psycopg2.pool.SimpleConnectionPool(
-        1,  # minconn
-        10,  # maxconn
-        DATABASE_URL,
-        sslrootcert=os.environ["ROOT_CERT_PATH"]
-    )
+# CockroachDB connection details
+cluster_id = '390aab70-1739-403d-aa1e-c7c19ed76107'
+username = "testing"
+password = "bqWrQ1YIyJvWbt_KtSPdGQ"
+database = "Testgit"
 
-# Connect to CockroachDB and fetch a connection from the pool
+# Ensure the root certificate is downloaded for SSL verification
+os.system(f"curl --create-dirs -o ~/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/{cluster_id}/cert'")
+os.environ["ROOT_CERT_PATH"] = os.path.expanduser("~/.postgresql/root.crt")
+
+# Encoded password for the database URL
+encoded_password = quote_plus(password)
+DATABASE_URL = f"postgresql://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full"
+root_cert_path = os.environ.get("ROOT_CERT_PATH")
+
+# Function to connect to CockroachDB directly
 def connect_to_cockroachdb():
     try:
-        pool = init_pool()  # Only creates a pool when required
+        conn = psycopg2.connect(DATABASE_URL, sslrootcert=os.environ["ROOT_CERT_PATH"])
         logger.info("Connected to CockroachDB")
-        return pool
+        return conn
     except Exception as e:
         logger.error(f"Failed to connect to CockroachDB: {e}")
         return None
 
-# Function to migrate data from SQLite3 (iota.db) to CockroachDB
+# Function to migrate data from SQLite3 to CockroachDB
 def migrate_data_to_cockroachdb(update, context):
     logger.info("Starting data migration to CockroachDB...")
     context.bot.send_message(chat_id=update.effective_chat.id, text="Data migration to CockroachDB started!")
@@ -92,10 +88,8 @@ def migrate_data_to_cockroachdb(update, context):
         rows = cursor.fetchall()
 
         # Connect to CockroachDB
-        pool = connect_to_cockroachdb()
-        if pool:
-            # Get a connection from the CockroachDB pool
-            conn = pool.getconn()
+        conn = connect_to_cockroachdb()
+        if conn:
             try:
                 with conn.cursor() as cockroach_cursor:
                     # Insert data into CockroachDB (Replace with your actual CockroachDB table and columns)
@@ -111,8 +105,8 @@ def migrate_data_to_cockroachdb(update, context):
                 logger.info("Data migration from SQLite3 to CockroachDB completed successfully.")
                 context.bot.send_message(chat_id=update.effective_chat.id, text="Data migration to CockroachDB completed successfully.")
             finally:
-                # Release the CockroachDB connection back to the pool
-                pool.putconn(conn)
+                # Close the CockroachDB connection
+                conn.close()
                 logger.info("Disconnected from CockroachDB")
 
     except Exception as e:
@@ -143,10 +137,8 @@ def transfer_data_to_sqlite(update, context):
 
     try:
         # Connect to CockroachDB
-        pool = connect_to_cockroachdb()
-        if pool:
-            # Get a connection from the CockroachDB pool
-            conn = pool.getconn()
+        conn = connect_to_cockroachdb()
+        if conn:
             try:
                 with conn.cursor() as cockroach_cursor:
                     # Fetch data from CockroachDB (Replace with your actual CockroachDB table and columns)
@@ -165,8 +157,8 @@ def transfer_data_to_sqlite(update, context):
                 context.bot.send_message(chat_id=update.effective_chat.id, text="Data transfer to SQLite completed successfully.")
 
             finally:
-                # Release the CockroachDB connection back to the pool
-                pool.putconn(conn)
+                # Close the CockroachDB connection
+                conn.close()
                 logger.info("Disconnected from CockroachDB")
 
     except Exception as e:
