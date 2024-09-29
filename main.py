@@ -7,11 +7,23 @@ import time
 import requests
 import os
 import shutil
-import sqlite3
-import asyncio 
-from urllib.parse import quote_plus
-from sqlalchemy import create_engine, MetaData, Table, select, insert
-from sqlalchemy.exc import SQLAlchemyError
+import psycopg2 
+
+cluster_id = '390aab70-1739-403d-aa1e-c7c19ed76107'
+username = "testing"
+password = "bqWrQ1YIyJvWbt_KtSPdGQ"
+database = "Testgit"
+
+os.system(f"curl --create-dirs -o ~/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/{cluster_id}/cert'")
+os.environ["ROOT_CERT_PATH"] = os.path.expanduser("~/.postgresql/root.crt")
+
+encoded_password = quote_plus(password)
+DATABASE_URL = f"postgresql://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full"
+root_cert_path = os.environ.get("ROOT_CERT_PATH")
+
+# Set up logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 API_TOKEN = '7396022246:AAHwQozG_vH7eNjT2iPGPT_3-kW9UgyysTo'
 OWNER_ID = 7048431897
