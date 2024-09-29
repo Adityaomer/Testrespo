@@ -4,6 +4,7 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CommandHandler, CallbackContext, Application
 import re
 import time
+import requests
 import os
 import shutil
 import sqlite3
