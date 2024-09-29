@@ -539,7 +539,8 @@ async def leaderboard_command(update: Update, context: CallbackContext):
     await update.message.reply_text(reply_to_message_id=update.message.message_id,text=leaderboard_text,parse_mode="html")
 
     
-
+def main():
+    application = Application.builder().token(API_TOKEN).build()
   application.add_handler(CommandHandler("add", give_badge))
     application.add_handler(CommandHandler("remove", remove_badge_command))
     application.add_handler(CommandHandler("approve", approve_command))
