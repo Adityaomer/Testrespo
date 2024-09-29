@@ -395,6 +395,27 @@ def get_all_users_and_badges():
 def sanitize_name(name):
     # Replace any non-alphanumeric characters with an empty string
     return re.sub(r'\W+', '', name)
+
+async def leaderboard_command(update: Update, context: CallbackContext):
+    users_badges = get_all_users_and_badges()
+
+    if not users_badges:
+        await update.message.reply_text(reply_to_message_id=update.message.message_id,text="<b>No users or badges found.</b>",parse_mode="html")
+        return
+
+    leaderboard_text = "<b><i><code>     🏆 𝐿𝐸𝐴𝐷𝐵𝑂𝐴𝑅𝐷 🏆</code></i></b>\n\n"
+
+    for i, (user_id, username, first_name, badge_count) in enumerate(users_badges):
+        if i >= 10:
+            break
+        # Sanitize the first name
+        sanitized_first_name = sanitize_name(first_name)
+        display_name = f"@{username}" if username else sanitized_first_name
+        leaderboard_text += f"<code><blockquote><b>{display_name:<20} : {badge_count:2} badges\n</b></blockquote></code>"
+
+    await update.message.reply_text(reply_to_message_id=update.message.message_id,text=leaderboard_text,parse_mode="html")
+
+
 async def backup_command(update: Update, context: CallbackContext):
     OWNER_ID = 7048431897  # Ensure this matches your OWNER_ID
     if update.message.from_user.id != OWNER_ID:
@@ -408,26 +429,36 @@ async def backup_command(update: Update, context: CallbackContext):
         password = "bqWrQ1YIyJvWbt_KtSPdGQ"
         database = "Testgit"
 
-        # Download the SSL root certificate
+        # Download the SSL root certificate if not already present
         cert_path = os.path.expanduser("~/.postgresql/root.crt")
         if not os.path.exists(cert_path):
-            os.system(f"curl --create-dirs -o {cert_path} 'https://cockroachlabs.cloud/clusters/{cluster_id}/cert'")
-
-        # Set environment variable for the root certificate path
-        os.environ["ROOT_CERT_PATH"] = cert_path
+            cert_url = f"https://cockroachlabs.cloud/clusters/{cluster_id}/cert"
+            response = requests.get(cert_url)
+            if response.status_code == 200:
+                os.makedirs(os.path.dirname(cert_path), exist_ok=True)
+                with open(cert_path, 'wb') as f:
+                    f.write(response.content)
+            else:
+                await update.message.reply_text("<b>Failed to download SSL certificate.</b>", parse_mode="html")
+                return
 
         # Encode the password for the DATABASE_URL
         encoded_password = quote_plus(password)
-        DATABASE_URL = f"postgresql://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full"
+        DATABASE_URL = f"postgresql+psycopg2://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full&sslrootcert={cert_path}"
 
         # Create SQLAlchemy engine for CockroachDB
         engine = create_engine(DATABASE_URL)
         metadata = MetaData()
 
-        # Reflect existing tables or define them
-        users = Table('users', metadata, autoload_with=engine)
-        badges = Table('badges', metadata, autoload_with=engine)
-        uses = Table('uses', metadata, autoload_with=engine)
+        # Reflect existing tables
+        try:
+            users = Table('users', metadata, autoload_with=engine)
+            badges = Table('badges', metadata, autoload_with=engine)
+            uses = Table('uses', metadata, autoload_with=engine)
+        except SQLAlchemyError as e:
+            await update.message.reply_text(f"<b>Error reflecting tables: {e}</b>", parse_mode="html")
+            engine.dispose()
+            return
 
         # Connect to CockroachDB
         with engine.connect() as cockroach_conn:
@@ -501,26 +532,36 @@ async def restore_command(update: Update, context: CallbackContext):
         password = "bqWrQ1YIyJvWbt_KtSPdGQ"
         database = "Testgit"
 
-        # Download the SSL root certificate
+        # Download the SSL root certificate if not already present
         cert_path = os.path.expanduser("~/.postgresql/root.crt")
         if not os.path.exists(cert_path):
-            os.system(f"curl --create-dirs -o {cert_path} 'https://cockroachlabs.cloud/clusters/{cluster_id}/cert'")
-
-        # Set environment variable for the root certificate path
-        os.environ["ROOT_CERT_PATH"] = cert_path
+            cert_url = f"https://cockroachlabs.cloud/clusters/{cluster_id}/cert"
+            response = requests.get(cert_url)
+            if response.status_code == 200:
+                os.makedirs(os.path.dirname(cert_path), exist_ok=True)
+                with open(cert_path, 'wb') as f:
+                    f.write(response.content)
+            else:
+                await update.message.reply_text("<b>Failed to download SSL certificate.</b>", parse_mode="html")
+                return
 
         # Encode the password for the DATABASE_URL
         encoded_password = quote_plus(password)
-        DATABASE_URL = f"postgresql://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full"
+        DATABASE_URL = f"postgresql+psycopg2://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full&sslrootcert={cert_path}"
 
         # Create SQLAlchemy engine for CockroachDB
         engine = create_engine(DATABASE_URL)
         metadata = MetaData()
 
-        # Reflect existing tables or define them
-        users = Table('users', metadata, autoload_with=engine)
-        badges = Table('badges', metadata, autoload_with=engine)
-        uses = Table('uses', metadata, autoload_with=engine)
+        # Reflect existing tables
+        try:
+            users = Table('users', metadata, autoload_with=engine)
+            badges = Table('badges', metadata, autoload_with=engine)
+            uses = Table('uses', metadata, autoload_with=engine)
+        except SQLAlchemyError as e:
+            await update.message.reply_text(f"<b>Error reflecting tables: {e}</b>", parse_mode="html")
+            engine.dispose()
+            return
 
         # Connect to CockroachDB
         with engine.connect() as cockroach_conn:
@@ -584,27 +625,6 @@ async def restore_command(update: Update, context: CallbackContext):
         await update.message.reply_text(f"<b>Database connection error: {e}</b>", parse_mode="html")
     except Exception as e:
         await update.message.reply_text(f"<b>Unexpected error: {e}</b>", parse_mode="html")
-
-async def leaderboard_command(update: Update, context: CallbackContext):
-    users_badges = get_all_users_and_badges()
-
-    if not users_badges:
-        await update.message.reply_text(reply_to_message_id=update.message.message_id,text="<b>No users or badges found.</b>",parse_mode="html")
-        return
-
-    leaderboard_text = "<b><i><code>     🏆 𝐿𝐸𝐴𝐷𝐵𝑂𝐴𝑅𝐷 🏆</code></i></b>\n\n"
-
-    for i, (user_id, username, first_name, badge_count) in enumerate(users_badges):
-        if i >= 10:
-            break
-        # Sanitize the first name
-        sanitized_first_name = sanitize_name(first_name)
-        display_name = f"@{username}" if username else sanitized_first_name
-        leaderboard_text += f"<code><blockquote><b>{display_name:<20} : {badge_count:2} badges\n</b></blockquote></code>"
-
-    await update.message.reply_text(reply_to_message_id=update.message.message_id,text=leaderboard_text,parse_mode="html")
-
-# ... (rest of your code remains unchanged)
 
 def main():
     application = Application.builder().token(API_TOKEN).build()
