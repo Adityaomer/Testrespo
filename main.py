@@ -67,6 +67,7 @@ def init_pool():
         sslrootcert=os.environ["ROOT_CERT_PATH"]
     )
 
+# Connect to CockroachDB and fetch a connection from the pool
 def connect_to_cockroachdb():
     try:
         pool = init_pool()  # Only creates a pool when required
@@ -77,7 +78,10 @@ def connect_to_cockroachdb():
         return None
 
 # Function to migrate data from SQLite3 (iota.db) to CockroachDB
-def migrate_data_to_cockroachdb():
+def migrate_data_to_cockroachdb(update, context):
+    logger.info("Starting data migration to CockroachDB...")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Data migration to CockroachDB started!")
+    
     # Connect to SQLite3
     sqlite_conn = sqlite3.connect('iota.db')
     cursor = sqlite_conn.cursor()
@@ -103,8 +107,9 @@ def migrate_data_to_cockroachdb():
 
                     # Commit the transaction to save changes
                     conn.commit()
-
+                
                 logger.info("Data migration from SQLite3 to CockroachDB completed successfully.")
+                context.bot.send_message(chat_id=update.effective_chat.id, text="Data migration to CockroachDB completed successfully.")
             finally:
                 # Release the CockroachDB connection back to the pool
                 pool.putconn(conn)
@@ -112,23 +117,17 @@ def migrate_data_to_cockroachdb():
 
     except Exception as e:
         logger.error(f"Error during migration: {e}")
+        context.bot.send_message(chat_id=update.effective_chat.id, text="An error occurred during data migration. Please try again later.")
     finally:
         # Close the SQLite connection
         sqlite_conn.close()
         logger.info("SQLite connection closed.")
 
-# Run the migration function
-migrate_data_to_cockroachdb()
-def get_connection():
-    return pool.getconn()
-
-# Return a connection to the pool
-def return_connection(conn):
-    if conn:
-        pool.putconn(conn)
-
 # Function to transfer data from CockroachDB to SQLite3 (iota.db)
-def transfer_data_to_sqlite():
+def transfer_data_to_sqlite(update, context):
+    logger.info("Starting data transfer to SQLite...")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Data transfer to SQLite started!")
+
     # Connect to SQLite3
     sqlite_conn = sqlite3.connect('iota.db')
     sqlite_cursor = sqlite_conn.cursor()
@@ -140,7 +139,7 @@ def transfer_data_to_sqlite():
             column2 TEXT,
             column3 TEXT
         )
-    """)  # Adjust this schema based on your needs
+    """)  # Adjust this schema as needed
 
     try:
         # Connect to CockroachDB
@@ -163,6 +162,7 @@ def transfer_data_to_sqlite():
                 # Commit the transaction to save changes
                 sqlite_conn.commit()
                 logger.info("Data transfer from CockroachDB to SQLite3 completed successfully.")
+                context.bot.send_message(chat_id=update.effective_chat.id, text="Data transfer to SQLite completed successfully.")
 
             finally:
                 # Release the CockroachDB connection back to the pool
@@ -171,14 +171,11 @@ def transfer_data_to_sqlite():
 
     except Exception as e:
         logger.error(f"Error during data transfer: {e}")
+        context.bot.send_message(chat_id=update.effective_chat.id, text="An error occurred during data transfer. Please try again later.")
     finally:
         # Close the SQLite connection
         sqlite_conn.close()
         logger.info("SQLite connection closed.")
-
-# Run the transfer function
-transfer_data_to_sqlite()
-
 def create_tables():
     conn = sqlite3.connect('iota.db')
     c = conn.cursor()
