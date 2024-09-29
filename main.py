@@ -6,6 +6,11 @@ import re
 import time
 import os
 import shutil
+import sqlite3
+import asyncio 
+from urllib.parse import quote_plus
+from sqlalchemy import create_engine, MetaData, Table, select, insert
+from sqlalchemy.exc import SQLAlchemyError
 
 API_TOKEN = '7396022246:AAHwQozG_vH7eNjT2iPGPT_3-kW9UgyysTo'
 OWNER_ID = 7048431897
@@ -390,6 +395,196 @@ def get_all_users_and_badges():
 def sanitize_name(name):
     # Replace any non-alphanumeric characters with an empty string
     return re.sub(r'\W+', '', name)
+async def backup_command(update: Update, context: CallbackContext):
+    OWNER_ID = 7048431897  # Ensure this matches your OWNER_ID
+    if update.message.from_user.id != OWNER_ID:
+        await update.message.reply_text("<b>Only the owner can perform a backup.</b>", parse_mode="html")
+        return
+
+    try:
+        # Define CockroachDB connection parameters
+        cluster_id = '390aab70-1739-403d-aa1e-c7c19ed76107'
+        username = "testing"
+        password = "bqWrQ1YIyJvWbt_KtSPdGQ"
+        database = "Testgit"
+
+        # Download the SSL root certificate
+        cert_path = os.path.expanduser("~/.postgresql/root.crt")
+        if not os.path.exists(cert_path):
+            os.system(f"curl --create-dirs -o {cert_path} 'https://cockroachlabs.cloud/clusters/{cluster_id}/cert'")
+
+        # Set environment variable for the root certificate path
+        os.environ["ROOT_CERT_PATH"] = cert_path
+
+        # Encode the password for the DATABASE_URL
+        encoded_password = quote_plus(password)
+        DATABASE_URL = f"postgresql://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full"
+
+        # Create SQLAlchemy engine for CockroachDB
+        engine = create_engine(DATABASE_URL)
+        metadata = MetaData()
+
+        # Reflect existing tables or define them
+        users = Table('users', metadata, autoload_with=engine)
+        badges = Table('badges', metadata, autoload_with=engine)
+        uses = Table('uses', metadata, autoload_with=engine)
+
+        # Connect to CockroachDB
+        with engine.connect() as cockroach_conn:
+            trans = cockroach_conn.begin()
+            try:
+                # Connect to SQLite3
+                sqlite_conn = sqlite3.connect('iota.db')
+                sqlite_cursor = sqlite_conn.cursor()
+
+                # Backup 'users' table
+                sqlite_cursor.execute("SELECT * FROM users")
+                users_data = sqlite_cursor.fetchall()
+                cockroach_conn.execute(users.delete())  # Clear existing data
+                cockroach_conn.execute(users.insert(), [
+                    {
+                        'user_id': row[0],
+                        'first_name': row[1],
+                        'last_name': row[2],
+                        'username': row[3],
+                        'approved': row[4]
+                    } for row in users_data
+                ])
+
+                # Backup 'badges' table
+                sqlite_cursor.execute("SELECT * FROM badges")
+                badges_data = sqlite_cursor.fetchall()
+                cockroach_conn.execute(badges.delete())  # Clear existing data
+                cockroach_conn.execute(badges.insert(), [
+                    {
+                        'id': row[0],
+                        'user_id': row[1],
+                        'badge_name': row[2]
+                    } for row in badges_data
+                ])
+
+                # Backup 'uses' table
+                sqlite_cursor.execute("SELECT * FROM uses")
+                uses_data = sqlite_cursor.fetchall()
+                cockroach_conn.execute(uses.delete())  # Clear existing data
+                cockroach_conn.execute(uses.insert(), [
+                    {
+                        'user_id': row[0]
+                    } for row in uses_data
+                ])
+
+                # Commit the transaction
+                trans.commit()
+                sqlite_conn.close()
+                await update.message.reply_text("<b>Database backup to CockroachDB successful!</b>", parse_mode="html")
+            except Exception as e:
+                trans.rollback()
+                sqlite_conn.close()
+                await update.message.reply_text(f"<b>Error during backup: {e}</b>", parse_mode="html")
+            finally:
+                engine.dispose()
+    except SQLAlchemyError as e:
+        await update.message.reply_text(f"<b>Database connection error: {e}</b>", parse_mode="html")
+    except Exception as e:
+        await update.message.reply_text(f"<b>Unexpected error: {e}</b>", parse_mode="html")
+
+async def restore_command(update: Update, context: CallbackContext):
+    OWNER_ID = 7048431897  # Ensure this matches your OWNER_ID
+    if update.message.from_user.id != OWNER_ID:
+        await update.message.reply_text("<b>Only the owner can perform a restore.</b>", parse_mode="html")
+        return
+
+    try:
+        # Define CockroachDB connection parameters
+        cluster_id = '390aab70-1739-403d-aa1e-c7c19ed76107'
+        username = "testing"
+        password = "bqWrQ1YIyJvWbt_KtSPdGQ"
+        database = "Testgit"
+
+        # Download the SSL root certificate
+        cert_path = os.path.expanduser("~/.postgresql/root.crt")
+        if not os.path.exists(cert_path):
+            os.system(f"curl --create-dirs -o {cert_path} 'https://cockroachlabs.cloud/clusters/{cluster_id}/cert'")
+
+        # Set environment variable for the root certificate path
+        os.environ["ROOT_CERT_PATH"] = cert_path
+
+        # Encode the password for the DATABASE_URL
+        encoded_password = quote_plus(password)
+        DATABASE_URL = f"postgresql://{username}:{encoded_password}@sienna-sphinx-6116.7s5.aws-ap-south-1.cockroachlabs.cloud:26257/{database}?sslmode=verify-full"
+
+        # Create SQLAlchemy engine for CockroachDB
+        engine = create_engine(DATABASE_URL)
+        metadata = MetaData()
+
+        # Reflect existing tables or define them
+        users = Table('users', metadata, autoload_with=engine)
+        badges = Table('badges', metadata, autoload_with=engine)
+        uses = Table('uses', metadata, autoload_with=engine)
+
+        # Connect to CockroachDB
+        with engine.connect() as cockroach_conn:
+            trans = cockroach_conn.begin()
+            try:
+                # Fetch data from CockroachDB
+
+                # Restore 'users' table
+                users_query = select([users])
+                users_result = cockroach_conn.execute(users_query).fetchall()
+
+                # Restore 'badges' table
+                badges_query = select([badges])
+                badges_result = cockroach_conn.execute(badges_query).fetchall()
+
+                # Restore 'uses' table
+                uses_query = select([uses])
+                uses_result = cockroach_conn.execute(uses_query).fetchall()
+
+                # Connect to SQLite3
+                sqlite_conn = sqlite3.connect('iota.db')
+                sqlite_cursor = sqlite_conn.cursor()
+
+                # Clear existing data
+                sqlite_cursor.execute("DELETE FROM users")
+                sqlite_cursor.execute("DELETE FROM badges")
+                sqlite_cursor.execute("DELETE FROM uses")
+
+                # Insert data into 'users' table
+                sqlite_cursor.executemany(
+                    "INSERT INTO users (user_id, first_name, last_name, username, approved) VALUES (?, ?, ?, ?, ?)",
+                    users_result
+                )
+
+                # Insert data into 'badges' table
+                sqlite_cursor.executemany(
+                    "INSERT INTO badges (id, user_id, badge_name) VALUES (?, ?, ?)",
+                    badges_result
+                )
+
+                # Insert data into 'uses' table
+                sqlite_cursor.executemany(
+                    "INSERT INTO uses (user_id) VALUES (?)",
+                    uses_result
+                )
+
+                # Commit the changes
+                sqlite_conn.commit()
+                sqlite_conn.close()
+
+                # Commit the transaction in CockroachDB
+                trans.commit()
+                await update.message.reply_text("<b>Database restored from CockroachDB successfully!</b>", parse_mode="html")
+            except Exception as e:
+                trans.rollback()
+                sqlite_conn.close()
+                await update.message.reply_text(f"<b>Error during restore: {e}</b>", parse_mode="html")
+            finally:
+                engine.dispose()
+    except SQLAlchemyError as e:
+        await update.message.reply_text(f"<b>Database connection error: {e}</b>", parse_mode="html")
+    except Exception as e:
+        await update.message.reply_text(f"<b>Unexpected error: {e}</b>", parse_mode="html")
+
 async def leaderboard_command(update: Update, context: CallbackContext):
     users_badges = get_all_users_and_badges()
 
