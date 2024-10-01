@@ -145,10 +145,11 @@ def main():
     db_context = DatabaseContext(conn, cursor)
 
     updater = Updater(API_TOKEN, use_context=True)
-    persistence=PicklePersistence(filename="conversation_data.pickle")
-    dispatcher = Dispatcher(updater.bot, update_queue, workers=0, persistence=persistence) 
+
+   persistence = PicklePersistence(filename="conversation_data.pickle")
+   dispatcher = Dispatcher(updater.bot, update_queue, workers=0, persistence=persistence) 
    
-    dp = updater.dispatcher
+    dp = updater.dispatcher 
     
     # Pass the database context to the ConversationHandler
     conv_handler = ConversationHandler(
@@ -158,15 +159,21 @@ def main():
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, lambda update, context: upload_file(update, context, db_context)),
                          CommandHandler('done', lambda update, context: done(update, context, db_context))],
             UPLOAD_PHOTO: [MessageHandler(Filters.photo, lambda update, context: upload_photo(update, context, db_context))],
-            UPLOAD_CAPTION: [MessageHandler(Filters.text, lambda update, context:upload_caption(update, context, db_context))],
+            UPLOAD_CAPTION: [MessageHandler(Filters.text, lambda update, context: upload_caption(update, context, db_context))],
         },
-            fallbacks=[CommandHandler('upload', start)],
-        persistent=True,
+        fallbacks=[CommandHandler('upload', start)],
+        persistent=True,  # Enable persistent conversations
         per_user=True,
         allow_reentry=True,
-        conversation_timeout=300, 
-        name="uploading"
+        conversation_timeout=300,
+        name='my_upload_conversation'  # Give your ConversationHandler a name
     )
+
+    # Access the update_queue from the Updater
+    update_queue = updater.update_queue
+    
+    # Now you can use the update_queue
+    dispatcher = Dispatcher(updater.bot, update_queue, workers=0, persistence=persistence) 
 
     dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler("start", lambda update, context: download_files(update, context, db_context)))  # Handle the 'start' command
