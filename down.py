@@ -51,6 +51,8 @@ def front_page(update, context):
 
 def done(update: Update, context: CallbackContext) -> int:
     collection_id = context.user_data.get('collection_id')
+    photo=context.user_data.get("picture") 
+    caption=context.user_data.get("caption") 
     
     if collection_id:
         # Get the list of file IDs
@@ -65,7 +67,7 @@ def done(update: Update, context: CallbackContext) -> int:
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-            update.message.reply_text("Files uploaded! Click the link below to download:", reply_markup=keyboard)
+            context. bot.send_photo(photo=photo,caption=caption, reply_markup=keyboard)
             
             # Clear user data for the next upload
             del context.user_data['collection_id']
