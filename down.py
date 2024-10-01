@@ -115,9 +115,9 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
         files="no"
         for file_id in file_ids:
             if files == "no":
-                files=file_id
+                files=f" {collection_id} {file_id}"
             else:
-                files=f"{files},{file_id}"
+                files=f"{files} {file_id}"
         update.message.reply_text(f"{files}")
         bot_username = context.bot.get_me().username
 
@@ -195,7 +195,6 @@ def send_files(update: Update, context: CallbackContext) -> None:
         if sec in file_collections:
             # Iterate through each file associated with the current secret
             file_ids=file_collections[sec]
-            files="no"
             for file_id in file_ids:
                 try:
                     context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
@@ -232,7 +231,7 @@ def main():
         fallbacks=[CommandHandler('start', start)]
     )
     c_hand=ConversationHandler(
-        entry_points=[CommandHandler('back', back)],
+        entry_points=[CommandHandler('back_up', back)],
         states={
             CHECKING: [
                 MessageHandler(Filters.text & ~Filters.command, check_message),
