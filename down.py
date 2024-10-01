@@ -54,6 +54,7 @@ def check_message(update: Update, context: CallbackContext):
 def backup(update: Update, context: CallbackContext) -> None:
     msgid=update.message.message_id
     SMD=40
+    cp=context.bot.get_chat(SOURCE_CHAT_ID). get_message(SMD) 
     while SMD < msgid: 
         context.bot.forward_message(chat_id=SOURCE_CHAT_ID, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
         SMD=SMD+1
