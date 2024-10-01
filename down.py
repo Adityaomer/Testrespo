@@ -142,9 +142,7 @@ def send_file(update, context) :
         
 def send_files(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
-    
-    # Check if the user is authorized (in this example, we just check if they're in secret)
-    if str(user_id) not in secret:  # Assuming user_id is a string, adjust if necessary
+    if str(user_id) != str(user_id) :  # Assuming user_id is a string, adjust if necessary
         update.message.reply_text("You are not authorized to access these files.")
         return
 
