@@ -3,12 +3,17 @@ import sqlite3
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 
-API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
+API_TOKEN='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1
 UPLOAD_MORE = 2
 UPLOAD_PHOTO = 3
 UPLOAD_CAPTION = 4
+
+class DatabaseContext:
+    def __init__(self, conn, cursor):
+        self.conn = conn
+        self.cursor = cursor
 
 def start(update: Update, context: CallbackContext) -> int:
     update.message.reply_text("Send me a file to upload!")
@@ -28,9 +33,9 @@ def upload_file(update: Update, context: CallbackContext) -> int:
             context.user_data['collection_id'] = collection_id
 
         # Add the file ID to the collection in the database
-        global cursor
-        cursor.execute("INSERT OR IGNORE INTO collections (collection_id, file_ids) VALUES (?, ?)", (collection_id, file_id))
-        context.bot.conn.commit()
+        db_context = context.bot.conversation_data['DatabaseContext']  
+        db_context.cursor.execute("INSERT OR IGNORE INTO collections (collection_id, file_ids) VALUES (?, ?)", (collection_id, file_id))
+        db_context.conn.commit()
 
         update.message.reply_text("File uploaded! Send another file, or type /done to finish.")
         return UPLOAD_MORE
@@ -56,23 +61,23 @@ def upload_photo(update: Update, context: CallbackContext) -> int:
         collection_id = context.user_data['collection_id']
 
         # Update the collection with the photo ID
-        global cursor
-        cursor.execute("UPDATE collections SET photo_id = ? WHERE collection_id = ?", (photo_id, collection_id))
-        context.bot.conn.commit()
-
+        db_context = context.bot.conversation_data['DatabaseContext']  
+        db_context.cursor.execute("UPDATE collections SET photo_id = ? WHERE collection_id = ?", (photo_id, collection_id))
+        db_context.conn.commit()
         update.message.reply_text("Photo uploaded! Now send me a caption for the collection.")
         return UPLOAD_CAPTION
     else:
         update.message.reply_text("Please send a valid photo.")
         return UPLOAD_PHOTO
+
 def upload_caption(update: Update, context: CallbackContext) -> int:
     caption = update.message.text
     collection_id = context.user_data['collection_id']
 
     # Update the collection with the caption
-    global cursor
-    cursor.execute("UPDATE collections SET caption = ? WHERE collection_id = ?", (caption, collection_id))
-    context.bot.conn.commit()
+    db_context = context.bot.conversation_data['DatabaseContext']  
+    db_context.cursor.execute("UPDATE collections SET caption = ? WHERE collection_id = ?", (caption, collection_id))
+    db_context.conn.commit()
 
     # Build the download link
     bot_username = context.bot.get_me().username
@@ -95,9 +100,9 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
     if collection_id:
         # Retrieve the data from the database
-        global cursor
-        cursor.execute("SELECT file_ids, photo_id, caption FROM collections WHERE collection_id = ?", (collection_id,))
-        result = cursor.fetchone()
+        db_context = context.bot.conversation_data['DatabaseContext']  
+        db_context.cursor.execute("SELECT file_ids, photo_id, caption FROM collections WHERE collection_id = ?", (collection_id,))
+        result = db_context.cursor.fetchone()
 
         if result:
             file_ids = result[0].split(',')
@@ -123,13 +128,12 @@ def main():
     conn = sqlite3.connect('file_collections.db')  # Create connection in main
     cursor = conn.cursor()
 
+    db_context = DatabaseContext(conn, cursor)
+
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
-
-    # Pass the database connection to the Updater
-    dp.bot.conn = conn
-    dp.bot.cursor = cursor
-
+    
+    # Pass the database context to the ConversationHandler
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('upload', start)],
         states={
@@ -139,7 +143,12 @@ def main():
             UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
-        fallbacks=[CommandHandler('upload', start)]
+        fallbacks=[CommandHandler('upload', start)],
+        persistent=True,
+        per_user=True,
+        allow_reentry=True,
+        conversation_timeout=300,
+        context_callback=lambda update, context: db_context
     )
 
     dp.add_handler(conv_handler)
