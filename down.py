@@ -15,6 +15,28 @@ secret=[]
 redeploy=1
 # Global dictionary to store file collections
 file_collections = {}
+SOURCE_CHAT_ID = -1002316663794
+OWNER_CHAT_ID = 7048431897
+START_MESSAGE_ID = 12
+# Function to backup messages from a specified chat
+def backup_messages(update: Update, context: CallbackContext) -> None:
+    message_id = START_MESSAGE_ID  # Start reading from this message ID
+
+    while True:
+        try:
+            # Get the message by message ID
+            message = context.bot.get_chat_message(SOURCE_CHAT_ID, message_id)
+
+            # Forward the message to the owner's chat
+            if message:
+                context.bot.send_message(chat_id=OWNER_CHAT_ID, text=message.text)
+
+            # Increment the message ID for the next iteration
+            message_id += 1
+
+        except Exception as e:
+            logger.error(f"Error while reading messages: {e}")
+            break  # Exit loop on error (e.g., when there are no more messages)
 
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
