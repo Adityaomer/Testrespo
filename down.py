@@ -6,6 +6,7 @@ import time
 from telegram.ext.dispatcher import run_async
 from telegram import User, PhotoSize, ParseMode
 import telegram
+from urllib.parse import quote_plus
 
 API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
@@ -33,12 +34,10 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         bot_username = context.bot.get_me().username  # Get the bot's username
 
         # Build the inline keyboard
-        keyboard = InlineKeyboardMarkup([[
-            InlineKeyboardButton(
-                "Your File ID",
-                url=f"https://t.me/{bot_username}?start={file_id}"  # URL for starting a PM with the file ID
-            )
+        keyboard =InlineKeyboardMarkup([[
+            InlineKeyboardButton("Get Your File", url=f"https://t.me/{bot_username}?start=get_file_{quote_plus(file_id)}")
         ]])
+   
 
         update.message.reply_text("Here is your file ID:", reply_markup=keyboard)
         return ConversationHandler.END
