@@ -51,13 +51,6 @@ def check_message(update: Update, context: CallbackContext):
         if 'hi' in update.message.text.lower():  # Check if 'hi' is in the message
             update.message.reply_text("Hello! You said hi!")
 
-def backup(update: Update, context: CallbackContext) -> None:
-    msgid=update.message.message_id
-    SMD=40
-    
-    while SMD < msgid: 
-        context.bot.forward_message(chat_id=SOURCE_CHAT_ID, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
-        SMD=SMD+1
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
     update.message.reply_text("Send me a file to upload!")
@@ -119,6 +112,12 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
     if collection_id and photo_id:
         # Get the list of file IDs
         file_ids = file_collections[collection_id]
+        for file_id in file_ids:
+            if files == "no":
+                files=file_id
+            else:
+                files=f"{files},{file_id}"
+        update.message.reply_text(f"{files}")
         bot_username = context.bot.get_me().username
 
         if file_ids:
@@ -246,7 +245,7 @@ def main():
     dp.add_handler(c_hand)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
     dp.add_handler(CommandHandler("send_all", send_files))
-    dp.add_handler(CommandHandler("back_up", backup))
+    
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
 
