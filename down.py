@@ -231,7 +231,7 @@ def main():
             UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
-        fallbacks=[CommandHandler('start, start)]
+        fallbacks=[CommandHandler('start', start)]
     )
     ConversationHandler(
         entry_points=[CommandHandler('back', back)],
