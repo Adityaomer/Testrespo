@@ -1,9 +1,10 @@
-
-
 import secrets
 import sqlite3
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, Dispatcher, ConversationHandler, PicklePersistence 
+
+
 
 API_TOKEN='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
@@ -144,6 +145,9 @@ def main():
     db_context = DatabaseContext(conn, cursor)
 
     updater = Updater(API_TOKEN, use_context=True)
+    persistence=PicklePersistence(filename="conversation_data.pickle")
+    dispatcher = Dispatcher(updater.bot, update_queue, workers=0, persistence=persistence) 
+   
     dp = updater.dispatcher
     
     # Pass the database context to the ConversationHandler
