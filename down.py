@@ -24,11 +24,11 @@ redeploy=1
 file_collections = {}
 SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
-SMD = 21
 
 
 def backup(update: Update, context: CallbackContext) -> None:
     msgid=update.message.message_id
+    SMD=21
     while SMD < msgid: 
         context.bot.forward_message(chat_id=update.message.id, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
         SMD=SMD+1
