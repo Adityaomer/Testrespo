@@ -1,11 +1,11 @@
 
-API_TOKEN='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
+
 import secrets
 import sqlite3
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 
-API_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+API_TOKEN='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1
 UPLOAD_MORE = 2
