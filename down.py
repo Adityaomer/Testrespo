@@ -29,6 +29,7 @@ OWNER_CHAT_ID = 7048431897
 def backup(update: Update, context: CallbackContext) -> None:
     msgid=update.message.message_id
     SMD=21
+    bh=context.bot.get_message(chat_id=SOURCE_CHAT_ID, message_id=MSD) 
     while SMD < msgid: 
         context.bot.forward_message(chat_id=OWNER_CHAT_ID, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
         SMD=SMD+1
