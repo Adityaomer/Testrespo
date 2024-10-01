@@ -15,6 +15,7 @@ UPLOAD_FILE = 1  # State for waiting for a file
 def upload(update, context):
     update.message.reply_text('Send me a file to upload!')
     return UPLOAD_FILE
+
 def upload_file(update: Update, context: CallbackContext) -> int:
     file = update.message.document or update.message.photo[-1]  # Handle both documents and photos
 
@@ -25,8 +26,8 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         # Generate a short unique identifier
         short_id = secrets.token_urlsafe(8)  # Adjust length as needed
 
-        # Store the file ID in user data using the short ID as the key
-        context.user_data[short_id] = file_id
+        # Store the file ID in the global dictionary
+        file_storage[short_id] = file_id
 
         # Build the inline keyboard
         keyboard = InlineKeyboardMarkup([[
@@ -47,8 +48,8 @@ def get_file(update: Update, context: CallbackContext) -> None:
     short_id = context.args[0] if context.args else None
 
     if short_id:
-        # Retrieve the full file ID from user data
-        file_id = context.user_data.get(short_id)
+        # Retrieve the full file ID from the global dictionary
+        file_id = file_storage.get(short_id)
 
         if file_id:
             # Send the file
