@@ -37,7 +37,7 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         return UPLOAD_MORE
     else:
         update.message.reply_text("Please send a valid file.")
-       returnU FRONT_PAGE
+       return FRONT_PAGE
 def front_page(update, context):
     user = update.effective_user
     user_id = user.id
