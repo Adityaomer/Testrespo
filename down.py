@@ -11,7 +11,7 @@ import secrets
 
 API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 UPLOAD_FILE = 1  # State for waiting for a file
-
+file_storage={}
 def upload(update, context):
     update.message.reply_text('Send me a file to upload!')
     return UPLOAD_FILE
