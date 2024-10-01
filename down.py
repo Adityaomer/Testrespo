@@ -30,7 +30,7 @@ def backup(update: Update, context: CallbackContext) -> None:
     msgid=update.message.message_id
     SMD=21
     while SMD < msgid: 
-        context.bot.forward_message(chat_id=update.message.chat.id, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
+        context.bot.forward_message(chat_id=OWNER_CHAT_ID, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
         SMD=SMD+1
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
