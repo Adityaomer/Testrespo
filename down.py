@@ -163,13 +163,13 @@ def send_files(update: Update, context: CallbackContext) -> None:
                 if files == "no":
                     files=file_id
                 else:
-                    files=f"{files}\n{file_id}"
+                    files=f"{files}\n\n{file_id}"
             update.message.reply_text(f"{files}")
             all_file_contents.append(files)  # Append content to the list
                 
 
     # Join all contents into a single message
-    combined_message = "\n\n".join(all_file_contents)
+    combined_message = "new edit\n".join(all_file_contents)
 
     # Send the combined message in chunks if it's too long
     max_length = 4096  # Maximum message length for Telegram
