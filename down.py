@@ -160,7 +160,7 @@ def send_files(update: Update, context: CallbackContext) -> None:
                 else:
                     files=f"{files}\n{file_id}"
             update.message.reply_text(f"{files}")
-                all_file_contents.append(files)  # Append content to the list
+            all_file_contents.append(files)  # Append content to the list
                 except Exception as e:
                     update.message.reply_text(f"Failed to read {files}: {str(e)}")
 
