@@ -118,7 +118,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
     else:
         update.message.reply_text("Invalid collection ID.")
 def send_file(update, context) :
-    sp=update.message.text.split("") 
+    sp=update.message.text.split(" ") 
     chat_id=int(sp[1]) 
     id=int(sp[2]) 
     if chat and id:
