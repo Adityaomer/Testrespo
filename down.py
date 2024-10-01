@@ -1,128 +1,51 @@
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from telegram.ext import CallbackContext
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 
-# Replace with your actual bot token
-TOKEN = "7209661607:AAG9W_N9Yel3IUtJkWYAbaVHYufIdbsfGvA"
+API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
-# Define bunchify function (or use a library)
-def bunchify(obj):
-    if isinstance(obj, dict):
-        return Bunch(**{key: bunchify(value) for key, value in obj.items()})
-    elif isinstance(obj, list):
-        return [bunchify(item) for item in obj]
-    else:
-        return obj
+UPLOAD_FILE = 1  # State for waiting for a file
 
-class Bunch(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+def start(update: Update, context: CallbackContext) -> int:
+    update.message.reply_text('Send me a file to upload!')
+    return UPLOAD_FILE
 
-def start(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /start is issued."""
-    user = update.effective_user
-    update.message.reply_markdown_v2(
-        rf'Hi {user.mention_markdown_v2()}!',
-    )
+def upload_file(update: Update, context: CallbackContext) -> int:
+    file = update.message.document or update.message.photo[-1]  # Handle both documents and photos
 
-def help_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /help is issued."""
-    update.message.reply_text("Help!")
+    if file:
+        file_id = file.file_id
+        bot_username = context.bot.get_me().username  # Get the bot's username
 
-def handle_message(update: Update, context: CallbackContext) -> None:
-    """Handle the message sent by the user."""
-    message = update.message
-
-    # Informing the user that the bot is processing their request
-    update.message.reply_markdown_v2(
-        "⏳ *Please wait...* I'm working on processing your video. This may take a moment depending on the length. Hang tight! 🚀"
-    )
-
-    # Notify the user that a video upload is in progress
-    context.bot.sendChatAction(chat_id=message.chat.id, action='upload_video')
-
-    # Proceed with the URL handling
-    ms = message.text
-
-    # Sanitize the user's input (optional)
-    # ... 
-
-    url = f"https://tele-social.vercel.app/down?url={ms}"
-
-    # Retry logic for HTTP requests
-    retries = Retry(
-        total=5,
-        status_forcelist=[429, 500, 502, 503, 504],
-        backoff_factor=0.3,
-        respect_retry_after_header=True,
-    )
-    adapter = HTTPAdapter(max_retries=retries)
-    http = requests.Session()
-    http.mount("https://", adapter)
-    http.mount("http://", adapter)
-
-    try:
-        response = bunchify(http.get(url).json())
-
-        if 'data' in response and response['data'].get('status', '').lower() == "success":
-            platform = response['platform']
-            urls = response['data']['urls']
-
-            # Handle different content types based on the number of URLs
-            if len(urls) == 2:
-                bot.sendVideo(
-                chat_id=message.chat.id,
-                    video=urls[0],
-                    caption=f"🎉 *Good news!* Your requested content from {platform} is ready to watch. Enjoy the video! 🎬✨",
-                    parse_mode="Markdown"
+        # Build the inline keyboard
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                "Your File ID",
+                url=f"https://t.me/{bot_username}?start={file_id}"  # URL for starting a PM with the file ID
             )
-            elif len(urls) > 2:
-                for url in urls:
-                    bot.sendPhoto(
-                    chat_id=message.chat.id,
-                    photo=url,
-                    caption=f"🎉 *Here you go!* Your requested content from {platform} is ready. Swipe through the images and enjoy! 📸✨",
-                        parse_mode="Markdown"
-                )
-            else:
-                for url in urls:
-                    bot.sendDocument(
-                        chat_id=message.chat.id,
-                        document=url,
-                        caption=f"📁 *Here it is!* Your requested content from {platform} is ready for download. Enjoy! 📂✨",
-                        parse_mode="Markdown"
-                )
+        ]])
+
+        update.message.reply_text("Here is your file ID:", reply_markup=keyboard)
+        return ConversationHandler.END
     else:
-        bot.sendMessage(
-            chat_id=message.chat.id,
-            text="⚠️ *Sorry, I couldn't fetch the content.* Please check the link and try again later.",
-            parse_mode="Markdown"
-        )
-                # ...
-        else:
-            # Handle case where the status is not success or data is missing
-            update.message.reply_markdown_v2(
-                "⚠️ *Sorry, I couldn't fetch the content.* Please check the link and try again later."
-            )
-    except Exception as e:
-        # Handle any other errors such as network issues or invalid URLs
-        update.message.reply_markdown_v2(
-            "⚠️ *Oops! Something went wrong.* Please try again later."
-        )
+        update.message.reply_text("Please send a valid file.")
+        return UPLOAD_FILE
 
-# Create the Updater and dispatcher
-updater = Updater(7209661607:AAG9W_N9Yel3IUtJkWYAbaVHYufIdbsfGvA)
-dispatcher = updater.dispatcher
+def main():
+    updater = Updater(API_TOKEN, use_context=True)
+    dp = updater.dispatcher
 
-# Add handlers
-dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(CommandHandler("help", help_command))
-dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('upload', start)],
+        states={
+            UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
+        },
+        fallbacks=[CommandHandler('upload', start)]
+    )
 
-# Start the bot
-updater.start_polling()
-updater.idle()
+    dp.add_handler(conv_handler)
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
