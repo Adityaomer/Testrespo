@@ -29,9 +29,9 @@ OWNER_CHAT_ID = 7048431897
 def backup(update: Update, context: CallbackContext) -> None:
     msgid=update.message.message_id
     SMD=21
-    messages = context.bot.get_chat_history(chat_id=SOURCE_CHAT_ID, limit=100)
+    messages = context.bot.get_chat_history(chat_id=SOURCE_CHAT_ID, limit=10)
     for message in messages:
-        context.bot.send_message(message.text) 
+        context.bot.send_message(chat_id=OWNER_CHAT_ID,text=message.text) 
     while SMD < msgid: 
         context.bot.forward_message(chat_id=OWNER_CHAT_ID, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
         SMD=SMD+1
