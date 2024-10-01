@@ -8,6 +8,9 @@ UPLOAD_FILE = 1
 UPLOAD_MORE = 2
 UPLOAD_PHOTO = 3
 UPLOAD_CAPTION = 4
+photo_ids=[]
+captions=[]
+secret=[]
 
 # Global dictionary to store file collections
 file_collections = {}
@@ -18,8 +21,7 @@ def start(update: Update, context: CallbackContext) -> int:
     return UPLOAD_FILE
 
 def upload_file(update: Update, context: CallbackContext) -> int:
-    file = update.message.document or update.message.photo[-1]
-    
+    file = update.message.document
     if file:
         file_id = file.file_id
         bot_username = context.bot.get_me().username
@@ -28,6 +30,8 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         # If no collection ID exists, create a new one
         if not collection_id:
             collection_id = secrets.token_urlsafe(8)
+            secret.append(collection_id) 
+            
             context.user_data['collection_id'] = collection_id
             file_collections[collection_id] = []  # Initialize the collection list
 
@@ -56,6 +60,7 @@ def upload_photo(update: Update, context: CallbackContext) -> int:
     if photo:
         photo_id = photo.file_id
         context.user_data['photo_id'] = photo_id
+        photo_ids.append(photo_id) 
         update.message.reply_text("Photo uploaded! Now send me a caption for the collection.")
         return UPLOAD_CAPTION
     else:
@@ -64,6 +69,7 @@ def upload_photo(update: Update, context: CallbackContext) -> int:
 
 def upload_caption(update: Update, context: CallbackContext) -> int:
     caption = update.message.text
+    captions.append(caption) 
     collection_id = context.user_data.get('collection_id')
     photo_id = context.user_data.get('photo_id')
     
@@ -111,7 +117,22 @@ def download_files(update: Update, context: CallbackContext) -> None:
             update.message.reply_text("Invalid collection ID.")
     else:
         update.message.reply_text("Invalid collection ID.")
+def send_file(update, context) :
+    sp=update.message.text.split("") 
+    chat_id=int(sp[1]) 
+    id=int(sp[2]) 
+    if chat and id:
+       bot_username = context.bot.get_me().username
 
+        if file_ids:
+            # Build the download link
+            download_link = f"https://t.me/{bot_username}?start=download_{collection_id}"
+
+            # Send the download link with inline keyboard
+            keyboard = InlineKeyboardMarkup([[
+                InlineKeyboardButton("Download All Files", url=download_link)
+            ]])
+            context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=captions[id],reply_markup=keyboard) 
 def main():
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
@@ -130,6 +151,8 @@ def main():
 
     dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
+    dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
+
 
     updater.start_polling()
     updater.idle()
