@@ -48,7 +48,7 @@ def done(update: Update, context: CallbackContext) -> int:
 
         if file_ids:
             # Build the download link
-            download_link = f"https://t.me{bo}/?start=download_{collection_id}"
+            download_link = f"https://t.me/{bo}?start=download_{collection_id}"
 
             # Send the download link
             keyboard = InlineKeyboardMarkup([[
