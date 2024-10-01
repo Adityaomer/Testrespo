@@ -112,12 +112,13 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
     if collection_id and photo_id:
         # Get the list of file IDs
         file_ids = file_collections[collection_id]
+        files="no"
         for file_id in file_ids:
             if files == "no":
                 files=file_id
             else:
                 files=f"{files},{file_id}"
-        update.message.reply_text(f"{files}")
+       update.message.reply_text(f"{files}")
         bot_username = context.bot.get_me().username
 
         if file_ids:
@@ -154,12 +155,6 @@ def download_files(update: Update, context: CallbackContext) -> None:
             files="no"
             for file_id in file_ids:
                 context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
-                if files == "no":
-                    files=file_id
-                else:
-                    files=f"{files},{file_id}"
-            update.message.reply_text(f"{files}")
-
 
 
             update.message.reply_text("Files sent successfully!")
