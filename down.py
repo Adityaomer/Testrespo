@@ -109,10 +109,10 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
         if file_ids:
             # Send the files one by one
-            files=" "
+            files="no"
             for file_id in file_ids:
                 context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
-            if files == " ":
+            if files == "no":
                 files=file_id
             else:
                 files=f"{files},{file_id}"
