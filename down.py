@@ -128,7 +128,6 @@ def send_file(update, context) :
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
         context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=captions[id],reply_markup=keyboard) 
-    else:
         
 def main():
     updater = Updater(API_TOKEN, use_context=True)
