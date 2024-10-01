@@ -12,11 +12,9 @@ import secrets
 API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 UPLOAD_FILE = 1  # State for waiting for a file
 
-def start(update: Update, context: CallbackContext) -> None:
-    # No need to handle 'start' command here.  
-    # We'll handle it directly within the 'upload_file' function
-    pass
-
+def upload(update, context):
+    update.message.reply_text('Send me a file to upload!')
+    return UPLOAD_FILE
 def upload_file(update: Update, context: CallbackContext) -> int:
     file = update.message.document or update.message.photo[-1]  # Handle both documents and photos
 
@@ -66,11 +64,11 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('upload', start)],
+        entry_points=[CommandHandler('upload', upload)],
         states={
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
         },
-        fallbacks=[CommandHandler('upload', start)]
+        fallbacks=[CommandHandler('upload', upload)]
     )
 
     dp.add_handler(conv_handler)
