@@ -26,6 +26,30 @@ SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
 
 
+# Define states for the ConversationHandler
+CHECKING, STOPPED = range(2)
+
+def back(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    context.user_data[chat_id] = CHECKING  # Set user data to indicate checking has started
+    update.message.reply_text("Bot started! I'll check all messages for 'hi'. Use /stop to stop.")
+    return CHECKING
+
+def stop(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    if chat_id in context.user_data and context.user_data[chat_id] == CHECKING:
+        del context.user_data[chat_id]  # Remove this chat from active checks
+        update.message.reply_text("Bot stopped! You can restart it with /back.")
+        return ConversationHandler.END
+    else:
+        update.message.reply_text("Bot is not running. Use /back to begin.")
+        return ConversationHandler.END
+
+def check_message(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    if chat_id in context.user_data and context.user_data[chat_id] == CHECKING:
+        if 'hi' in update.message.text.lower():  # Check if 'hi' is in the message
+            update.message.reply_text("Hello! You said hi!")
 def backup(update: Update, context: CallbackContext) -> None:
     msgid=update.message.message_id
     SMD=21
@@ -207,9 +231,18 @@ def main():
             UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
-        fallbacks=[CommandHandler('upload', start)]
+        fallbacks=[CommandHandler('start, start)]
     )
-
+    ConversationHandler(
+        entry_points=[CommandHandler('back', back)],
+        states={
+            CHECKING: [
+                MessageHandler(Filters.text & ~Filters.command, check_message),
+                CommandHandler('stop', stop),
+            ],
+        },
+        fallbacks=[CommandHandler('start', start)],
+    )
     dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
     dp.add_handler(CommandHandler("send_all", send_files))
