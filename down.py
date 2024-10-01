@@ -31,7 +31,7 @@ def backup(update: Update, context: CallbackContext) -> None:
     while True:
         try:
             # Get the message by message ID
-            message = context.bot.get_chat_message(SOURCE_CHAT_ID, message_id)
+            message = context.bot.get_updates()(SOURCE_CHAT_ID, message_id)
 
             # Forward the message to the owner's chat
             if message:
