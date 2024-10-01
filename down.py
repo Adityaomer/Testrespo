@@ -5,7 +5,8 @@ from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHa
 API_TOKEN ='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1
-UPLOAD_MORE = 2  # State for asking to upload more files
+UPLOAD_MORE = 2 
+FRONT_PAGE = 3 # State for asking to upload more files
 
 # Global dictionary to store file collections
 file_collections = {}
@@ -36,7 +37,17 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         return UPLOAD_MORE
     else:
         update.message.reply_text("Please send a valid file.")
-        return UPLOAD_FILE
+       returnU FRONT_PAGE
+def front_page(update, context):
+    user = update.effective_user
+    user_id = user.id
+
+    item_name = context.user_data.get("collection_id")                     
+                   photo = update.message.photo[-1]  # Get the largest photo size
+                   context.user_data["picture"] = photo.file_id
+                   context.user_data["caption"] = update. message. caption
+                   
+   return UPLOAD_FILE
 
 def done(update: Update, context: CallbackContext) -> int:
     collection_id = context.user_data.get('collection_id')
@@ -94,6 +105,7 @@ def main():
         states={
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, upload_file),
+            FRONT_PAGE: [MessageHandler(Filters.document | Filters.photo, front_page),
                          CommandHandler('done', done)]
         },
         fallbacks=[CommandHandler('upload', start)]
