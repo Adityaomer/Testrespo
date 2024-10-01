@@ -153,6 +153,7 @@ def send_files(update: Update, context: CallbackContext) -> None:
     for sec in secret:
         if sec in file_collections:
             # Iterate through each file associated with the current secret
+            file_ids=file_collections[sec]
             for file_id in file_ids:
                 try:
                     context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
