@@ -159,7 +159,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
                 message = context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
 
                 # Schedule a job to delete this message after 5 minutes (300 seconds)
-                context.job_queue.run_once(delete_messages, 300, context={'chat_id': update.effective_chat.id, 'message_id': message.message_id})
+                context.job_queue.run_once(delete_messages, 30, context={'chat_id': update.effective_chat.id, 'message_id': message.message_id})
 
             update.message.reply_text("Files sent successfully!")
         else:
