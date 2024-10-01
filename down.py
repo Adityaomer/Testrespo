@@ -126,7 +126,7 @@ def main():
         fallbacks=[CommandHandler('upload', start)]
 ) 
     dp.add_handler(conv_handler)
-    dp.add_handler(CommandHandler("start", download_files)# Handle the 'start' command
+    dp.add_handler(CommandHandler("start", download_files))# Handle the 'start' command
 
     updater.start_polling()
     updater.idle()
