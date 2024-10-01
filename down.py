@@ -8,42 +8,35 @@ from telegram import User, PhotoSize, ParseMode
 import telegram
 from urllib.parse import quote_plus
 import secrets
-user_data={}
-API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
+API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 UPLOAD_FILE = 1  # State for waiting for a file
 
 def start(update: Update, context: CallbackContext) -> None:
-    short_id = context.args[0] if context.args else None
-
-    if short_id:
-        # Retrieve the full file ID from user data
-        file_id = user_data[short_id]
-        context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
-        update.message.reply_text("File sent successfully!")
-    else:
-        update.message.reply_text("Invalid file ID.")
-
-def upload(update: Update, context: CallbackContext) -> int:
-    update.message.reply_text('Send me a file to upload!')
-    return UPLOAD_FILE
+    # No need to handle 'start' command here.  
+    # We'll handle it directly within the 'upload_file' function
+    pass
 
 def upload_file(update: Update, context: CallbackContext) -> int:
-    # Handle both documents and photos using Filters.all
-    if update.message.document or update.message.photo:
-        file = update.message.document or update.message.photo[-1]  # Get the file object
+    file = update.message.document or update.message.photo[-1]  # Handle both documents and photos
+
+    if file:
         file_id = file.file_id
         bot_username = context.bot.get_me().username  # Get the bot's username
+
+        # Generate a short unique identifier
         short_id = secrets.token_urlsafe(8)  # Adjust length as needed
 
         # Store the file ID in user data using the short ID as the key
-        user_data[short_id] = file_id
+        context.user_data[short_id] = file_id
 
         # Build the inline keyboard
-        keyboard =InlineKeyboardMarkup([[
-            InlineKeyboardButton("Get Your File", url=f"https://t.me/{bot_username}?start=get_file_{quote_plus(short_id)}")
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                "Get Your File",
+                url=f"https://t.me/{bot_username}?start={short_id}"
+            )
         ]])
-   
 
         update.message.reply_text("Here is your file ID:", reply_markup=keyboard)
         return ConversationHandler.END
@@ -51,20 +44,38 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         update.message.reply_text("Please send a valid file.")
         return UPLOAD_FILE
 
+def get_file(update: Update, context: CallbackContext) -> None:
+    # Extract the short ID from the 'start' parameter
+    short_id = context.args[0] if context.args else None
+
+    if short_id:
+        # Retrieve the full file ID from user data
+        file_id = context.user_data.get(short_id)
+
+        if file_id:
+            # Send the file
+            context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
+            update.message.reply_text("File sent successfully!")
+        else:
+            update.message.reply_text("Invalid file ID.")
+    else:
+        update.message.reply_text("Invalid file ID.")
+
 def main():
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('upload', upload)],
+        entry_points=[CommandHandler('upload', start)],
         states={
-            UPLOAD_FILE: [MessageHandler(Filters.all, upload_file)],  # Use Filters.all for both document and photo
+            UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
         },
-        fallbacks=[CommandHandler('upload', upload)]
+        fallbacks=[CommandHandler('upload', start)]
     )
 
     dp.add_handler(conv_handler)
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("start", get_file))  # Handle the 'start' command
+
     updater.start_polling()
     updater.idle()
 
