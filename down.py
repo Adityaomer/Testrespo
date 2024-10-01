@@ -10,21 +10,6 @@ UPLOAD_MORE = 2
 UPLOAD_PHOTO = 3
 UPLOAD_CAPTION = 4
 
-# Database connection
-conn = sqlite3.connect('file_collections.db')
-cursor = conn.cursor()
-
-# Create the table if it doesn't exist
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS collections (
-        collection_id TEXT PRIMARY KEY,
-        file_ids TEXT,
-        photo_id TEXT,
-        caption TEXT
-    )
-''')
-conn.commit()
-
 def start(update: Update, context: CallbackContext) -> int:
     update.message.reply_text("Send me a file to upload!")
     return UPLOAD_FILE
@@ -43,8 +28,9 @@ def upload_file(update: Update, context: CallbackContext) -> int:
             context.user_data['collection_id'] = collection_id
 
         # Add the file ID to the collection in the database
+        global cursor
         cursor.execute("INSERT OR IGNORE INTO collections (collection_id, file_ids) VALUES (?, ?)", (collection_id, file_id))
-        conn.commit()
+        context.bot.conn.commit()
 
         update.message.reply_text("File uploaded! Send another file, or type /done to finish.")
         return UPLOAD_MORE
@@ -70,22 +56,23 @@ def upload_photo(update: Update, context: CallbackContext) -> int:
         collection_id = context.user_data['collection_id']
 
         # Update the collection with the photo ID
-        cursor.execute("UPDATE collections SET photo_id = ? WHERE collection_id = ?", (photo_id, collection_id)) 
-        conn.commit()
+        global cursor
+        cursor.execute("UPDATE collections SET photo_id = ? WHERE collection_id = ?", (photo_id, collection_id))
+        context.bot.conn.commit()
 
         update.message.reply_text("Photo uploaded! Now send me a caption for the collection.")
         return UPLOAD_CAPTION
     else:
         update.message.reply_text("Please send a valid photo.")
         return UPLOAD_PHOTO
-
 def upload_caption(update: Update, context: CallbackContext) -> int:
     caption = update.message.text
     collection_id = context.user_data['collection_id']
 
     # Update the collection with the caption
+    global cursor
     cursor.execute("UPDATE collections SET caption = ? WHERE collection_id = ?", (caption, collection_id))
-    conn.commit()
+    context.bot.conn.commit()
 
     # Build the download link
     bot_username = context.bot.get_me().username
@@ -108,6 +95,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
     if collection_id:
         # Retrieve the data from the database
+        global cursor
         cursor.execute("SELECT file_ids, photo_id, caption FROM collections WHERE collection_id = ?", (collection_id,))
         result = cursor.fetchone()
 
@@ -131,8 +119,16 @@ def download_files(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Invalid collection ID.")
 
 def main():
+    global conn, cursor
+    conn = sqlite3.connect('file_collections.db')  # Create connection in main
+    cursor = conn.cursor()
+
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
+
+    # Pass the database connection to the Updater
+    dp.bot.conn = conn
+    dp.bot.cursor = cursor
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('upload', start)],
