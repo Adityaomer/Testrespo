@@ -1,5 +1,11 @@
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import ConversationHandler
+from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
+import re
+import time
+from telegram.ext.dispatcher import run_async
+from telegram import User, PhotoSize, ParseMode
+import telegram
  
 API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
@@ -47,7 +53,7 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('upload', upload)],
         states={
-            UPLOAD_FILE: [MessageHandler(filters.document | filters.photo, upload_file)],
+            UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
         },
         fallbacks=[CommandHandler('upload', upload)]
     )
