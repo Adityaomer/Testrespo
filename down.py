@@ -8,7 +8,7 @@ from telegram import User, PhotoSize, ParseMode
 import telegram
 from urllib.parse import quote_plus
 import secrets
-
+user_data={}
 API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1  # State for waiting for a file
@@ -18,7 +18,7 @@ def start(update: Update, context: CallbackContext) -> None:
 
     if short_id:
         # Retrieve the full file ID from user data
-        file_id = context.user_data.get(short_id)
+        file_id = user_data[short_id]
         context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
         update.message.reply_text("File sent successfully!")
     else:
@@ -37,7 +37,7 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         short_id = secrets.token_urlsafe(8)  # Adjust length as needed
 
         # Store the file ID in user data using the short ID as the key
-        context.user_data[short_id] = file_id
+        user_data[short_id] = file_id
 
         # Build the inline keyboard
         keyboard =InlineKeyboardMarkup([[
