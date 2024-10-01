@@ -50,12 +50,10 @@ def check_message(update: Update, context: CallbackContext):
     if chat_id in context.user_data and context.user_data[chat_id] == CHECKING:
         if 'hi' in update.message.text.lower():  # Check if 'hi' is in the message
             update.message.reply_text("Hello! You said hi!")
+
 def backup(update: Update, context: CallbackContext) -> None:
     msgid=update.message.message_id
     SMD=21
-    messages = context.bot.get_chat_history(chat_id=SOURCE_CHAT_ID, limit=10)
-    for message in messages:
-        context.bot.send_message(chat_id=OWNER_CHAT_ID,text=message.text) 
     while SMD < msgid: 
         context.bot.forward_message(chat_id=OWNER_CHAT_ID, from_chat_id=SOURCE_CHAT_ID, message_id=SMD) 
         SMD=SMD+1
