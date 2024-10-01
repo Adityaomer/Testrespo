@@ -5,7 +5,17 @@ API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1  # State for waiting for a file
 
-def start(update: Update, context: CallbackContext) -> int:
+def start(update: Update, context: CallbackContext) -> None:
+    file_id = context.args[0] if context.args else None
+
+    if file_id:
+        # Send the file with the provided file ID
+        context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
+        update.message.reply_text("File sent successfully!")
+    else:
+        update.message.reply_text("Invalid file ID.")
+
+def upload(update: Update, context: CallbackContext) -> int:
     update.message.reply_text('Send me a file to upload!')
     return UPLOAD_FILE
 
@@ -35,15 +45,15 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('upload', start)],
+        entry_points=[CommandHandler('upload', upload)],
         states={
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
         },
-        fallbacks=[CommandHandler('upload', start)]
+        fallbacks=[CommandHandler('upload', upload)]
     )
 
     dp.add_handler(conv_handler)
-
+    dp.add_handler(CommandHandler("start", start))
     updater.start_polling()
     updater.idle()
 
