@@ -116,7 +116,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
                 files=file_id
             else:
                 files=f"{files},{file_id}"
-        update.message.reply_text("{files}")
+            update.message.reply_text("{files}")
 
 
 
