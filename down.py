@@ -142,6 +142,10 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
         update.message.reply_text("You haven't started uploading files or haven't provided a photo.")
         return ConversationHandler.END
 
+def delete_messages(context: CallbackContext):
+    job = context.job
+    context.bot.delete_message(chat_id=job.context['chat_id'], message_id=job.context['message_id'])
+
 def download_files(update: Update, context: CallbackContext) -> None:
     # Extract the collection ID from the 'start' parameter
     collection_id = context.args[0] if context.args else None
@@ -151,17 +155,18 @@ def download_files(update: Update, context: CallbackContext) -> None:
         file_ids = file_collections.get(collection_id)
 
         if file_ids:
-            # Send the files one by one
-            files="no"
             for file_id in file_ids:
-                context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
+                message = context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
 
+                # Schedule a job to delete this message after 5 minutes (300 seconds)
+                context.job_queue.run_once(delete_messages, 300, context={'chat_id': update.effective_chat.id, 'message_id': message.message_id})
 
             update.message.reply_text("Files sent successfully!")
         else:
             update.message.reply_text("Invalid collection ID.")
     else:
         update.message.reply_text("Invalid collection ID.")
+
 def send_file(update, context) :
     sp=update.message.text.split(" ") 
     chat_id=int(sp[1]) 
