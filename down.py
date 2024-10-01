@@ -6,7 +6,7 @@ import time
 from telegram.ext.dispatcher import run_async
 from telegram import User, PhotoSize, ParseMode
 import telegram
- 
+
 API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1  # State for waiting for a file
@@ -26,9 +26,9 @@ def upload(update: Update, context: CallbackContext) -> int:
     return UPLOAD_FILE
 
 def upload_file(update: Update, context: CallbackContext) -> int:
-    file = update.message.document or update.message.photo[-1]  # Handle both documents and photos
-
-    if file:
+    # Handle both documents and photos using Filters.all
+    if update.message.document or update.message.photo:
+        file = update.message.document or update.message.photo[-1]  # Get the file object
         file_id = file.file_id
         bot_username = context.bot.get_me().username  # Get the bot's username
 
@@ -53,7 +53,7 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('upload', upload)],
         states={
-            UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
+            UPLOAD_FILE: [MessageHandler(Filters.all, upload_file)],  # Use Filters.all for both document and photo
         },
         fallbacks=[CommandHandler('upload', upload)]
     )
