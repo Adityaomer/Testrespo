@@ -123,9 +123,10 @@ def main():
                          CommandHandler('done', done)],
             FRONT_PAGE: [MessageHandler(Filters.photo | Filters.text, front_page)]
         },
-        fallbacks=[CommandHandler('upload', start) ) 
+        fallbacks=[CommandHandler('upload', start)]
+) 
     dp.add_handler(conv_handler)
-    dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
+    dp.add_handler(CommandHandler("start", download_files)# Handle the 'start' command
 
     updater.start_polling()
     updater.idle()
