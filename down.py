@@ -2,6 +2,7 @@ import secrets
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 import logging
+import time
 
 # Setup logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -24,6 +25,8 @@ file_collections = {}
 SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
 START_MESSAGE_ID = 21
+
+
 def backup(update: Update, context: CallbackContext) -> None:
     last_update_id = None  # To keep track of the last processed update
 
@@ -41,10 +44,12 @@ def backup(update: Update, context: CallbackContext) -> None:
                     # Update the last processed update ID
                     last_update_id = update.update_id + 1
 
+            # Add a delay to prevent rapid requests
+            time.sleep(1)
+
         except Exception as e:
             logger.error(f"Error while reading messages: {e}")
             break  # Exit loop on error (e.g., when there are no more messages)
-
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
     update.message.reply_text("Send me a file to upload!")
