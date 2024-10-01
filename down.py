@@ -140,6 +140,36 @@ def send_file(update, context) :
         update.message.reply_text(f"No files id saved as {id}")
 
         
+def send_files(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+    
+    # Check if the user is authorized (in this example, we just check if they're in secret)
+    if str(user_id) not in secret:  # Assuming user_id is a string, adjust if necessary
+        update.message.reply_text("You are not authorized to access these files.")
+        return
+
+    all_file_contents = []  # List to hold contents of all files
+
+    # Iterate through each secret
+    for sec in secret:
+        if sec in File_collections:
+            # Iterate through each file associated with the current secret
+            for file_name in File_collections[sec]:
+                try:
+                    # Open and read each file
+                    with open(file_name, 'r') as file:
+                        content = file.read()
+                        all_file_contents.append(content)  # Append content to the list
+                except Exception as e:
+                    update.message.reply_text(f"Failed to read {file_name}: {str(e)}")
+
+    # Join all contents into a single message
+    combined_message = "\n\n".join(all_file_contents)
+
+    # Send the combined message in chunks if it's too long
+    max_length = 4096  # Maximum message length for Telegram
+    for i in range(0, len(combined_message), max_length):
+        context.bot.send_message(chat_id=update.effective_chat.id, text=combined_message[i:i + max_length])
 def main():
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
@@ -158,6 +188,7 @@ def main():
 
     dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
+    dp.add_handler(CommandHandler("send_all", send_files))
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
 
