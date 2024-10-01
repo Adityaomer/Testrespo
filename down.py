@@ -2,11 +2,11 @@ import secrets
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 
-API_TOKEN ='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
+API_TOKEN='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1
-UPLOAD_MORE = 2 
-FRONT_PAGE = 3 # State for asking to upload more files
+UPLOAD_MORE = 2
+FRONT_PAGE = 3  # State for asking to upload more files
 
 # Global dictionary to store file collections
 file_collections = {}
@@ -18,7 +18,7 @@ def start(update: Update, context: CallbackContext) -> int:
 
 def upload_file(update: Update, context: CallbackContext) -> int:
     file = update.message.document or update.message.photo[-1]
-    
+
     if file:
         file_id = file.file_id
         bot_username = context.bot.get_me().username
@@ -37,23 +37,36 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         return UPLOAD_MORE
     else:
         update.message.reply_text("Please send a valid file.")
-        return FRONT_PAGE
-def front_page(update, context):
+        return UPLOAD_FILE
+
+def front_page(update: Update, context: CallbackContext) -> int:
     user = update.effective_user
     user_id = user.id
+    collection_id = context.user_data.get('collection_id')
 
-    item_name = context.user_data.get("collection_id")                     
-    photo = update.message.photo[-1]  # Get the largest photo size
-    context.user_data["picture"] = photo.file_id
-    context.user_data["caption"] = update. message. caption
-                   
-    return UPLOAD_FILE
+    # If no collection ID exists, create a new one (it shouldn't get here without a collection_id)
+    if not collection_id:
+        collection_id = secrets.token_urlsafe(8)
+        context.user_data['collection_id'] = collection_id
+        file_collections[collection_id] = []  # Initialize the collection list
+
+    if update.message.photo:
+        photo = update.message.photo[-1]  # Get the largest photo size
+        context.user_data["picture"] = photo.file_id
+        context.user_data["caption"] = update.message.caption
+
+        update.message.reply_text("Image and Caption received! Now, upload your files.")
+        return UPLOAD_FILE
+    else:
+        update.message.reply_text("Please send an image first.")
+        return FRONT_PAGE
+
 
 def done(update: Update, context: CallbackContext) -> int:
     collection_id = context.user_data.get('collection_id')
-    photo=context.user_data.get("picture") 
-    caption=context.user_data.get("caption") 
-    
+    photo = context.user_data.get("picture")
+    caption = context.user_data.get("caption")
+
     if collection_id:
         # Get the list of file IDs
         file_ids = file_collections[collection_id]
@@ -67,13 +80,13 @@ def done(update: Update, context: CallbackContext) -> int:
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-            context. bot.send_photo(photo=photo,caption=caption, reply_markup=keyboard)
-            
+            context.bot.send_photo(photo=photo, caption=caption, reply_markup=keyboard)
+
             # Clear user data for the next upload
             del context.user_data['collection_id']
         else:
             update.message.reply_text("No files uploaded.")
-        
+
         return ConversationHandler.END
     else:
         update.message.reply_text("You haven't started uploading files.")
@@ -107,10 +120,15 @@ def main():
         states={
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, upload_file),
-            FRONT_PAGE: [MessageHandler(Filters.document | Filters.photo, front_page),
-                         CommandHandler('done', done)]
+                         CommandHandler('done', done)],
+            FRONT_PAGE: [MessageHandler(Filters.photo | Filters.text, front_page)]
         },
-        fallbacks=[CommandHandler('upload', start)]
+        fallbacks=[CommandHandler('upload', start)],
+        persistent=True,
+        per_user=True,
+        allow_reentry=True,
+        conversation_timeout=300,
+        name='my_upload_conversation'
     )
 
     dp.add_handler(conv_handler)
