@@ -43,11 +43,11 @@ def front_page(update, context):
     user_id = user.id
 
     item_name = context.user_data.get("collection_id")                     
-                   photo = update.message.photo[-1]  # Get the largest photo size
-                   context.user_data["picture"] = photo.file_id
-                   context.user_data["caption"] = update. message. caption
+    photo = update.message.photo[-1]  # Get the largest photo size
+    context.user_data["picture"] = photo.file_id
+    context.user_data["caption"] = update. message. caption
                    
-   return UPLOAD_FILE
+    return UPLOAD_FILE
 
 def done(update: Update, context: CallbackContext) -> int:
     collection_id = context.user_data.get('collection_id')
