@@ -121,13 +121,16 @@ def send_file(update, context) :
     sp=update.message.text.split(" ") 
     chat_id=int(sp[1]) 
     id=int(sp[2]) 
-    if 1==1:
+    try:
         bot_username = context.bot.get_me().username
         download_link = f"https://t.me/{bot_username}?start=download_{secret[id]}"
         keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
         context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=captions[id],reply_markup=keyboard) 
+    except:
+        update.message.reply_text(f"No files id saved as {id}")
+
         
 def main():
     updater = Updater(API_TOKEN, use_context=True)
