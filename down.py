@@ -161,6 +161,7 @@ def main():
         per_user=True,
         allow_reentry=True,
         conversation_timeout=300
+        name="uploading"
     )
 
     dp.add_handler(conv_handler)
