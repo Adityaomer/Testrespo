@@ -24,21 +24,22 @@ file_collections = {}
 SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
 START_MESSAGE_ID = 12
-# Function to backup messages from a specified chat
 def backup(update: Update, context: CallbackContext) -> None:
-    message_id = START_MESSAGE_ID  # Start reading from this message ID
+    last_update_id = None  # To keep track of the last processed update
 
     while True:
         try:
-            # Get the message by message ID
-            message = context.bot.get_updates(SOURCE_CHAT_ID, message_id)
+            # Get updates
+            updates = context.bot.get_updates(offset=last_update_id, timeout=10)
 
-            # Forward the message to the owner's chat
-            if message:
-                context.bot.send_message(chat_id=OWNER_CHAT_ID, text=message.text)
+            for update in updates:
+                # Check if the update is a message and from the source chat
+                if update.message and update.message.chat.id == SOURCE_CHAT_ID:
+                    # Forward the message to the owner's chat
+                    context.bot.send_message(chat_id=OWNER_CHAT_ID, text=update.message.text)
 
-            # Increment the message ID for the next iteration
-            message_id += 1
+                    # Update the last processed update ID
+                    last_update_id = update.update_id + 1
 
         except Exception as e:
             logger.error(f"Error while reading messages: {e}")
