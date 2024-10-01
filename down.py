@@ -146,8 +146,8 @@ def main():
 
     updater = Updater(API_TOKEN, use_context=True)
 
-   persistence = PicklePersistence(filename="conversation_data.pickle")
-   dispatcher = Dispatcher(updater.bot, update_queue, workers=0, persistence=persistence) 
+    persistence = PicklePersistence(filename="conversation_data.pickle")
+    dispatcher = Dispatcher(updater.bot, update_queue, workers=0, persistence=persistence) 
    
     dp = updater.dispatcher 
     
