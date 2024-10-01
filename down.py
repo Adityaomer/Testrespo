@@ -48,7 +48,7 @@ def stop(update: Update, context: CallbackContext):
 def check_message(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     message=update.message.text
-    if "$" in  and message:
+    if "$" in message:
         sp=message.split("$")
         sec=sp[0]
         secret.append(sec)
