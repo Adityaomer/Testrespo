@@ -169,12 +169,12 @@ def send_files(update: Update, context: CallbackContext) -> None:
                 
 
     # Join all contents into a single message
-    combined_message = "new edit\n".join(all_file_contents)
+    combined_message = "\n new edit\n".join(all_file_contents)
 
     # Send the combined message in chunks if it's too long
     max_length = 4096  # Maximum message length for Telegram
     for i in range(0, len(combined_message), max_length):
-        context.bot.send_message(chat_id=update.effective_chat.id, text=combined_message[i:i + max_length])
+        context.bot.send_message(chat_id=update.effective_chat.id, text=f"Files see \n \n{combined_message[i:i + max_length]}")
 def main():
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
