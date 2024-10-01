@@ -19,7 +19,7 @@ SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
 START_MESSAGE_ID = 12
 # Function to backup messages from a specified chat
-def backup_messages(update: Update, context: CallbackContext) -> None:
+def backup(update: Update, context: CallbackContext) -> None:
     message_id = START_MESSAGE_ID  # Start reading from this message ID
 
     while True:
@@ -216,6 +216,7 @@ def main():
     dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
     dp.add_handler(CommandHandler("send_all", send_files))
+    dp.add_handler(CommandHandler("back_up", backup))
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
 
