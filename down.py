@@ -81,7 +81,7 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
 
         if file_ids:
             # Build the download link
-            download_link = f"https://t.me/{bot_username}?start=download_{collection_id}"
+            download_link = f"https://t.me/{bot_username}?start={collection_id}"
 
             # Send the download link with inline keyboard
             keyboard = InlineKeyboardMarkup([[
@@ -102,7 +102,7 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
 
 def download_files(update: Update, context: CallbackContext) -> None:
     # Extract the collection ID from the 'start' parameter
-    collection_id = context.args[0].split('_')[1] if context.args else None
+    collection_id = context.args[0] if context.args else None
 
     if collection_id:
         # Retrieve the file IDs from the dictionary
