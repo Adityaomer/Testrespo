@@ -28,28 +28,7 @@ START_MESSAGE_ID = 21
 
 
 def backup(update: Update, context: CallbackContext) -> None:
-    last_update_id = None  # To keep track of the last processed update
-
-    while True:
-        try:
-            # Get updates
-            updates = context.bot.get_updates(offset=last_update_id, timeout=10)
-
-            for update in updates:
-                # Check if the update is a message and from the source chat
-                if update.message and update.message.chat.id == SOURCE_CHAT_ID:
-                    # Forward the message to the owner's chat
-                    context.bot.send_message(chat_id=OWNER_CHAT_ID, text=update.message.text)
-
-                    # Update the last processed update ID
-                    last_update_id = update.update_id + 1
-
-            # Add a delay to prevent rapid requests
-            time.sleep(1)
-
-        except Exception as e:
-            logger.error(f"Error while reading messages: {e}")
-            break  # Exit loop on error (e.g., when there are no more messages)
+    
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
     update.message.reply_text("Send me a file to upload!")
