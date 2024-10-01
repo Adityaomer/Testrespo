@@ -121,7 +121,7 @@ def send_file(update, context) :
     sp=update.message.text.split(" ") 
     chat_id=int(sp[1]) 
     id=int(sp[2]) 
-    if chat and id:
+    if chat_id and id:
         bot_username = context.bot.get_me().username
         download_link = f"https://t.me/{bot_username}?start=download_{collection_id}"
         keyboard = InlineKeyboardMarkup([[
