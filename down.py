@@ -173,7 +173,9 @@ def download_files(update: Update, context: CallbackContext) -> None:
         else:
             update.message.reply_text("Invalid collection ID.")
     else:
-        update.message.reply_text("Invalid collection ID.")
+        update.message.reply_text("""ʟᴏᴠᴇ ᴀɴɪᴍᴇ? ɪ ᴀᴍ ᴍᴀᴅᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ. 
+
+ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ ᴄʜᴀɴɴᴇʟꜱ ʙᴇʟᴏᴡ ꜰᴏʀ ᴍᴏʀᴇ!👇""")
 
 def send_file(update, context) :
     sp=update.message.text.split(" ") 
@@ -236,7 +238,7 @@ def main():
             UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
-        fallbacks=[CommandHandler('start', start)]
+        fallbacks=[CommandHandler('start', download_files)]
     )
     c_hand=ConversationHandler(
         entry_points=[CommandHandler('back_up', back)],
@@ -246,7 +248,7 @@ def main():
                 CommandHandler('stop', stop),
             ],
         },
-        fallbacks=[CommandHandler('start', start)],
+        fallbacks=[CommandHandler('start', download_files)],
     )
     dp.add_handler(conv_handler)
     dp.add_handler(c_hand)
