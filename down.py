@@ -123,7 +123,7 @@ def send_file(update, context) :
     id=int(sp[2]) 
     if chat_id and id:
         bot_username = context.bot.get_me().username
-        download_link = f"https://t.me/{bot_username}?start=download_{collection_id}"
+        download_link = f"https://t.me/{bot_username}?start=download_{secret[id]}"
         keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
