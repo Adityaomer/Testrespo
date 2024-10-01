@@ -2,11 +2,12 @@ import secrets
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 
-API_TOKEN='7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
+API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
 UPLOAD_FILE = 1
 UPLOAD_MORE = 2
-FRONT_PAGE = 3  # State for asking to upload more files
+UPLOAD_PHOTO = 3
+UPLOAD_CAPTION = 4
 
 # Global dictionary to store file collections
 file_collections = {}
@@ -18,7 +19,7 @@ def start(update: Update, context: CallbackContext) -> int:
 
 def upload_file(update: Update, context: CallbackContext) -> int:
     file = update.message.document or update.message.photo[-1]
-
+    
     if file:
         file_id = file.file_id
         bot_username = context.bot.get_me().username
@@ -39,57 +40,57 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         update.message.reply_text("Please send a valid file.")
         return UPLOAD_FILE
 
-def front_page(update: Update, context: CallbackContext) -> int:
-    user = update.effective_user
-    user_id = user.id
-    collection_id = context.user_data.get('collection_id')
-
-    # If no collection ID exists, create a new one (it shouldn't get here without a collection_id)
-    if not collection_id:
-        collection_id = secrets.token_urlsafe(8)
-        context.user_data['collection_id'] = collection_id
-        file_collections[collection_id] = []  # Initialize the collection list
-
-    if update.message.photo:
-        photo = update.message.photo[-1]  # Get the largest photo size
-        context.user_data["picture"] = photo.file_id
-        context.user_data["caption"] = update.message.caption
-
-        update.message.reply_text("Image and Caption received! Now, upload your files.")
-        return UPLOAD_FILE
-    else:
-        update.message.reply_text("Please send an image first.")
-        return FRONT_PAGE
-
-
 def done(update: Update, context: CallbackContext) -> int:
     collection_id = context.user_data.get('collection_id')
-    photo = context.user_data.get("picture")
-    caption = context.user_data.get("caption")
-
+    
     if collection_id:
+        update.message.reply_text("Now send me a photo for the collection.")
+        return UPLOAD_PHOTO
+    else:
+        update.message.reply_text("You haven't started uploading files.")
+        return ConversationHandler.END
+
+def upload_photo(update: Update, context: CallbackContext) -> int:
+    photo = update.message.photo[-1]
+
+    if photo:
+        photo_id = photo.file_id
+        context.user_data['photo_id'] = photo_id
+        update.message.reply_text("Photo uploaded! Now send me a caption for the collection.")
+        return UPLOAD_CAPTION
+    else:
+        update.message.reply_text("Please send a valid photo.")
+        return UPLOAD_PHOTO
+
+def upload_caption(update: Update, context: CallbackContext) -> int:
+    caption = update.message.text
+    collection_id = context.user_data.get('collection_id')
+    photo_id = context.user_data.get('photo_id')
+    
+    if collection_id and photo_id:
         # Get the list of file IDs
         file_ids = file_collections[collection_id]
-        bo = context.bot.get_me().username
+        bot_username = context.bot.get_me().username
 
         if file_ids:
             # Build the download link
-            download_link = f"https://t.me/{bo}?start=download_{collection_id}"
+            download_link = f"https://t.me/{bot_username}?start=download_{collection_id}"
 
-            # Send the download link
+            # Send the download link with inline keyboard
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-            context.bot.send_photo(chat_id=update.message.chat.id, photo=photo, caption=caption, reply_markup=keyboard)
+            context.bot.send_photo(photo=photo_id, caption=caption, reply_markup=keyboard)
 
             # Clear user data for the next upload
             del context.user_data['collection_id']
+            del context.user_data['photo_id']
         else:
             update.message.reply_text("No files uploaded.")
 
         return ConversationHandler.END
     else:
-        update.message.reply_text("You haven't started uploading files.")
+        update.message.reply_text("You haven't started uploading files or haven't provided a photo.")
         return ConversationHandler.END
 
 def download_files(update: Update, context: CallbackContext) -> None:
@@ -121,12 +122,14 @@ def main():
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, upload_file),
                          CommandHandler('done', done)],
-            FRONT_PAGE: [MessageHandler(Filters.photo | Filters.text, front_page)]
+            UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
+            UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
         fallbacks=[CommandHandler('upload', start)]
-) 
+    )
+
     dp.add_handler(conv_handler)
-    dp.add_handler(CommandHandler("start", download_files))# Handle the 'start' command
+    dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
 
     updater.start_polling()
     updater.idle()
