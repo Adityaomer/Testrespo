@@ -1,5 +1,5 @@
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, filters, CallbackContext
  
 API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 
@@ -47,7 +47,7 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('upload', upload)],
         states={
-            UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
+            UPLOAD_FILE: [MessageHandler(filters.document | filters.photo, upload_file)],
         },
         fallbacks=[CommandHandler('upload', upload)]
     )
