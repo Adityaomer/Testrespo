@@ -12,6 +12,7 @@ photo_ids=[]
 captions=[]
 secret=[]
 
+redeploy=1
 # Global dictionary to store file collections
 file_collections = {}
 
