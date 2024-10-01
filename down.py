@@ -123,14 +123,7 @@ def main():
                          CommandHandler('done', done)],
             FRONT_PAGE: [MessageHandler(Filters.photo | Filters.text, front_page)]
         },
-        fallbacks=[CommandHandler('upload', start)],
-        persistent=True,
-        per_user=True,
-        allow_reentry=True,
-        conversation_timeout=300,
-        name='my_upload_conversation'
-    )
-
+        fallbacks=[CommandHandler('upload', start) ) 
     dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
 
