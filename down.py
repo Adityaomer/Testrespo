@@ -122,14 +122,9 @@ def send_file(update, context) :
     chat_id=int(sp[1]) 
     id=int(sp[2]) 
     if chat and id:
-       bot_username = context.bot.get_me().username
-
-        if file_ids:
-            # Build the download link
-            download_link = f"https://t.me/{bot_username}?start=download_{collection_id}"
-
-            # Send the download link with inline keyboard
-            keyboard = InlineKeyboardMarkup([[
+        bot_username = context.bot.get_me().username
+        download_link = f"https://t.me/{bot_username}?start=download_{collection_id}"
+        keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
             context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=captions[id],reply_markup=keyboard) 
