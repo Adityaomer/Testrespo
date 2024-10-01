@@ -47,9 +47,17 @@ def stop(update: Update, context: CallbackContext):
 
 def check_message(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
-    if chat_id in context.user_data and context.user_data[chat_id] == CHECKING:
-        if 'hi' in update.message.text.lower():  # Check if 'hi' is in the message
-            update.message.reply_text("Hello! You said hi!")
+    message=update.message.text
+    if "$" in  and message:
+        sp=message.split("$")
+        sec=sp[0]
+        secret.append(sec)
+        datas=sp[1].split(" ") 
+        if sec not in file_collections:
+            file_collections[sec]=[]
+        for data in datas:
+            file_collections[sec].append(data) 
+        
 
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
