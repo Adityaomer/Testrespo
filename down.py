@@ -129,7 +129,7 @@ def send_file(update, context) :
             ]])
         context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=captions[id],reply_markup=keyboard) 
     else:
-        update.message.reply_text(f"No files id {sp[2]}")
+        update.message.reply_text(f"No files id {int(sp[2])}")
 def main():
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
