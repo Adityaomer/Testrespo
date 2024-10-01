@@ -80,7 +80,7 @@ def done(update: Update, context: CallbackContext) -> int:
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-            context.bot.send_photo(photo=photo, caption=caption, reply_markup=keyboard)
+            context.bot.send_photo(chat_id=update.message.chat.id, photo=photo, caption=caption, reply_markup=keyboard)
 
             # Clear user data for the next upload
             del context.user_data['collection_id']
