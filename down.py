@@ -118,7 +118,7 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
                 files=file_id
             else:
                 files=f"{files},{file_id}"
-       update.message.reply_text(f"{files}")
+        update.message.reply_text(f"{files}")
         bot_username = context.bot.get_me().username
 
         if file_ids:
