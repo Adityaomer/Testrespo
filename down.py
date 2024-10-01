@@ -13,7 +13,7 @@ API_TOKEN = '7516413067:AAHXMt9749KafZkQHDUMDd8g2Lmln0Cz9FE'
 UPLOAD_FILE = 1  # State for waiting for a file
 
 def start(update: Update, context: CallbackContext) -> None:
-    file_id = context.args[0] if context.args else None
+    file_id = context.args if context.args else None
 
     if file_id:
         # Send the file with the provided file ID
