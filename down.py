@@ -244,7 +244,7 @@ def main():
         fallbacks=[CommandHandler('start', start)],
     )
     dp.add_handler(conv_handler)
-    dp.add_handler(c_handler)
+    dp.add_handler(c_hand)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
     dp.add_handler(CommandHandler("send_all", send_files))
     dp.add_handler(CommandHandler("back_up", backup))
