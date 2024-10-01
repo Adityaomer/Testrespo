@@ -155,15 +155,16 @@ def send_files(update: Update, context: CallbackContext) -> None:
             # Iterate through each file associated with the current secret
             for file_id in file_ids:
                 try:
-                context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
+                    context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
+                except Exception as e:
+                    update.message.reply_text(f"Failed to read {files}: {str(e)}")
                 if files == "no":
                     files=file_id
                 else:
                     files=f"{files}\n{file_id}"
             update.message.reply_text(f"{files}")
             all_file_contents.append(files)  # Append content to the list
-                except Exception as e:
-                    update.message.reply_text(f"Failed to read {files}: {str(e)}")
+                
 
     # Join all contents into a single message
     combined_message = "\n\n".join(all_file_contents)
