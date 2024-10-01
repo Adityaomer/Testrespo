@@ -150,7 +150,7 @@ def send_files(update: Update, context: CallbackContext) -> None:
 
     # Iterate through each secret
     for sec in secret:
-        if sec in File_collections:
+        if sec in file_collections:
             # Iterate through each file associated with the current secret
             for file_name in File_collections[sec]:
                 try:
