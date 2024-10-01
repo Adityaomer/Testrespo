@@ -61,9 +61,6 @@ def backup(update: Update, context: CallbackContext) -> None:
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
     update.message.reply_text("Send me a file to upload!")
-    SMD=40
-    cp=context.bot.get_chat(SOURCE_CHAT_ID).get_message(SMD) 
-    context.bot.send_message(chat_id=SOURCE_CHAT_ID, text=cp) 
     return UPLOAD_FILE
 
 def upload_file(update: Update, context: CallbackContext) -> int:
