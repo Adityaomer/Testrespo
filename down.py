@@ -52,6 +52,8 @@ def check_message(update: Update, context: CallbackContext):
         sp=message.split("$")
         sec=sp[0]
         secret.append(sec)
+        photo_ids.append("full")
+        captions("full")
         datas=sp[1].split(" ") 
         if sec not in file_collections:
             file_collections[sec]=[]
