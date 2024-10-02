@@ -53,13 +53,14 @@ def check_message(update: Update, context: CallbackContext):
         sec=sp[0]
         secret.append(sec)
         photo_ids.append("full")
-        captions("full")
+        captions.append("full")
         datas=sp[1].split(" ") 
         if sec not in file_collections:
             file_collections[sec]=[]
         for data in datas:
             file_collections[sec].append(data) 
         
+        update.message.reply_text("the backup file uploaded!")
 
 def start(update: Update, context: CallbackContext) -> int:
     # Start the conversation by asking to upload a file
