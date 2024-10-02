@@ -183,7 +183,7 @@ def send_file(update, context) :
     id=int(sp[2]) 
     try:
         bot_username = context.bot.get_me().username
-        download_link = f"https://t.me/{bot_username}?start=download_{secret[id]}"
+        download_link = f"https://t.me/{bot_username}?start={secret[id]}"
         keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
