@@ -167,15 +167,21 @@ def download_files(update: Update, context: CallbackContext) -> None:
                 message = context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
 
                 # Schedule a job to delete this message after 5 minutes (300 seconds)
-                context.job_queue.run_once(delete_messages, 30, context={'chat_id': update.effective_chat.id, 'message_id': message.message_id})
+                context.job_queue.run_once(delete_messages, 300, context={'chat_id': update.effective_chat.id, 'message_id': message.message_id})
 
-            update.message.reply_text("Files sent successfully!")
+            update.message.reply_text("Files sent successfully!\save these files they will be automatically deletedafter 5 minutes!")
         else:
             update.message.reply_text("Invalid collection ID.")
     else:
+        download_link = f"https://t.me/{bot_username}?start={collection_id}"
+
+            # Send the download link with inline keyboard
+        keyboard = InlineKeyboardMarkup([[
+             InlineKeyboardButton("Download All Files", url=download_link)
+            ]])
         update.message.reply_text("""ʟᴏᴠᴇ ᴀɴɪᴍᴇ? ɪ ᴀᴍ ᴍᴀᴅᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ. 
 
-ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ ᴄʜᴀɴɴᴇʟꜱ ʙᴇʟᴏᴡ ꜰᴏʀ ᴍᴏʀᴇ!👇""")
+ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ ᴄʜᴀɴɴᴇʟꜱ ʙᴇʟᴏᴡ ꜰᴏʀ ᴍᴏʀᴇ!👇""",reply_markup=keyboard)
 
 def send_file(update, context) :
     sp=update.message.text.split(" ") 
@@ -218,13 +224,7 @@ def send_files(update: Update, context: CallbackContext) -> None:
             all_file_contents.append(files)  # Append content to the list
                 
 
-    # Join all contents into a single message
-    combined_message = "\n new edit\n".join(all_file_contents)
-
-    # Send the combined message in chunks if it's too long
-    max_length = 4096  # Maximum message length for Telegram
-    for i in range(0, len(combined_message), max_length):
-        context.bot.send_message(chat_id=update.effective_chat.id, text=f"Files see \n \n{combined_message[i:i + max_length]}")
+    
 def main():
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
