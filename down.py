@@ -315,6 +315,13 @@ def send_files(update: Update, context: CallbackContext) -> None:
             all_file_contents.append(files)  # Append content to the list
                 
 def all_files(update, context):
+    user_id = update.message.from_user.id
+    if user_id == OWNER:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not the owner")
+        return
     if not secret:  # Check if the secret list is empty
         update.message.reply_text("No Data stored yet.")
     else:
