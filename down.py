@@ -326,7 +326,7 @@ def main():
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, upload_file),
                          CommandHandler('done', done)],
-            UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
+            UPLOAD_PHOTO: [MessageHandler(Filters.vedio, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
         fallbacks=[CommandHandler('start', download_files)]
