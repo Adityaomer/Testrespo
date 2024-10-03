@@ -273,7 +273,7 @@ def send_file(update, context) :
         keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-        context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=f"<code><b>{captions[id]}</b></code>",reply_markup=keyboard) 
+        context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=f"<code><b>{captions[id]}</b></code>",reply_markup=keyboard,parse_mode="html") 
     except:
         update.message.reply_text(f"No files id saved as {id}")
 
