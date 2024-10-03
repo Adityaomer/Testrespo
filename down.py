@@ -143,7 +143,7 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         return UPLOAD_FILE
 
 def done(update: Update, context: CallbackContext) -> int:
-        user_id = update.message.from_user.id
+    user_id = update.message.from_user.id
     if user_id in approved_users:
         # Allow the message if user is approved
         pass
