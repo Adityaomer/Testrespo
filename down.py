@@ -225,11 +225,11 @@ def delete_messages(context: CallbackContext):
 def download_files(update: Update, context: CallbackContext) -> None:
     # Extract the collection ID from the 'start' parameter
     collection_id = context.args[0] if context.args else None
-
+    bot_username = context.bot.get_me().username
     if collection_id:
         # Retrieve the file IDs from the dictionary
         file_ids = file_collections.get(collection_id)
-        bot_username = context.bot.get_me().username
+        
         if file_ids:
             for file_id in file_ids:
                 message = context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
@@ -241,7 +241,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
         else:
             update.message.reply_text("Invalid collection ID.")
     else:
-        download_link = f"https://t.me/{bot_username}?start={collection_id}"
+        download_link = f"https://t.me/{bot_username}"
 
             # Send the download link with inline keyboard
         keyboard = InlineKeyboardMarkup([[
