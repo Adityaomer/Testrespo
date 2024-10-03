@@ -206,12 +206,12 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-            context.bot.send_photo(chat_id=update.message.chat.id,photo=photo_id, caption=caption, reply_markup=keyboard)
+            context.bot.send_photo(chat_id=update.message.chat.id,photo=photo_id, caption=caption, reply_markup=keyboard, parse_mode="html")
 
             # Clear user data for the next upload
             del context.user_data['collection_id']
             del context.user_data['photo_id']
-            context. bot.send_message(chat_id=update.message.chat.id,text=f"file id of this batch is “<code>{1-len(secret)}</code>”",parse_mode="html")
+            context. bot.send_message(chat_id=update.message.chat.id,text=f"file id of this batch is “<code>{len(secret)-1}</code>”",parse_mode="html")
         else:
             update.message.reply_text("No files uploaded.")
         
