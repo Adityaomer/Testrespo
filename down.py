@@ -19,6 +19,7 @@ photo_ids=[]
 captions=[]
 secret=[]
 approved_users=[]
+name=[]
 redeploy=1
 # Global dictionary to store file collections
 file_collections = {}
@@ -182,6 +183,8 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
         context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
         return
     caption = update.message.text
+    na=caption.split("\n") 
+    name.append(na[0]) 
     captions.append(caption) 
     collection_id = context.user_data.get('collection_id')
     photo_id = context.user_data.get('photo_id')
@@ -206,7 +209,7 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-            context.bot.send_photo(chat_id=update.message.chat.id,photo=photo_id, caption=caption, reply_markup=keyboard, parse_mode="html")
+            context.bot.send_photo(chat_id=update.message.chat.id,photo=photo_id, caption=f"<code><b>{caption}</b></code>", reply_markup=keyboard, parse_mode="html")
 
             # Clear user data for the next upload
             del context.user_data['collection_id']
@@ -270,7 +273,7 @@ def send_file(update, context) :
         keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-        context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=captions[id],reply_markup=keyboard) 
+        context.bot.send_photo(chat_id=chat_id, photo=photo_ids[id], caption=f"<code><b>{captions[id]}</b></code>",reply_markup=keyboard) 
     except:
         update.message.reply_text(f"No files id saved as {id}")
 
@@ -308,7 +311,7 @@ def send_files(update: Update, context: CallbackContext) -> None:
             all_file_contents.append(files)  # Append content to the list
                 
 def all_files(update, context):
-    response = "\n".join(f"<code>{index}</code> : {item}" for index, item in enumerate(secret))
+    response = "\n".join(f"<code>{index}</code> : {item}\n{name[index]" for index, item in enumerate(secret))
     context.bot.send_message(chat_id=update.message.chat.id,text=response,parse_mode="html")
 
 
