@@ -229,7 +229,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
     if collection_id:
         # Retrieve the file IDs from the dictionary
         file_ids = file_collections.get(collection_id)
-
+        bot_username = context.bot.get_me().username
         if file_ids:
             for file_id in file_ids:
                 message = context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
