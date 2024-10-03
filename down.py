@@ -270,9 +270,11 @@ def send_file(update, context) :
         return
     try:
         sp=update.message.text.split(" ") 
-        chat_id=int(sp[1]) 
+        chat_id=int(sp[1])
+        return 
     except:
         update.message.reply_text("The above provided argument <chat_id> is not valid")
+        return
     try:
         id=int(sp[2]) 
     except:
