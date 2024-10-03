@@ -210,7 +210,7 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
             # Clear user data for the next upload
             del context.user_data['collection_id']
             del context.user_data['photo_id']
-            update.message.reply_text(f"file id of this batch is “<code>{len(secret)}</code>",parse_mode="html")
+            context. bot.send_message(chat_id=update.message.chat.id,text=f"file id of this batch is “<code>{1-len(secret)}</code>”",parse_mode="html")
         else:
             update.message.reply_text("No files uploaded.")
         
