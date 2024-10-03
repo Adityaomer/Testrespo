@@ -268,9 +268,15 @@ def send_file(update, context) :
     if not context.args:  # Check if no arguments are provided
         update.message.reply_text("Please provide an argument. Example: /send <chat_id> <file_id>")
         return
-    sp=update.message.text.split(" ") 
-    chat_id=int(sp[1]) 
-    id=int(sp[2]) 
+    try:
+        sp=update.message.text.split(" ") 
+        chat_id=int(sp[1]) 
+    except:
+        update.message.reply_text("The above provided argument <chat_id> is not valid")
+    try:
+        id=int(sp[2]) 
+    except:
+        update.message.reply_text("The above provided argument <file_id> is not valid")
     try:
         bot_username = context.bot.get_me().username
         download_link = f"https://t.me/{bot_username}?start={secret[id]}"
