@@ -18,24 +18,39 @@ UPLOAD_CAPTION = 4
 photo_ids=[]
 captions=[]
 secret=[]
-
+approved_users=[]
 redeploy=1
 # Global dictionary to store file collections
 file_collections = {}
 SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
+OWNER = 7048431897
 
 
 # Define states for the ConversationHandler
 CHECKING, STOPPED = range(2)
 
 def back(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     chat_id = update.effective_chat.id
     context.user_data[chat_id] = CHECKING  # Set user data to indicate checking has started
     update.message.reply_text("Bot started! I'll check all messages for 'hi'. Use /stop to stop.")
     return CHECKING
 
 def stop(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     chat_id = update.effective_chat.id
     if chat_id in context.user_data and context.user_data[chat_id] == CHECKING:
         del context.user_data[chat_id]  # Remove this chat from active checks
@@ -44,8 +59,30 @@ def stop(update: Update, context: CallbackContext):
     else:
         update.message.reply_text("Bot is not running. Use /back to begin.")
         return ConversationHandler.END
+def approve(update,context):
+    user_id = update.message.from_user.id
+    if user_id == OWNER:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not the owner")
+        return
+    command_parts = update.message.text.split(" ") 
+    if len(command_parts) >= 2:  # You need at least 3 parts: command + word1 + word2
+        u_to_ap = int(command_parts[1])
+        approved_users.append(u_to_ap)
+        context.bot.send_message(chat_id=update.message.chat.id, text=f"user <blockquote><a href='tg://user?id={u_to_ap}'>{u_to_ap} 🍁</a></blockquote> approved", parse_mode="html")
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="OWNER SAMA!! please provide user id to approve 🥶")
 
 def check_message(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     chat_id = update.effective_chat.id
     message=update.message.text
     if "$" in message:
@@ -63,11 +100,25 @@ def check_message(update: Update, context: CallbackContext):
         update.message.reply_text("the backup file uploaded!")
 
 def start(update: Update, context: CallbackContext) -> int:
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     # Start the conversation by asking to upload a file
     update.message.reply_text("Send me a file to upload!")
     return UPLOAD_FILE
 
 def upload_file(update: Update, context: CallbackContext) -> int:
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     file = update.message.document
     if file:
         file_id = file.file_id
@@ -92,6 +143,13 @@ def upload_file(update: Update, context: CallbackContext) -> int:
         return UPLOAD_FILE
 
 def done(update: Update, context: CallbackContext) -> int:
+        user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     collection_id = context.user_data.get('collection_id')
     
     if collection_id:
@@ -115,6 +173,13 @@ def upload_photo(update: Update, context: CallbackContext) -> int:
         return UPLOAD_PHOTO
 
 def upload_caption(update: Update, context: CallbackContext) -> int:
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     caption = update.message.text
     captions.append(caption) 
     collection_id = context.user_data.get('collection_id')
@@ -187,6 +252,13 @@ def download_files(update: Update, context: CallbackContext) -> None:
 ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ ᴄʜᴀɴɴᴇʟꜱ ʙᴇʟᴏᴡ ꜰᴏʀ ᴍᴏʀᴇ!👇""",reply_markup=keyboard)
 
 def send_file(update, context) :
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     sp=update.message.text.split(" ") 
     chat_id=int(sp[1]) 
     id=int(sp[2]) 
@@ -202,6 +274,13 @@ def send_file(update, context) :
 
         
 def send_files(update: Update, context: CallbackContext) -> None:
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     user_id = update.effective_user.id
     if str(user_id) != str(user_id) :  # Assuming user_id is a string, adjust if necessary
         update.message.reply_text("You are not authorized to access these files.")
@@ -257,6 +336,7 @@ def main():
     dp.add_handler(c_hand)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
     dp.add_handler(CommandHandler("send_all", send_files))
+    dp.add_handler(CommandHandler("approve", approve))
     
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
