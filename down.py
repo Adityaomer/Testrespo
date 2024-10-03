@@ -88,9 +88,10 @@ def check_message(update: Update, context: CallbackContext):
     if "$" in message:
         sp=message.split("$")
         sec=sp[0]
+        ph=sp[2]
         secret.append(sec)
-        photo_ids.append("full")
-        captions.append("full")
+        photo_ids.append(ph)
+        captions.append("This is a back up file")
         datas=sp[1].split(" ") 
         if sec not in file_collections:
             file_collections[sec]=[]
@@ -194,7 +195,7 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
                 files=f" {collection_id}${file_id}"
             else:
                 files=f"{files} {file_id}"
-        context.bot.send_message(chat_id=-1002316663794,text=f"{files}")
+        context.bot.send_message(chat_id=-1002316663794,text=f"{files}:{photo_id}")
         bot_username = context.bot.get_me().username
 
         if file_ids:
