@@ -312,8 +312,11 @@ def send_files(update: Update, context: CallbackContext) -> None:
             all_file_contents.append(files)  # Append content to the list
                 
 def all_files(update, context):
-    response = "\n".join(f"<code>{index}</code> : {item}\n{name[index]}" for index, item in enumerate(secret))
-    context.bot.send_message(chat_id=update.message.chat.id,text=response,parse_mode="html")
+    if not secret:  # Check if the secret list is empty
+        update.message.reply_text("No Data stored yet.")
+    else:
+        response = "\n".join(f"<code>{index}</code> : {item}\n{name[index]}" for index, item in enumerate(secret))
+        context.bot.send_message(chat_id=update.message.chat.id,text=response,parse_mode="html")
 
 
     
