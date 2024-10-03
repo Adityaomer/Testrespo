@@ -162,7 +162,7 @@ def done(update: Update, context: CallbackContext) -> int:
         return ConversationHandler.END
 
 def upload_photo(update: Update, context: CallbackContext) -> int:
-    photo = update.message.video
+    photo = update.message.photo[-1]
 
     if photo:
         photo_id = photo.file_id
@@ -252,7 +252,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
         keyboard = InlineKeyboardMarkup([[
              InlineKeyboardButton("Download All Files", url=download_link)
             ]])
-        update.message.reply_text("""ʟᴏᴠᴇ ᴀɴɪᴍᴇ? ɪ ᴀᴍ ᴍᴀᴅᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ. 
+        context.bot.send_video(chat_id=update.message.chat.id,vedio="BAACAgUAAxkBAAMSZv7WQUHD7Jh0QB7_dgbhV9i-FDMAAo8UAAJX1PFX0MSOUfJ50g82BA",caption="""ʟᴏᴠᴇ ᴀɴɪᴍᴇ? ɪ ᴀᴍ ᴍᴀᴅᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ. 
 
 ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ ᴄʜᴀɴɴᴇʟꜱ ʙᴇʟᴏᴡ ꜰᴏʀ ᴍᴏʀᴇ!👇""",reply_markup=keyboard)
 
@@ -326,7 +326,7 @@ def main():
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, upload_file),
                          CommandHandler('done', done)],
-            UPLOAD_PHOTO: [MessageHandler(Filters.video, upload_photo)],
+            UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
         fallbacks=[CommandHandler('start', download_files)]
