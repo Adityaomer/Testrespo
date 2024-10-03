@@ -342,7 +342,7 @@ def main():
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
     dp.add_handler(CommandHandler("send_all", send_files))
     dp.add_handler(CommandHandler("approve", approve)) 
-    dp.add_handler(CommandHandler("/all_files", all_files))
+    dp.add_handler(CommandHandler("all_files", all_files))
     
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
