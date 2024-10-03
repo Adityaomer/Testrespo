@@ -162,7 +162,7 @@ def done(update: Update, context: CallbackContext) -> int:
         return ConversationHandler.END
 
 def upload_photo(update: Update, context: CallbackContext) -> int:
-    photo = update.message.vedio[-1]
+    photo = update.message.vedio
 
     if photo:
         photo_id = photo.file_id
