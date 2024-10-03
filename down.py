@@ -217,7 +217,7 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
     else:
         update.message.reply_text("You haven't started uploading files or haven't provided a photo.")
         return ConversationHandler.END
-
+    update.message.reply_text(f"file id of this batch is “<code>{len(secret)}</code>")
 def delete_messages(context: CallbackContext):
     job = context.job
     context.bot.delete_message(chat_id=job.context['chat_id'], message_id=job.context['message_id'])
