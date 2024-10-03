@@ -162,7 +162,7 @@ def done(update: Update, context: CallbackContext) -> int:
         return ConversationHandler.END
 
 def upload_photo(update: Update, context: CallbackContext) -> int:
-    photo = update.message.vedio
+    photo = update.message.video
 
     if photo:
         photo_id = photo.file_id
@@ -326,7 +326,7 @@ def main():
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, upload_file),
                          CommandHandler('done', done)],
-            UPLOAD_PHOTO: [MessageHandler(Filters.vedio, upload_photo)],
+            UPLOAD_PHOTO: [MessageHandler(Filters.video, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
         fallbacks=[CommandHandler('start', download_files)]
