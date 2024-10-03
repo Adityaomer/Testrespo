@@ -271,7 +271,6 @@ def send_file(update, context) :
     try:
         sp=update.message.text.split(" ") 
         chat_id=int(sp[1])
-        return 
     except:
         update.message.reply_text("The above provided argument <chat_id> is not valid")
         return
@@ -279,6 +278,7 @@ def send_file(update, context) :
         id=int(sp[2]) 
     except:
         update.message.reply_text("The above provided argument <file_id> is not valid")
+        return
     try:
         bot_username = context.bot.get_me().username
         download_link = f"https://t.me/{bot_username}?start={secret[id]}"
