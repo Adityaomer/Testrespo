@@ -306,7 +306,28 @@ def send_files(update: Update, context: CallbackContext) -> None:
             update.message.reply_text(f"{files}")
             all_file_contents.append(files)  # Append content to the list
                 
+def all_files(update, context):
+    response = "\n".join(f"<code>{index}</code> : {item}" for index, item in enumerate(secret))
+    context.bot.send_message(chat_id=update.message.chat.id,text=response,parse_mode="html")
 
+def main() -> None:
+    # Replace 'YOUR_BOT_TOKEN' with your actual token from the BotFather
+    updater = Updater("YOUR_BOT_TOKEN")
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # Register the command handler for /secrets
+    dp.add_handler(CommandHandler("secrets", send_secrets))
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until the user presses Ctrl-C
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
     
 def main():
     updater = Updater(API_TOKEN, use_context=True)
@@ -337,7 +358,8 @@ def main():
     dp.add_handler(c_hand)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
     dp.add_handler(CommandHandler("send_all", send_files))
-    dp.add_handler(CommandHandler("approve", approve))
+    dp.add_handler(CommandHandler("approve", approve)) 
+    dp.add_handler(CommandHandler("/all_files", all_files))
     
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
