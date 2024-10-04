@@ -9,7 +9,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 logger = logging.getLogger(__name__)  # Use __name__ to get the module name
 
-API_TOKEN = '7831748189:AAEHcnOH7ozusV_5hieBTxQQXY_VaYqMIJQ'
+API_TOKEN = '7643255671:AAFDUAy9VWeYP-EeGIhv8CUuRBSy4ZzVvxk'
 
 UPLOAD_FILE = 1
 UPLOAD_MORE = 2
@@ -162,13 +162,13 @@ def done(update: Update, context: CallbackContext) -> int:
         return ConversationHandler.END
 
 def upload_photo(update: Update, context: CallbackContext) -> int:
-    photo = update.message.photo[-1]
+    photo = update.message.video
 
     if photo:
         photo_id = photo.file_id
         context.user_data['photo_id'] = photo_id
         photo_ids.append(photo_id) 
-        update.message.reply_text(f"Photo uploaded!")
+        update.message.reply_text(f"Photo uploaded!{photo_id}")
         return UPLOAD_CAPTION
     else:
         update.message.reply_text("Please send a valid photo.")
@@ -367,7 +367,7 @@ def main():
             UPLOAD_FILE: [MessageHandler(Filters.document | Filters.photo, upload_file)],
             UPLOAD_MORE: [MessageHandler(Filters.document | Filters.photo, upload_file),
                          CommandHandler('done', done)],
-            UPLOAD_PHOTO: [MessageHandler(Filters.photo, upload_photo)],
+            UPLOAD_PHOTO: [MessageHandler(Filters.video, upload_photo)],
             UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption)],
         },
         fallbacks=[CommandHandler('start', download_files)]
