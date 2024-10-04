@@ -245,7 +245,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
         except Exception as e:
             update.message.reply_text(f"Error checking channel membership: {e}")
-    return
+            return
     collection_id = context.args[0] if context.args else None
     bot_username = context.bot.get_me().username
     if collection_id:
