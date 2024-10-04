@@ -228,6 +228,7 @@ def delete_messages(context: CallbackContext):
     context.bot.delete_message(chat_id=job.context['chat_id'], message_id=job.context['message_id'])
 
 def download_files(update: Update, context: CallbackContext) -> None:
+    user=update.message.from_user
     channels = ['@Asia_Anime_community','@Anime_Asia_Community']
     for channel_username in channels:
         try:
