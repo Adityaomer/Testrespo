@@ -239,7 +239,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
             member = context.bot.get_chat_member(chat_id=chat.id, user_id=user.id)
 
     # If the user is not a member, exit the function
-            if member.status not in ['member', 'creator', 'administrator']:
+            if member.status in ['member', 'creator', 'administrator']:
                 pass
             else:
                 download_link = f"https://t.me/Anime_Asia_Community"
