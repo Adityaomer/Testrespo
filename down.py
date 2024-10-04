@@ -228,26 +228,24 @@ def delete_messages(context: CallbackContext):
     context.bot.delete_message(chat_id=job.context['chat_id'], message_id=job.context['message_id'])
 
 def download_files(update: Update, context: CallbackContext) -> None:
-    channel usernames
-  channels = ['@Asia_Anime_community','@Anime_Asia_Community']
-  for channel_username in channels:
-    try:
-      # Get the chat object for the channel
-      chat = context.bot.get_chat(channel_username)
+channels = ['@Asia_Anime_community','@Anime_Asia_Community']
+for channel_username in channels:
+  try:
+    # Get the chat object for the channel
+    chat = context.bot.get_chat(channel_username)
 
-      # Check if the user is a member of the channel
-      member = context.bot.get_chat_member(chat_id=chat.id, user_id=user.id)
+    # Check if the user is a member of the channel
+    member = context.bot.get_chat_member(chat_id=chat.id, user_id=user.id)
 
-      # If the user is not a member, exit the function
-      if member.status not in ['member', 'creator', 'administrator']:
-        pass
-      else:
-          return
+    # If the user is not a member, exit the function
+    if member.status not in ['member', 'creator', 'administrator']:
+      pass
+    else:
+      return
 
-    except Exception as e:
-      update.message.reply_text(f"Error checking channel membership: {e}")
-      return
-    # Extract the collection ID from the 'start' parameter
+  except Exception as e:
+    update.message.reply_text(f"Error checking channel membership: {e}")
+    return
     collection_id = context.args[0] if context.args else None
     bot_username = context.bot.get_me().username
     if collection_id:
