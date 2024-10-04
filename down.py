@@ -245,7 +245,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
             # Send the download link with inline keyboard
                 keyboard = InlineKeyboardMarkup([[
-                     InlineKeyboardButton("Download All Files", url=download_link), InlineKeyboardButton("Download All Files", url=download_link)
+                     InlineKeyboardButton("Channel link", url=download_link), InlineKeyboardButton("Group link", url=download_linker)
             ]])
                 context.bot.send_video(chat_id=update.message.chat.id,video="BAACAgUAAxkBAAMSZwABG5xVX1zbpEEBMwtXSF8QlLzfAAKPFAACV9TxV2Uiq1_IcQbqNgQ",caption="""ɪ Aᴍ Hᴇʀᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ.∆ 
 
@@ -278,7 +278,7 @@ JOIN OUR CHANNEL FIRST
 
             # Send the download link with inline keyboard
         keyboard = InlineKeyboardMarkup([[
-             InlineKeyboardButton("Download All Files", url=download_link)
+             InlineKeyboardButton("Channel link", url=download_link)
             ]])
         context.bot.send_video(chat_id=update.message.chat.id,video="BAACAgUAAxkBAAMSZwABG5xVX1zbpEEBMwtXSF8QlLzfAAKPFAACV9TxV2Uiq1_IcQbqNgQ",caption="""ʟᴏᴠᴇ ᴀɴɪᴍᴇ? ɪ ᴀᴍ ᴍᴀᴅᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ. 
 
