@@ -168,7 +168,7 @@ def upload_photo(update: Update, context: CallbackContext) -> int:
         photo_id = photo.file_id
         context.user_data['photo_id'] = photo_id
         photo_ids.append(photo_id) 
-        update.message.reply_text(f"Photo uploaded!{photo_id}")
+        update.message.reply_text(f"Photo uploaded! Now sendCaption")
         return UPLOAD_CAPTION
     else:
         update.message.reply_text("Please send a valid photo.")
