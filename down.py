@@ -415,9 +415,9 @@ def main():
     entry_points=[CommandHandler("broadcast", broadcast)],
     states={
         BROADCAST_MESSAGE: [MessageHandler(Filters.text & ~Filters.command, broadcast_message)],
-    },
+        },
     fallbacks=[CommandHandler("cancel", start)],
-)
+    )
     dispatcher.add_handler(conversation_handler)
     dp.add_handler(conv_handler)
     dp.add_handler(c_hand)
