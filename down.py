@@ -29,6 +29,13 @@ OWNER = 7048431897
 user_list=[]
 CHECKING, STOPPED = range(2)
 def broadcast(update, context):
+        user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the message you want to broadcast:")
     return BROADCAST_MESSAGE
 
