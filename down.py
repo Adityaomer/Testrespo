@@ -35,6 +35,13 @@ def broadcast(update, context):
 BROADCAST_MESSAGE = 1
 
 def broadcast_message(update, context):
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
     message = update.message
     message_id=message.message_id
     for user_id in user_list:
