@@ -526,7 +526,7 @@ def main():
     
    dp.add_handler(CommandHandler("users", users))
 
-   dp.add_handler(CommandHandler("add_users", add_users))
+    dp.add_handler(CommandHandler("add_users", add_users))
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
 
