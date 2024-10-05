@@ -38,7 +38,7 @@ def send_long_message(bot, chat_id, text):
         bot.send_message(chat_id=chat_id, text=part)
 
 def users(update, context):
-  user_id = update.message.from_user.id
+    user_id = update.message.from_user.id
     if user_id in approved_users:
         pass
     else:
