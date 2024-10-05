@@ -44,7 +44,10 @@ def users(update, context):
     else:
         context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
         return
-    usersl = ",".join(user_list) # Join user IDs with commas
+      
+    user_list = [str(user) for user in user_list] 
+    usersl = ",".join(user_list) 
+  
 
   # Check if the message is long and send it accordingly
     if len(usersl) > 4096:
