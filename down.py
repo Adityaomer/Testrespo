@@ -411,6 +411,14 @@ def main():
         },
         fallbacks=[CommandHandler('start', download_files)],
     )
+conversation_handler = ConversationHandler(
+    entry_points=[CommandHandler("broadcast", broadcast)],
+    states={
+        BROADCAST_MESSAGE: [MessageHandler(Filters.text & ~Filters.command, broadcast_message)],
+    },
+    fallbacks=[CommandHandler("cancel", start)],
+)
+     dispatcher.add_handler(conversation_handler)
     dp.add_handler(conv_handler)
     dp.add_handler(c_hand)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
