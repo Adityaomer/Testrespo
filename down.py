@@ -30,6 +30,29 @@ user_list=[]
 BROADCAST_MESSAGE = 1
 FORWARD_MESSAGE=1
 CHECKING, STOPPED = range(2)
+def send_long_message(bot, chat_id, text):
+    max_length = 4096 # Telegram's max message length
+    parts = [text[i:i + max_length] for i in range(0, len(text), max_length)]
+
+    for part in parts:
+        bot.send_message(chat_id=chat_id, text=part)
+
+def users(update, context):
+  user_id = update.message.from_user.id
+    if user_id in approved_users:
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
+    usersl = ",".join(user_list) # Join user IDs with commas
+
+  # Check if the message is long and send it accordingly
+    if len(usersl) > 4096:
+        send_long_message(context.bot, update.message.chat.id, usersl)
+    else:
+    
+        context.bot.send_message(chat_id=update.message.chat.id, text=usersl)
+
 def broadcast(update, context):
     user_id = update.message.from_user.id
     if user_id in approved_users:
@@ -415,6 +438,20 @@ def forward(update, context):
         return
     context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the message you want to broadcast:")
     return BROADCAST_MESSAGE
+def add_users(update,context):
+   
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        # Allow the message if user is approved
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return message_text=update.message.text
+    data=message_text.split(" ")
+    usersp=data[1]
+    usersq=usersp.split(",")
+    for user in usersq:
+        user_list.append(int(user))
 
 def forward_message(update, context):
     message = update.message
@@ -486,6 +523,9 @@ def main():
     dp.add_handler(CommandHandler("approve", approve)) 
     dp.add_handler(CommandHandler("all_files", all_files))
     
+   dp.add_handler(CommandHandler("users", users))
+
+   dp.add_handler(CommandHandler("add_users", add_users))
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
 
 
