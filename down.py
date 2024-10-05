@@ -27,6 +27,7 @@ SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
 OWNER = 7048431897
 user_list=[]
+BROADCAST_MESSAGE = 1
 CHECKING, STOPPED = range(2)
 def broadcast(update, context):
         user_id = update.message.from_user.id
@@ -39,7 +40,7 @@ def broadcast(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the message you want to broadcast:")
     return BROADCAST_MESSAGE
 
-BROADCAST_MESSAGE = 1
+
 
 def broadcast_message(update, context):
   message = update.message
