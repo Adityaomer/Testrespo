@@ -46,7 +46,7 @@ def users(update, context):
         return
       
     users=[]
-    for user in user_list
+    for user in user_list:
         users.append(f"{user}")
     usersl = ",".join(users) 
     users.clear()
