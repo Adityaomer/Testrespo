@@ -446,7 +446,8 @@ def add_users(update,context):
         pass
     else:
         context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
-        return message_text=update.message.text
+        return 
+    message_text=update.message.text
     data=message_text.split(" ")
     usersp=data[1]
     usersq=usersp.split(",")
