@@ -28,6 +28,7 @@ OWNER_CHAT_ID = 7048431897
 OWNER = 7048431897
 user_list=[]
 BROADCAST_MESSAGE = 1
+FORWARD_MESSAGE=1
 CHECKING, STOPPED = range(2)
 def broadcast(update, context):
     user_id = update.message.from_user.id
@@ -405,8 +406,26 @@ def all_files(update, context):
     else:
         response = "\n".join(f"<code>{index}</code> : {item}\n{name[index]}" for index, item in enumerate(secret))
         context.bot.send_message(chat_id=update.message.chat.id,text=response,parse_mode="html")
+def forward(update, context):
+    user_id = update.message.from_user.id
+    if user_id in approved_users:
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the message you want to broadcast:")
+    return BROADCAST_MESSAGE
 
-
+def forward_message(update, context):
+    message = update.message
+    message_id=message.message_id
+    for user_id in user_list:
+        try:
+            context.bot.forward_message(chat_id=user_id,from_chat_id=update.message.chat_id,message_id=message_id)
+        except Exception as e:
+            print(f"Error sending message to {user_id}: {e}")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
+    return ConversationHandler.END
     
 def main():
     updater = Updater(API_TOKEN, use_context=True)
@@ -443,10 +462,22 @@ def main():
                 MessageHandler(Filters.audio, broadcast_message),
                ],
            },
-           fallbacks=[CommandHandler("cancel", start)],
+           fallbacks=[CommandHandler("cancel", download_files)],
      )
 
-    dp.add_handler(conversation_handler)
+    conn = ConversationHandler(
+        entry_points=[CommandHandler("forward", forward)],
+        states={
+            FORWARD_MESSAGE: [
+                MessageHandler(Filters.text & ~Filters.command, forward_message), # Handle text separately
+                MessageHandler(Filters.photo, forward_message),
+                MessageHandler(Filters.video, forward_message),
+                MessageHandler(Filters.audio, foward_message),
+               ],
+           },
+           fallbacks=[CommandHandler("cancel", download_files)],
+     ) dp.add_handler(conversation_handler)
+    dp.add_handler(conn)
     dp.add_handler(conv_handler)
     dp.add_handler(c_hand)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
