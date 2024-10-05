@@ -436,7 +436,7 @@ def main():
     conversation_handler = ConversationHandler(
     entry_points=[CommandHandler("broadcast", broadcast)],
     states={
-        BROADCAST_MESSAGE: [MessageHandler(Filters.text & ~Filters.command & Filters.photo & Filters.video & Filters.audio, broadcast_message)],
+        BROADCAST_MESSAGE: [MessageHandler(Filters.text & Filters.photo & Filters.video & Filters.audio & ~Filters.command, broadcast_message)],
         },
     fallbacks=[CommandHandler("cancel", start)],
     )
