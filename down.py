@@ -49,6 +49,7 @@ def users(update, context):
     for user in user_list
         users.append(f"{user}")
     usersl = ",".join(users) 
+    users.clear()
   
 
   # Check if the message is long and send it accordingly
