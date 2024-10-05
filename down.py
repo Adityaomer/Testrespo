@@ -35,22 +35,29 @@ def broadcast(update, context):
 BROADCAST_MESSAGE = 1
 
 def broadcast_message(update, context):
-    user_id = update.message.from_user.id
-    if user_id in approved_users:
-        # Allow the message if user is approved
-        pass
-    else:
-        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
-        return
-    message = update.message
-    message_id=message.message_id
-    for user_id in user_list:
-        try:
-            context.bot.forward_message(chat_id=user_id,from_chat_id=update.message.chat_id,message_id=message_id)
-        except Exception as e:
-            print(f"Error sending message to {user_id}: {e}")
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
-    return ConversationHandler.END
+  message = update.message
+  message_id = message.message_id
+
+  for user_id in user_list:
+    try:
+      # Check message type and forward accordingly
+      if message.photo: # If photo
+        context.bot.send_photo(chat_id=user_id, photo=message.photo[-1].file_id)
+      elif message.text: # If text
+        context.bot.send_message(chat_id=user_id, text=message.text)
+      elif message.video or message.audio: # If video or audio
+        if message.video:
+          context.bot.send_video(chat_id=user_id, video=message.video.file_id)
+        else: # If audio
+          context.bot.send_audio(chat_id=user_id, audio=message.audio.file_id)
+      else:
+        print(f"Unsupported message type for user {user_id}")
+
+    except Exception as e:
+      print(f"Error sending message to {user_id}: {e}")
+
+  context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
+  return ConversationHandler.END
 def back(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     if user_id in approved_users:
