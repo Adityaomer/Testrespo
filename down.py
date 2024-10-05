@@ -45,8 +45,10 @@ def users(update, context):
         context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
         return
       
-    user_list = [str(user) for user in user_list] 
-    usersl = ",".join(user_list) 
+    users=[]
+    for user in user_list
+        users.append(f"{user}")
+    usersl = ",".join(users) 
   
 
   # Check if the message is long and send it accordingly
