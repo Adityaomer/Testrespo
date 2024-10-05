@@ -250,6 +250,7 @@ def delete_messages(context: CallbackContext):
     context.bot.delete_message(chat_id=job.context['chat_id'], message_id=job.context['message_id'])
 
 def download_files(update: Update, context: CallbackContext) -> None:
+    user_id=update.message.from_user.id 
     if user_id != chatid:
         context.bot.send_message(chat_id=update.message.chat.id,text="𝑇ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑐𝑎𝑛 𝑜𝑛𝑙𝑦 𝑏𝑒 𝑢𝑠𝑒𝑑 𝑖𝑛 𝑑𝑚")
         return ConversationHandler.END
