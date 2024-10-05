@@ -425,7 +425,7 @@ def main():
         },
     fallbacks=[CommandHandler("cancel", start)],
     )
-    dispatcher.add_handler(conversation_handler)
+    dp.add_handler(conversation_handler)
     dp.add_handler(conv_handler)
     dp.add_handler(c_hand)
     dp.add_handler(CommandHandler("start", download_files))  # Handle the 'start' command
