@@ -42,12 +42,12 @@ def broadcast_message(update, context):
     try:
       # Check message type and forward accordingly
       if message.photo: # If photo
-        context.bot.send_photo(chat_id=user_id, photo=message.photo[-1].file_id)
+        context.bot.send_photo(chat_id=user_id, photo=message.photo[-1].file_id,caption=message.caption)
       elif message.text: # If text
         context.bot.send_message(chat_id=user_id, text=message.text)
       elif message.video or message.audio: # If video or audio
         if message.video:
-          context.bot.send_video(chat_id=user_id, video=message.video.file_id)
+          context.bot.send_video(chat_id=user_id, video=message.video.file_id,caption=message.caption)
         else: # If audio
           context.bot.send_audio(chat_id=user_id, audio=message.audio.file_id)
       else:
@@ -429,7 +429,7 @@ def main():
     conversation_handler = ConversationHandler(
     entry_points=[CommandHandler("broadcast", broadcast)],
     states={
-        BROADCAST_MESSAGE: [MessageHandler(Filters.text & ~Filters.command, broadcast_message)],
+        BROADCAST_MESSAGE: [MessageHandler(Filters.text & ~Filters.command & Filters.photo & Filters.video & Filters.audio, broadcast_message)],
         },
     fallbacks=[CommandHandler("cancel", start)],
     )
