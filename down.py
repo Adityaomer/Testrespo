@@ -472,7 +472,7 @@ def main():
                 MessageHandler(Filters.text & ~Filters.command, forward_message), # Handle text separately
                 MessageHandler(Filters.photo, forward_message),
                 MessageHandler(Filters.video, forward_message),
-                MessageHandler(Filters.audio, foward_message),
+                MessageHandler(Filters.audio, forward_message),
                ],
            },
            fallbacks=[CommandHandler("cancel", download_files)],
