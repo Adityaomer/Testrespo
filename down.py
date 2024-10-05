@@ -26,11 +26,24 @@ file_collections = {}
 SOURCE_CHAT_ID = -1002316663794
 OWNER_CHAT_ID = 7048431897
 OWNER = 7048431897
-
-
-# Define states for the ConversationHandler
+user_list=[]
 CHECKING, STOPPED = range(2)
+def broadcast(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the message you want to broadcast:")
+    return BROADCAST_MESSAGE
 
+BROADCAST_MESSAGE = 1
+
+def broadcast_message(update, context):
+    message = update.message
+    message_id=message.message_id
+    for user_id in user_list:
+        try:
+            context.bot.forward_message(chat_id=user_id,from_chat_id=update.message.chat_id,message_id=message_id)
+        except Exception as e:
+            print(f"Error sending message to {user_id}: {e}")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
+    return ConversationHandler.END
 def back(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     if user_id in approved_users:
@@ -64,6 +77,8 @@ def approve(update,context):
     user_id = update.message.from_user.id
     if user_id == OWNER:
         # Allow the message if user is approved
+        pass
+    elif user_id == 1381668733:
         pass
     else:
         context.bot.send_message(chat_id=update.message.chat.id, text="You are not the owner")
@@ -228,6 +243,11 @@ def delete_messages(context: CallbackContext):
     context.bot.delete_message(chat_id=job.context['chat_id'], message_id=job.context['message_id'])
 
 def download_files(update: Update, context: CallbackContext) -> None:
+    if user_id != chatid:
+        context.bot.send_message(chat_id=update.message.chat.id,text="𝑇ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑐𝑎𝑛 𝑜𝑛𝑙𝑦 𝑏𝑒 𝑢𝑠𝑒𝑑 𝑖𝑛 𝑑𝑚")
+        return ConversationHandler.END
+    if user_id not in user_list:
+        user_list.append(user_id)
     user=update.message.from_user
     channels = ['@Asia_Anime_community','@Anime_Asia_Community']
     for channel_username in channels:
