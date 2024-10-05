@@ -251,7 +251,7 @@ def delete_messages(context: CallbackContext):
 
 def download_files(update: Update, context: CallbackContext) -> None:
     user_id=update.message.from_user.id 
-    if user_id != upadate.message.chat.id:
+    if user_id != update.message.chat.id:
         context.bot.send_message(chat_id=update.message.chat.id,text="𝑇ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑐𝑎𝑛 𝑜𝑛𝑙𝑦 𝑏𝑒 𝑢𝑠𝑒𝑑 𝑖𝑛 𝑑𝑚")
         return ConversationHandler.END
     if user_id not in user_list:
