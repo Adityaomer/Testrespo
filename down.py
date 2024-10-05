@@ -30,7 +30,7 @@ user_list=[]
 BROADCAST_MESSAGE = 1
 CHECKING, STOPPED = range(2)
 def broadcast(update, context):
-        user_id = update.message.from_user.id
+    user_id = update.message.from_user.id
     if user_id in approved_users:
         # Allow the message if user is approved
         pass
