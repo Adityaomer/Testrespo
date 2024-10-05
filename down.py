@@ -438,12 +438,12 @@ def main():
         entry_points=[CommandHandler("broadcast", broadcast)],
         states={
             BROADCAST_MESSAGE: [
-                 MessageHandler(Filters.text & ~Filters.command, broadcast_message), # Handle text separately
-                 MessageHandler(Filters.photo, broadcast_message),
+                MessageHandler(Filters.text & ~Filters.command, broadcast_message), # Handle text separately
+                MessageHandler(Filters.photo, broadcast_message),
                 MessageHandler(Filters.video, broadcast_message),
-                 MessageHandler(Filters.audio, broadcast_message),
-          ],
-        },
+                MessageHandler(Filters.audio, broadcast_message),
+               ],
+           },
            fallbacks=[CommandHandler("cancel", start)],
      )
 
