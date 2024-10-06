@@ -35,7 +35,7 @@ def send_long_message(bot, chat_id, text):
     parts = [text[i:i + max_length] for i in range(0, len(text), max_length)]
 
     for part in parts:
-        bot.send_message(chat_id=chat_id, text=part)
+        bot.send_message(chat_id=chat_id, text=part, parse_mode="html")
 
 def users(update, context):
     user_id = update.message.from_user.id
@@ -441,6 +441,9 @@ def all_files(update, context):
     else:
         response = "\n".join(
     f"<code>{index}</code> : {item}\n{name[index] if index < len(name) else 'User'}" for index, item in enumerate(secret) )
+    if len(response) > 4096:
+        send_long_message(context.bot, update.message.chat.id, response)
+    else:
         context.bot.send_message(chat_id=update.message.chat.id,text=response,parse_mode="html")
 def forward(update, context):
     user_id = update.message.from_user.id
