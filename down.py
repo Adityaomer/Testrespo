@@ -492,8 +492,8 @@ def add_caption(update,context):
     try:
         id=int(sp[2])
         caption[id]=caption
-    except:
-        update.message.reply_text(f"file_id in valid : {sp[2]}")
+    except Exception as e:
+        update.message.reply_text(f"file_id in valid : {sp[2]} \n {e}")
     
      
 def main():
