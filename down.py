@@ -481,7 +481,7 @@ def forward_message(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
     return ConversationHandler.END
     
-def add_caption(update,context):
+def add_caption(update, context):
     user_id = update.message.from_user.id
     if user_id in approved_users:
         # Allow the message if user is approved
@@ -489,21 +489,24 @@ def add_caption(update,context):
     else:
         update.message.reply_text("Not a admin get the f**k off")
         return 
-    message=update.message
-    text=message.text
+
+    message = update.message
+    text = message.text
     if ":" not in text:
         update.message.reply_text("Wrong format \n format: /add_caption:<caption>:<file_id>")
         return
-    sp=text.split(":")
-    if len(sp)<3:
+    sp = text.split(":")
+    if len(sp) < 3:
         update.message.reply_text("Not enough argument \n format: /add_caption:<caption>:<file_id>")
-    caption=sp[1]
+        return
+    caption = sp[1]
     try:
-        id=int(sp[2])
-        caption[id]=caption
+        id = int(sp[2])
+        caption[id]= caption
+        context.bot.send_message(chat_id=update.message.chat.id, text=f"File ID: {id}\nCaption: {caption}")
     except Exception as e:
-        update.message.reply_text(f"file_id in valid : {sp[2]} \n {e}")
-    
+        update.message.reply_text(f"file_id invalid: {sp[2]} \n {e}")
+
      
 def main():
     updater = Updater(API_TOKEN, use_context=True)
