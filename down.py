@@ -502,7 +502,7 @@ def add_caption(update, context):
     cap = sp[1]
     try:
         id = int(sp[2])
-        caption[id]= cap
+        captions[id]= cap
         context.bot.send_message(chat_id=update.message.chat.id, text=f"File ID: {id}\nCaption: {cap}")
     except Exception as e:
         update.message.reply_text(f"file_id invalid: {sp[2]} \n {e}")
