@@ -421,6 +421,7 @@ def send_files(update: Update, context: CallbackContext) -> None:
                     context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
                 except Exception as e:
                     update.message.reply_text(f"Failed to read {files}: {str(e)}")
+                files="no"
                 if files == "no":
                     files=file_id
                 else:
