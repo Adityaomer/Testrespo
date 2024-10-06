@@ -264,12 +264,11 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
             if files == "no":
                 files=f" {collection_id}${file_id}"
             else:
-                if len(files) < 4096:
+                if len(files) <= 2000:
                     files=f"{files} {file_id}"
-            
-                else:
-                    context.bot.send_message(chat_id=-1002316663794,text=f"{files}${photo_id}")
-                    files="no"
+                 else:
+                     context.bot.send_message(chat_id=-1002316663794,text=f"{files}${photo_id}")
+                     files="no"
         context.bot.send_message(chat_id=-1002316663794,text=f"{files}${photo_id}")
         bot_username = context.bot.get_me().username
 
