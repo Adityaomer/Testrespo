@@ -482,7 +482,7 @@ def add_caption(update,context):
         return 
     message=update.message
     text=message.text
-    if ":" not in sp:
+    if ":" not in text:
         update.message.reply_text("Wrong format \n format: /add_caption:<caption>:<file_id>")
         return
     sp=text.split(":")
