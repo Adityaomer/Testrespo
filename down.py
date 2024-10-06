@@ -433,7 +433,8 @@ def all_files(update, context):
     if not secret:  # Check if the secret list is empty
         update.message.reply_text("No Data stored yet.")
     else:
-        response = "\n".join(f"<code>{index}</code> : {item}\n{name[index]}" for index, item in enumerate(secret))
+        response = "\n".join(
+    f"<code>{index}</code> : {item}\n{name[index] if index < len(name) else 'User'}" for index, item in enumerate(secret) )
         context.bot.send_message(chat_id=update.message.chat.id,text=response,parse_mode="html")
 def forward(update, context):
     user_id = update.message.from_user.id
