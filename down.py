@@ -504,7 +504,7 @@ def add_caption(update, context):
     try:
         id = int(sp[2])
         captions[id]= cap
-        na=caption.split("\n")
+        na=cap.split("\n")
         name[id]=na[0]
         context.bot.send_message(chat_id=update.message.chat.id, text=f"File ID: {id}\nCaption: {cap}")
     except Exception as e:
