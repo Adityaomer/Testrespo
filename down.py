@@ -10,6 +10,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)  # Use __name__ to get the module name
 
 API_TOKEN = '7643255671:AAFDUAy9VWeYP-EeGIhv8CUuRBSy4ZzVvxk'
+API_TOKEN_S = '7831748189:AAEHcnOH7ozusV_5hieBTxQQXY_VaYqMIJQ'
 
 UPLOAD_FILE = 1
 UPLOAD_MORE = 2
@@ -580,5 +581,75 @@ def main():
     updater.start_polling()
     updater.idle()
 
+def main_s():
+    updater = Updater(API_TOKEN, use_context=True)
+    dp = updater.dispatcher
+
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('upload', start_s)],
+        states={
+            UPLOAD_FILE_s: [MessageHandler(Filters.document | Filters.photo, upload_file_s)],
+            UPLOAD_MORE_s: [MessageHandler(Filters.document | Filters.photo, upload_file_s),
+                         CommandHandler('done', done_s)],
+            UPLOAD_PHOTO_s: [MessageHandler(Filters.photo, upload_photo_s)],
+            UPLOAD_CAPTION: [MessageHandler(Filters.text, upload_caption_s)],
+        },
+        fallbacks=[CommandHandler('start', download_files_s)]
+    )
+    c_hand=ConversationHandler(
+        entry_points=[CommandHandler('back_up', back_s)],
+        states={
+            CHECKING_s: [
+                MessageHandler(Filters.text & ~Filters.command, check_message_s),
+                CommandHandler('stop', stop_s),
+            ],
+        },
+        fallbacks=[CommandHandler('start', download_files_s)],
+    )
+    conversation_handler = ConversationHandler(
+        entry_points=[CommandHandler("broadcast", broadcast_s)],
+        states={
+            BROADCAST_MESSAGE_s: [
+                MessageHandler(Filters.text & ~Filters.command, broadcast_message_s), # Handle text separately
+                MessageHandler(Filters.photo, broadcast_message_s),
+                MessageHandler(Filters.video, broadcast_message_s),
+                MessageHandler(Filters.audio, broadcast_message_s),
+               ],
+           },
+           fallbacks=[CommandHandler("cancel", download_files_s)],
+     )
+
+    conn = ConversationHandler(
+        entry_points=[CommandHandler("forward", forward_s)],
+        states={
+            FORWARD_MESSAGE_s: [
+                MessageHandler(Filters.text & ~Filters.command, forward_message_s), # Handle text separately
+                MessageHandler(Filters.photo, forward_message_s),
+                MessageHandler(Filters.video, forward_message_s),
+                MessageHandler(Filters.audio, forward_message_s),
+               ],
+           },
+           fallbacks=[CommandHandler("cancel", download_files_s)],
+     ) 
+    dp.add_handler(conversation_handler)
+    dp.add_handler(conn)
+    dp.add_handler(conv_handler)
+    dp.add_handler(c_hand)
+    dp.add_handler(CommandHandler("start", download_files_s))  # Handle the 'start' command
+    dp.add_handler(CommandHandler("send_all", send_files_s))
+    dp.add_handler(CommandHandler("approve", approve_s)) 
+    dp.add_handler(CommandHandler("all_files", all_files_s))
+    
+    dp.add_handler(CommandHandler("users", users_s))
+
+    dp.add_handler(CommandHandler("add_users", add_users_s))
+    dp.add_handler(CommandHandler("add_caption", add_caption_s))
+    dp.add_handler(CommandHandler("send", send_file_s))  # Handle the 'start' command
+
+
+    updater.start_polling()
+    updater.idle()
+
 if __name__ == '__main__':
     main()
+    main_s()
