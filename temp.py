@@ -857,7 +857,7 @@ def next(update, context):
     elif next_value_tm < len(tm_caption):
         # Send TM data
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=tm_caption[next_value_tm], parse_mode="markdown")
+                                 text=tm_caption[next_value_tm], parse_mode="html")
         legendary=str(tm_list[next_value_tm])
         sp=legendary.split(":",1)
         last_item_name=sp[0]
@@ -865,7 +865,7 @@ def next(update, context):
     elif next_value_team < len(team_caption):
         # Send Team data
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=team_caption[next_value_team], parse_mode="markdown")
+                                 text=team_caption[next_value_team], parse_mode="html")
         legendary=str(team_list[next_value_team])
         sp=legendary.split(":",1)
         last_item_name=sp[0]
