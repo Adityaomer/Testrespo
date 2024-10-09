@@ -610,7 +610,7 @@ def submission(update, context):
         details = tms["details"][id]
         item_name = tms["item_name"][id]
         base_price = tms["base"][id]
-        message_id = tms["msg_id"][id]
+        mid = tms["msg_id"][id]
         seller_id = tms["seller_id"][id]
         seller_name = tms["name"][id]
         tupdated_text = f"{category.upper()} \n > NAME: {item_name}\n\n{category.upper()} DETAILS:\n{details}\n\nBASE PRICE: {base_price}\n\n > SELLER USERNAME: {seller_name}\n > SELLER ID: {seller_id}\n\nIt has been {Stats} by {admin.full_name}({admin.name})"
@@ -701,12 +701,10 @@ TYPE: {types}
         # Send auction details to the auction group
         context.bot.send_message(chat_id=AUCTION_GROUP_ID, text=f" > {category.upper()} NAME: {item_name}\n\n{category.upper()} DETAILS:\n{details}\n\n > BASE PRICE: {base_price}",parse_mode="markdown")
 
-        # Send the message ID of the owner's message to the auction group
-
-        # Edit the original message with updated text (ensure message_id and tupdated_text are defined)
+    
         context.bot.edit_message_text(
             chat_id=update.callback_query.message.chat_id,
-            message_id=message_id,
+            message_id=mid,
             text=tupdated_text,parse_mode="html"
         )
 
