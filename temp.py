@@ -110,10 +110,10 @@ def broadcast_message_s(update, context):
       else:
           print(f"Unsupported message type for user {user_id}")
 
-  except Exception as e:
-      print(f"Error sending message to {user_id}: {e}")
-  context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
-   return ConversationHandler.END
+    except Exception as e:
+        print(f"Error sending message to {user_id}: {e}")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
+    return ConversationHandler.END
 
 
 def back_s(update: Update, context: CallbackContext):
