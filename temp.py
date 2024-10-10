@@ -62,26 +62,24 @@ def send_long_message_s(bot, chat_id, text):
 
 
 def users_s(update, context):
-  user_id = update.message.from_user.id
-  if user_id in approved_users_s:
-    pass
-  else:
-    context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
-    return
+    user_id = update.message.from_user.id
+    if user_id in approved_users_s:
+        pass
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text="You are not an approved user.")
+        return
 
-  users = []
-  for user in user_list_s:
-    users.append(f"{user}")
-  usersl = ",".join(users)
-  users.clear()
+    users = []
+    for user in user_list_s:
+        users.append(f"{user}")
+    usersl = ",".join(users)
+    users.clear()
 
   # Check if the message is long and send it accordingly
-  if len(usersl) > 4096:
-    send_long_message_s(context.bot, update.message.chat.id, usersl)
-  else:
-    context.bot.send_message(chat_id=update.message.chat.id, text=usersl)
-
-
+    if len(usersl) > 4096:
+        send_long_message_s(context.bot, update.message.chat.id, usersl)
+    else:
+        context.bot.send_message(chat_id=update.message.chat.id, text=usersl)
 def broadcast_s(update, context):
   user_id = update.message.from_user.id
   if user_id in approved_users_s:
@@ -102,21 +100,20 @@ def broadcast_message_s(update, context):
       # Check message type and forward accordingly
       if message.photo: # If photo
           context.bot.send_photo(chat_id=user_id, photo=message.photo[-1].file_id, caption=message.caption)
-            elif message.text:  # If text
-                context.bot.send_message(chat_id=user_id, text=message.text)
-            elif message.video or message.audio:  # If video or audio
-                if message.video:
-                    context.bot.send_video(chat_id=user_id, video=message.video.file_id, caption=message.caption)
-                else:  # If audio
-                    context.bot.send_audio(chat_id=user_id, audio=message.audio.file_id)
-            else:
-                print(f"Unsupported message type for user {user_id}")
+      elif message.text:  # If text
+          context.bot.send_message(chat_id=user_id, text=message.text)
+      elif message.video or message.audio:  # If video or audio
+          if message.video:
+              context.bot.send_video(chat_id=user_id, video=message.video.file_id, caption=message.caption)
+          else:  # If audio
+              context.bot.send_audio(chat_id=user_id, audio=message.audio.file_id)
+      else:
+          print(f"Unsupported message type for user {user_id}")
 
-        except Exception as e:
-            print(f"Error sending message to {user_id}: {e}")
-
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
-    return ConversationHandler.END
+  except Exception as e:
+      print(f"Error sending message to {user_id}: {e}")
+  context.bot.send_message(chat_id=update.effective_chat.id, text="Broadcast complete!")
+   return ConversationHandler.END
 
 
 def back_s(update: Update, context: CallbackContext):
