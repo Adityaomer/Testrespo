@@ -11,7 +11,7 @@ commands:
   package:
     - "nano inxi"
   start:
-    - "python3 temp.py"
+    - "python3 down.py"
 
 env:
   - "ENVIRONMENT=production"
