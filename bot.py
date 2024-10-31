@@ -38,7 +38,7 @@ CONTENT, BUTTON_COUNT, BUTTON_TEXT, BUTTON_URL, CHAT_ID = range(5)
 # Placeholder for content storage (replace with your actual saving logic)
 content_data = {}
 
-def start(update: Update, context: CallbackContext) -> int:
+def create(update: Update, context: CallbackContext) -> int:
   """Starts the conversation and checks if the user is authorized."""
   user_id = update.effective_user.id
   if str(user_id) in approved_users:
@@ -77,6 +77,77 @@ def handle_button_count(update: Update, context: CallbackContext) -> int:
     button_count = int(update.message.text)
     content_data[user_id]["buttons"] = [] # Initialize button list
     context.user_data["button_count"] = button_count
+        if button_count > 0:
+            update.message.reply_text(f"Enter text for button 1:")
+            return BUTTON_TEXT
+        else:
+            update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
+            return CHAT_ID
+    except ValueError:
+        update.message.reply_text("Please enter a valid number.")
+        return BUTTON_COUNT
+
+def handle_button_text(update: Update, context: CallbackContext) -> int:
+    """Gets the text for each button."""
+    user_id = update.effective_user.id
+    button_index = len(content_data[user_id]["buttons"]) + 1
+    text = update.message.text
+    content_data[user_id]["buttons"].append({"text": text})
+
+    if button_index < context.user_data["button_count"]:
+        update.message.reply_text(f"Enter URL for button {button_index}:")
+        return BUTTON_URL
+    else:
+        update.message.reply_text("Enter the chat ID to send to:")
+        return CHAT_ID
+
+def handle_button_url(update: Update, context: CallbackContext) -> int:
+    """Gets the URL for each button."""
+    user_id = update.effective_user.id
+    button_index = len(content_data[user_id]["buttons"])
+    url = update.message.text
+    content_data[user_id]["buttons"][button_index]["url"] = url
+
+    if button_index + 1 < context.user_data["button_count"]:
+        update.message.reply_text(f"Enter text for button {button_index + 2}:")
+        return BUTTON_TEXT
+    else:
+        update.message.reply_text("Enter the chat ID to send to:")
+        return CHAT_ID
+
+def handle_chat_id(update: Update, context: CallbackContext) -> int:
+    """Sends the content to the specified chat ID."""
+    user_id = update.effective_user.id
+    try:
+        chat_id = int(update.message.text)
+        send_content(chat_id, content_data[user_id])
+        update.message.reply_text("Content sent successfully!")
+    except ValueError:
+        update.message.reply_text("Please enter a valid chat ID.")
+        return CHAT_ID
+    except Exception as e:
+        update.message.reply_text(f"Error sending content: {e}")
+    finally:
+        # Clean up user data
+        del content_data[user_id]
+    return ConversationHandler.END
+
+def send_content(chat_id, content_data):
+    """Sends the content with inline buttons to the specified chat ID."""
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+    
+    buttons = [InlineKeyboardButton(button["text"], url=button["url"]) for button in content_data["buttons"]]
+    keyboard = InlineKeyboardMarkup(
+        [[button] for button in buttons]
+    )
+
+    if content_data["type"] == "text":
+        context.bot.send_message(chat_id, content_data["content"], reply_markup=keyboard)
+    elif content_data["type"] == "photo":
+        context.bot.send_photo(chat_id, content_data["content"], caption=content_data["caption"], reply_markup=keyboard)
+    elif content_data["type"] == "video":
+        context.bot.send_video(chat_id, content_data["content"], caption=content_data["caption"], reply_markup=keyboard)
+
 def send_long_message(bot, chat_id, text):
     max_length = 4096 # Telegram's max message length
     parts = [text[i:i + max_length] for i in range(0, len(text), max_length)]
@@ -608,6 +679,19 @@ def main():
            },
            fallbacks=[CommandHandler("cancel", download_files)],
      ) 
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('create', start)],
+        states={
+            CONTENT: [MessageHandler(Filters.all, handle_content)],
+            BUTTON_COUNT: [MessageHandler(Filters.text & ~Filters.command, handle_button_count)],
+            BUTTON_TEXT: [MessageHandler(Filters.text & ~Filters.command, handle_button_text)],
+            BUTTON_URL: [MessageHandler(Filters.text & ~Filters.command, handle_button_url)],
+            CHAT_ID: [MessageHandler(Filters.text & ~Filters.command, handle_chat_id)],
+        },
+        fallbacks=[CommandHandler('create', start)],
+    )
+
+    dispatcher.add_handler(conv_handler)
     dp.add_handler(conversation_handler)
     dp.add_handler(conn)
     dp.add_handler(conv_handler)
