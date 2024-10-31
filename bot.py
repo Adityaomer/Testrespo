@@ -39,9 +39,8 @@ CONTENT, BUTTON_COUNT, BUTTON_TEXT, BUTTON_URL, CHAT_ID = range(5)
 content_data = {}
 
 def create(update: Update, context: CallbackContext) -> int:
-  """Starts the conversation and checks if the user is authorized."""
   user_id = update.effective_user.id
-  if str(user_id) in approved_users:
+  if user_id in approved_users:
     update.message.reply_text("Welcome! Send me the content you want to create.")
     return CONTENT
   else:
