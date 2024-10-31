@@ -11,8 +11,6 @@ commands:
   package:
     - "nano inxi"
   start:
-    - "python3 bot.py"
-  start:
-    - "python3 bot_s.py"
+    - "python3 -r bot.txt"
 env:
   - "ENVIRONMENT=production"
