@@ -31,6 +31,52 @@ user_list=[]
 BROADCAST_MESSAGE = 1
 FORWARD_MESSAGE=1
 CHECKING, STOPPED = range(2)
+
+# State definitions for ConversationHandler
+CONTENT, BUTTON_COUNT, BUTTON_TEXT, BUTTON_URL, CHAT_ID = range(5)
+
+# Placeholder for content storage (replace with your actual saving logic)
+content_data = {}
+
+def start(update: Update, context: CallbackContext) -> int:
+  """Starts the conversation and checks if the user is authorized."""
+  user_id = update.effective_user.id
+  if str(user_id) in approved_users:
+    update.message.reply_text("Welcome! Send me the content you want to create.")
+    return CONTENT
+  else:
+    update.message.reply_text("You are not authorized to use this command.")
+    return ConversationHandler.END
+
+def handle_content(update: Update, context: CallbackContext) -> int:
+  """Handles the content input and saves it."""
+  user_id = update.effective_user.id
+  content_type = update.message.content_type
+
+  if content_type == "text":
+    content_data[user_id] = {"type": "text", "content": update.message.text}
+  elif content_type == "photo":
+    photo_id = update.message.photo[-1].file_id
+    caption = update.message.caption or ""
+    content_data[user_id] = {"type": "photo", "content": photo_id, "caption": caption}
+  elif content_type == "video":
+    video_id = update.message.video.file_id
+    caption = update.message.caption or ""
+    content_data[user_id] = {"type": "video", "content": video_id, "caption": caption}
+  else:
+    update.message.reply_text("Invalid content type. Please send text, photo, or video.")
+    return CONTENT
+
+  update.message.reply_text("How many inline buttons would you like to add?")
+  return BUTTON_COUNT
+
+def handle_button_count(update: Update, context: CallbackContext) -> int:
+  """Gets the number of inline buttons."""
+  user_id = update.effective_user.id
+  try:
+    button_count = int(update.message.text)
+    content_data[user_id]["buttons"] = [] # Initialize button list
+    context.user_data["button_count"] = button_count
 def send_long_message(bot, chat_id, text):
     max_length = 4096 # Telegram's max message length
     parts = [text[i:i + max_length] for i in range(0, len(text), max_length)]
