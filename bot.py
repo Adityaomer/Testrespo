@@ -107,9 +107,9 @@ def handle_button_text(update: Update, context: CallbackContext) -> int:
 def handle_button_url(update: Update, context: CallbackContext) -> int:
     """Gets the URL for each button."""
     user_id = update.effective_user.id
-    button_index = len(content_data[user_id]["buttons"])
+    button_index = len(content_data[user_id]["buttons"])  # Get the correct index
     url = update.message.text
-    content_data[user_id]["buttons"][button_index]["url"] = url
+    content_data[user_id]["buttons"][button_index]["url"] = url  # Assign URL to the correct button
 
     if button_index + 1 < context.user_data["button_count"]:
         update.message.reply_text(f"Enter text for button {button_index + 2}:")
