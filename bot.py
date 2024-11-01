@@ -38,9 +38,14 @@ CONTENT, BUTTON_COUNT, BUTTON_TEXT, BUTTON_URL, CHAT_ID = range(5)
 # Placeholder for content storage (replace with your actual saving logic)
 content_data = {}
 
+CONTENT, BUTTON_COUNT, BUTTON_TEXT, BUTTON_URL, CHAT_ID = range(5)
+
+content_data = {}
+
 def create(update: Update, context: CallbackContext) -> int:
+  """Starts the conversation and checks if the user is authorized."""
   user_id = update.effective_user.id
-  if user_id in approved_users:
+  if str(user_id) in approved_users:
     update.message.reply_text("Welcome! Send me the content you want to create.")
     return CONTENT
   else:
@@ -48,20 +53,17 @@ def create(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
 def handle_content(update: Update, context: CallbackContext) -> int:
- """Handles the content input and saves it."""
- user_id = update.effective_user.id
-
- # Check if the update is a message update
- if update.message:
-  content_type = update.message.content_type
-
-  if content_type == "text":
+  """Handles the content input and saves it."""
+  user_id = update.effective_user.id
+  
+  # Store the content based on the message type
+  if update.message.text:
     content_data[user_id] = {"type": "text", "content": update.message.text}
-  elif content_type == "photo":
+  elif update.message.photo:
     photo_id = update.message.photo[-1].file_id
     caption = update.message.caption or ""
     content_data[user_id] = {"type": "photo", "content": photo_id, "caption": caption}
-  elif content_type == "video":
+  elif update.message.video:
     video_id = update.message.video.file_id
     caption = update.message.caption or ""
     content_data[user_id] = {"type": "video", "content": video_id, "caption": caption}
@@ -71,28 +73,23 @@ def handle_content(update: Update, context: CallbackContext) -> int:
 
   update.message.reply_text("How many inline buttons would you like to add?")
   return BUTTON_COUNT
- else:
-  # Handle non-message updates (optional)
-  # You might want to log this or take other actions
-  # if you need to handle non-message updates
-  logger.info(f"Received non-message update: {update}")
-  return CONTENT # Or any other appropriate state
+
 def handle_button_count(update: Update, context: CallbackContext) -> int:
- """Gets the number of inline buttons."""
- user_id = update.effective_user.id
- try:
-  button_count = int(update.message.text)
-  content_data[user_id]["buttons"] = [] # Initialize button list
-  context.user_data["button_count"] = button_count
-  if button_count > 0:
-    update.message.reply_text(f"Enter text for button 1:")
-    return BUTTON_TEXT
-  else:
-    update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
-    return CHAT_ID
- except ValueError:
-  update.message.reply_text("Please enter a valid number.")
-  return BUTTON_COUNT
+  """Gets the number of inline buttons."""
+  user_id = update.effective_user.id
+  try:
+    button_count = int(update.message.text)
+    content_data[user_id]["buttons"] = [] # Initialize button list
+    context.user_data["button_count"] = button_count
+        if button_count > 0:
+            update.message.reply_text(f"Enter text for button 1:")
+            return BUTTON_TEXT
+        else:
+            update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
+            return CHAT_ID
+    except ValueError:
+        update.message.reply_text("Please enter a valid number.")
+        return BUTTON_COUNT
 
 def handle_button_text(update: Update, context: CallbackContext) -> int:
     """Gets the text for each button."""
@@ -154,6 +151,7 @@ def send_content(chat_id, content_data):
         context.bot.send_photo(chat_id, content_data["content"], caption=content_data["caption"], reply_markup=keyboard)
     elif content_data["type"] == "video":
         context.bot.send_video(chat_id, content_data["content"], caption=content_data["caption"], reply_markup=keyboard)
+
 
 def send_long_message(bot, chat_id, text):
     max_length = 4096 # Telegram's max message length
