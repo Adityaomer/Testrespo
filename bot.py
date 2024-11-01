@@ -678,8 +678,8 @@ def main():
            },
            fallbacks=[CommandHandler("cancel", download_files)],
      ) 
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('create', start)],
+    handle = ConversationHandler(
+        entry_points=[CommandHandler('create', create)],
         states={
             CONTENT: [MessageHandler(Filters.all, handle_content)],
             BUTTON_COUNT: [MessageHandler(Filters.text & ~Filters.command, handle_button_count)],
@@ -687,10 +687,10 @@ def main():
             BUTTON_URL: [MessageHandler(Filters.text & ~Filters.command, handle_button_url)],
             CHAT_ID: [MessageHandler(Filters.text & ~Filters.command, handle_chat_id)],
         },
-        fallbacks=[CommandHandler('create', start)],
+        fallbacks=[CommandHandler('create', create)],
     )
 
-    dispatcher.add_handler(conv_handler)
+    dp.add_handler(handle)
     dp.add_handler(conversation_handler)
     dp.add_handler(conn)
     dp.add_handler(conv_handler)
