@@ -48,8 +48,11 @@ def create(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
 def handle_content(update: Update, context: CallbackContext) -> int:
-  """Handles the content input and saves it."""
-  user_id = update.effective_user.id
+ """Handles the content input and saves it."""
+ user_id = update.effective_user.id
+
+ # Check if the update is a message update
+ if update.message:
   content_type = update.message.content_type
 
   if content_type == "text":
@@ -68,7 +71,12 @@ def handle_content(update: Update, context: CallbackContext) -> int:
 
   update.message.reply_text("How many inline buttons would you like to add?")
   return BUTTON_COUNT
-
+ else:
+  # Handle non-message updates (optional)
+  # You might want to log this or take other actions
+  # if you need to handle non-message updates
+  logger.info(f"Received non-message update: {update}")
+  return CONTENT # Or any other appropriate state
 def handle_button_count(update: Update, context: CallbackContext) -> int:
  """Gets the number of inline buttons."""
  user_id = update.effective_user.id
