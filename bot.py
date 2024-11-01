@@ -70,21 +70,21 @@ def handle_content(update: Update, context: CallbackContext) -> int:
   return BUTTON_COUNT
 
 def handle_button_count(update: Update, context: CallbackContext) -> int:
-  """Gets the number of inline buttons."""
-  user_id = update.effective_user.id
-  try:
-    button_count = int(update.message.text)
-    content_data[user_id]["buttons"] = [] # Initialize button list
-    context.user_data["button_count"] = button_count
-        if button_count > 0:
-            update.message.reply_text(f"Enter text for button 1:")
-            return BUTTON_TEXT
-        else:
-            update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
-            return CHAT_ID
-    except ValueError:
-        update.message.reply_text("Please enter a valid number.")
-        return BUTTON_COUNT
+ """Gets the number of inline buttons."""
+ user_id = update.effective_user.id
+ try:
+  button_count = int(update.message.text)
+  content_data[user_id]["buttons"] = [] # Initialize button list
+  context.user_data["button_count"] = button_count
+  if button_count > 0:
+    update.message.reply_text(f"Enter text for button 1:")
+    return BUTTON_TEXT
+  else:
+    update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
+    return CHAT_ID
+ except ValueError:
+  update.message.reply_text("Please enter a valid number.")
+  return BUTTON_COUNT
 
 def handle_button_text(update: Update, context: CallbackContext) -> int:
     """Gets the text for each button."""
