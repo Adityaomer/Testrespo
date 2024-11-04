@@ -134,11 +134,15 @@ def get_inline_keyboard(buttons):
     """Helper function to create the inline keyboard markup."""
     from telegram import InlineKeyboardButton, InlineKeyboardMarkup
     
-    keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton(button["text"], url=button["url"])] for button in buttons]
-    )
-    return keyboard
-
+    keyboard = []
+    for i, button in enumerate(buttons):
+        if i % 2 == 0:
+            keyboard.append([InlineKeyboardButton(button["text"], url=button["url"])])
+        else:
+            keyboard[-1].append(InlineKeyboardButton(button["text"], url=button["url"]))
+    
+    markup = InlineKeyboardMarkup(keyboard)
+    return markup
 def send_long_message(bot, chat_id, text):
     max_length = 4096 # Telegram's max message length
     parts = [text[i:i + max_length] for i in range(0, len(text), max_length)]
