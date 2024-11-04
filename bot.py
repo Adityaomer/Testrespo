@@ -78,7 +78,7 @@ def handle_button_count(update: Update, context: CallbackContext) -> int:
     button_count = int(update.message.text)
     context.user_data["button_count"] = button_count
     if button_count > 0:
-            update.message.reply_text(f"Enter text and URL for button 1 (separated by a comma):")
+        update.message.reply_text(f"Enter text and URL for button 1 (separated by a comma):")
             return BUTTON_DATA
     else:
         update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
