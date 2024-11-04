@@ -80,11 +80,11 @@ def handle_button_count(update: Update, context: CallbackContext) -> int:
     if button_count > 0:
             update.message.reply_text(f"Enter text and URL for button 1 (separated by a comma):")
             return BUTTON_DATA
-        else:
-            update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
+    else:
+        update.message.reply_text("You chose to add no buttons. Enter the chat ID to send to:")
             return CHAT_ID
-    except ValueError:
-        update.message.reply_text("Please enter a valid number.")
+  except ValueError:
+      update.message.reply_text("Please enter a valid number.")
         return BUTTON_COUNT
 
 def handle_button_data(update: Update, context: CallbackContext) -> int:
