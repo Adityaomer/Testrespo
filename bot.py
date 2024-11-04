@@ -110,7 +110,15 @@ def handle_chat_id(update: Update, context: CallbackContext) -> int:
     user_id = update.effective_user.id
     try:
         chat_id = int(update.message.text)
-        send_content(chat_id, content_data[user_id])
+        
+        # Send the content using context.bot
+        if content_data[user_id]["type"] == "text":
+            context.bot.send_message(chat_id, content_data[user_id]["content"], reply_markup=get_inline_keyboard(content_data[user_id]["buttons"]))
+        elif content_data[user_id]["type"] == "photo":
+            context.bot.send_photo(chat_id, content_data[user_id]["content"], caption=content_data[user_id]["caption"], reply_markup=get_inline_keyboard(content_data[user_id]["buttons"]))
+        elif content_data[user_id]["type"] == "video":
+            context.bot.send_video(chat_id, content_data[user_id]["content"], caption=content_data[user_id]["caption"], reply_markup=get_inline_keyboard(content_data[user_id]["buttons"]))
+        
         update.message.reply_text("Content sent successfully!")
     except ValueError:
         update.message.reply_text("Please enter a valid chat ID.")
@@ -122,21 +130,14 @@ def handle_chat_id(update: Update, context: CallbackContext) -> int:
         del content_data[user_id]
     return ConversationHandler.END
 
-def send_content(chat_id, content_data):
-    """Sends the content with inline buttons to the specified chat ID."""
+def get_inline_keyboard(buttons):
+    """Helper function to create the inline keyboard markup."""
     from telegram import InlineKeyboardButton, InlineKeyboardMarkup
     
-    buttons = [InlineKeyboardButton(button["text"], url=button["url"]) for button in content_data["buttons"]]
     keyboard = InlineKeyboardMarkup(
-        [[button] for button in buttons]
+        [[InlineKeyboardButton(button["text"], url=button["url"])] for button in buttons]
     )
-
-    if content_data["type"] == "text":
-        context.bot.send_message(chat_id, content_data["content"], reply_markup=keyboard)
-    elif content_data["type"] == "photo":
-        context.bot.send_photo(chat_id, content_data["content"], caption=content_data["caption"], reply_markup=keyboard)
-    elif content_data["type"] == "video":
-        context.bot.send_video(chat_id, content_data["content"], caption=content_data["caption"], reply_markup=keyboard)
+    return keyboard
 
 def send_long_message(bot, chat_id, text):
     max_length = 4096 # Telegram's max message length
