@@ -44,7 +44,7 @@ def handle_video(update: Update, context: CallbackContext) -> None:
   user_id = update.effective_user.id
   video_file = update.message.video
   file_id = video_file.file_id
-  MAX_FILE_SIZE = 5 × 1024 × 1024 # 5 MB (adjust as needed)
+  MAX_FILE_SIZE = 5*1024*1024
 
 
   if file_size > MAX_FILE_SIZE:
