@@ -39,6 +39,36 @@ CONTENT, BUTTON_COUNT, BUTTON_DATA, CHAT_ID = range(4)
 # Placeholder for content storage (replace with your actual saving logic)
 content_data = {}
 
+def handle_video(update: Update, context: CallbackContext) -> None:
+  """Handles video upload and conversion."""
+  user_id = update.effective_user.id
+  video_file = update.message.video
+  file_id = video_file.file_id
+
+  # Download the video
+  file_path = context.bot.get_file(file_id).file_path
+  downloaded_file = context.bot.download_file(file_path)
+
+  temp_file = f"/tmp/{file_id}.mp4" #Example temporary file path. Adjust as needed for your server.
+
+  # Save the downloaded file
+  with open(temp_file, 'wb') as f:
+    f.write(downloaded_file)
+
+  #Optional: Convert the video using ffmpeg (if needed)
+  try:
+    converted_file = f"/tmp/{file_id}.webm" #Example output file
+    command = ["ffmpeg", "-i", temp_file, "-c:v", "libvpx-vp9", "-c:a", "libvorbis", converted_file]
+    subprocess.run(command, check=True, stderr=subprocess.PIPE) #check=True raises exception on errors
+    context.bot.send_video(user_id, open(converted_file, 'rb'))
+
+  except subprocess.CalledProcessError as e:
+    update.message.reply_text(f"Error converting video: {e.stderr.decode()}")
+    context.bot.send_video(user_id, open(temp_file, 'rb')) #Send original if conversion fails.
+
+  except Exception as e:
+    update.message.reply_text(f"An error occurred: {e}")
+
 def create(update: Update, context: CallbackContext) -> int:
   """Starts the conversation and checks if the user is authorized."""
   user_id = update.effective_user.id
@@ -700,7 +730,7 @@ def main():
     dp.add_handler(CommandHandler("add_users", add_users))
     dp.add_handler(CommandHandler("add_caption", add_caption))
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
-
+    dp.add_handler(MessageHandler(Filters.video, handle_video))
 
     updater.start_polling()
     updater.idle()
