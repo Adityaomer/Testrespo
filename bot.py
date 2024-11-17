@@ -419,7 +419,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
     if user_id not in user_list:
         user_list.append(user_id)
     user=update.message.from_user
-    channels = ['@Asia_Anime_community','@Anime_Asia_Community']
+    channels = ['@Dandadan_AAC','@ONE_PIECE_AAC']
     for channel_username in channels:
         try:
     # Get the chat object for the channel
@@ -430,12 +430,12 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
     # If the user is not a member, exit the function
             if member.status not in ['member', 'creator', 'administrator']:
-                download_link = f"https://t.me/Anime_Asia_Community"
-                download_linker = f"https://t.me/Asia_Anime_Community"
+                download_link = f"http://t.me/ONE_PIECE_AAC"
+                download_linker = f"https://t.me/Dandadan_AAC"
 
             # Send the download link with inline keyboard
                 keyboard = InlineKeyboardMarkup([[
-                     InlineKeyboardButton("Channel link", url=download_link), InlineKeyboardButton("Group link", url=download_linker)
+                     InlineKeyboardButton(" First Channel", url=download_link), InlineKeyboardButton)(" Second Channel", url=download_linker)
             ]])
                 context.bot.send_video(chat_id=update.message.chat.id,video="BAACAgUAAxkBAAMSZwABG5xVX1zbpEEBMwtXSF8QlLzfAAKPFAACV9TxV2Uiq1_IcQbqNgQ",caption="""ɪ Aᴍ Hᴇʀᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ.∆ 
 
