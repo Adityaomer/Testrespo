@@ -465,7 +465,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
             # Send the download link with inline keyboard
                 keyboard = InlineKeyboardMarkup([[
-                     InlineKeyboardButton(" First Channel", url=download_link), InlineKeyboardButton)(" Second Channel", url=download_linker)
+                     InlineKeyboardButton(" First Channel", url=download_link), InlineKeyboardButton(" Second Channel", url=download_linker)
             ]])
                 context.bot.send_video(chat_id=update.message.chat.id,video="BAACAgUAAxkBAAMSZwABG5xVX1zbpEEBMwtXSF8QlLzfAAKPFAACV9TxV2Uiq1_IcQbqNgQ",caption="""ɪ Aᴍ Hᴇʀᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ.∆ 
 
