@@ -9,7 +9,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 logger = logging.getLogger(__name__)  # Use __name__ to get the module name
 
-API_TOKEN = '8152641320:AAGPUGDpcyxfEtoOZUfBispnjPJjERKR98s'
+API_TOKEN = '7647033300:AAFNewELlJ8XOSsGEEYYnIuwo58OHQG-S_A'
 
 UPLOAD_FILE = 1
 UPLOAD_MORE = 2
@@ -306,7 +306,7 @@ def download_files(update: Update, context: CallbackContext) -> None:
     if user_id not in user_list:
         user_list.append(user_id)
     user=update.message.from_user
-    channels = ['@Asia_Anime_community','@Anime_Asia_Community']
+    channels = ['@kaizu_no_8_english']
     for channel_username in channels:
         try:
     # Get the chat object for the channel
@@ -317,14 +317,13 @@ def download_files(update: Update, context: CallbackContext) -> None:
 
     # If the user is not a member, exit the function
             if member.status not in ['member', 'creator', 'administrator']:
-                download_link = f"https://t.me/Anime_Asia_Community"
-                download_linker = f"https://t.me/Asia_Anime_Community"
+                download_link = f"https://t.me/kaizu_no_8_english"
 
             # Send the download link with inline keyboard
                 keyboard = InlineKeyboardMarkup([[
-                     InlineKeyboardButton("Channel link", url=download_link), InlineKeyboardButton("Group link", url=download_linker)
+                     InlineKeyboardButton(channel link", url=download_link)
             ]])
-                context.bot.send_video(chat_id=update.message.chat.id,video="BAACAgUAAxkBAAMSZwABG5xVX1zbpEEBMwtXSF8QlLzfAAKPFAACV9TxV2Uiq1_IcQbqNgQ",caption="""ɪ Aᴍ Hᴇʀᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ.∆ 
+                context.bot.send_message(chat_id=update.message.chat.id,text="""ɪ Aᴍ Hᴇʀᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ.∆ 
 
 Bᴜᴛ Yᴏᴜ ʜᴀᴠᴇɴ'ᴛ sᴜʙsᴄʀɪʙᴇᴅ ᴏᴜʀ ᴄʜᴀɴɴᴇʟ ʏᴇᴛ sᴏ
 JOIN OUR CHANNEL FIRST
@@ -357,7 +356,7 @@ JOIN OUR CHANNEL FIRST
         keyboard = InlineKeyboardMarkup([[
              InlineKeyboardButton("Channel link", url=download_link)
             ]])
-        context.bot.send_video(chat_id=update.message.chat.id,video="BAACAgUAAxkBAAMSZwABG5xVX1zbpEEBMwtXSF8QlLzfAAKPFAACV9TxV2Uiq1_IcQbqNgQ",caption="""ʟᴏᴠᴇ ᴀɴɪᴍᴇ? ɪ ᴀᴍ ᴍᴀᴅᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ. 
+        context.bot.send_message(chat_id=update.message.chat.id,text="""ʟᴏᴠᴇ ᴀɴɪᴍᴇ? ɪ ᴀᴍ ᴍᴀᴅᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡᴀᴛᴄʜ ᴡʜᴀᴛ ʏᴏᴜ'ʀᴇ ʟᴏᴏᴋɪɴɢ ꜰᴏʀ. 
 
 ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ ᴄʜᴀɴɴᴇʟꜱ ʙᴇʟᴏᴡ ꜰᴏʀ ᴍᴏʀᴇ!👇
 <blockquote>𝘾𝙧𝙚𝙖𝙩𝙤𝙧 :</blockquote> @l0_Mr_unknown_0l""",reply_markup=keyboard, parse_mode="html")
