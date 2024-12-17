@@ -301,9 +301,10 @@ def check_message(update: Update, context: CallbackContext):
         sp=message.split("$")
         sec=sp[0]
         ph=sp[2]
-        if sp[3]:
-            name.append(sp[3]) 
+        
         if sec not in secret:
+            if sp[3]:
+                name.append(sp[3]) 
             secret.append(sec)
             photo_ids.append(ph)
             captions.append("This is a back up file")
