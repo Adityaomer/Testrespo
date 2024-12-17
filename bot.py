@@ -704,8 +704,7 @@ def main():
     dp.add_handler(CommandHandler("add_users", add_users))
     dp.add_handler(CommandHandler("add_caption", add_caption))
     dp.add_handler(CommandHandler("send", send_file))  # Handle the 'start' command
-    dp.add_handler(MessageHandler(Filters.video, handle_video))
-
+    
     updater.start_polling()
     updater.idle()
 
