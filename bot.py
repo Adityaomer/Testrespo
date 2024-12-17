@@ -274,6 +274,8 @@ def check_message(update: Update, context: CallbackContext):
         if sec not in secret:
             if len(sp) ==4:
                 name.append(sp[3]) 
+            else:
+                name.append("back up file") 
             secret.append(sec)
             photo_ids.append(ph)
             captions.append("This is a back up file")
