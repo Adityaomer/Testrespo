@@ -558,9 +558,19 @@ def all_files(update, context):
     if not secret:  # Check if the secret list is empty
         update.message.reply_text("No Data stored yet.")
     else:
-        response = "\n".join(
-    f"<code>{index}</code> : {item}\n{name[len(name) - 1 - index] if index < len(name) else 'User'}" for index, item in enumerate(secret)
-)
+        secret = ["LgP5GRiCs9s", "taw610wgg04", "hBtusWe2b3M", "lXRT7vcWcQ8", "VNbOH5z5Ni8", "-QkEb6buIyM", "lpc6KFthw5I", "ZEDM13FUD40", "diV34ZN2K5U", "yB1yqk52Hrg", "VN-Uym7g4Os", "o7a7TyD_luk", "aDyO4mAHaUg", "17v3pltTMVo", "h2wsjjYlwBY", "AXKshEV42As", "XWvhAEbJqS0", "55eqQq9yqfs", "xSQk6nEYeEg", "R5wKZus2omA"]
+name = ["one pet testing"]
+
+        if len(name) > 0:
+            response = "\n".join(
+        f"<code>{index}</code> : {item}\n{name[index] if index < len(name) else 'User'}"
+            for index, item in enumerate(secret)
+        )
+        else:
+            response = "\n".join(f"<code>{index}</code> : {item}\nUser" for index, item in enumerate(secret))
+
+
+
 
     if len(response) > 4096:
         send_long_message(context.bot, update.message.chat.id, response)
