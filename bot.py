@@ -558,6 +558,7 @@ def all_files(update, context):
         return
     if not secret:  # Check if the secret list is empty
         update.message.reply_text("No Data stored yet.")
+    else:
     
 
         if len(name) > 0:
