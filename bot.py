@@ -10,7 +10,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 logger = logging.getLogger(__name__)  # Use __name__ to get the module name
 
-API_TOKEN = '7643255671:AAFDUAy9VWeYP-EeGIhv8CUuRBSy4ZzVvxk'
+API_TOKEN = '7643255671:AAGv8PHLxSWIgpN01ICgkXdi8maAZe-CMak'
 API_TOKEN_S = '7831748189:AAEHcnOH7ozusV_5hieBTxQQXY_VaYqMIJQ'
 
 UPLOAD_FILE = 1
