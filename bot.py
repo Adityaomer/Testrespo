@@ -559,7 +559,9 @@ def all_files(update, context):
         update.message.reply_text("No Data stored yet.")
     else:
         response = "\n".join(
-    f"<code>{index}</code> : {item}\n{name[index] if index < len(name) else 'User'}" for index, item in enumerate(secret) )
+    f"<code>{index}</code> : {item}\n{name[len(name) - 1 - index] if index < len(name) else 'User'}" for index, item in enumerate(secret)
+)
+
     if len(response) > 4096:
         send_long_message(context.bot, update.message.chat.id, response)
     else:
