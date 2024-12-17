@@ -272,7 +272,7 @@ def check_message(update: Update, context: CallbackContext):
         ph=sp[2]
         
         if sec not in secret:
-            if sp[3]:
+            if length(sp) ==4:
                 name.append(sp[3]) 
             secret.append(sec)
             photo_ids.append(ph)
