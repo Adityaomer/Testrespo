@@ -157,6 +157,8 @@ def check_message(update: Update, context: CallbackContext):
         sec=sp[0]
         ph=sp[2]
         if sec not in secret:
+            if sp[3]:
+                name. append(sp[3]) 
             secret.append(sec)
             photo_ids.append(ph)
             captions.append("This is a back up file")
@@ -267,9 +269,9 @@ def upload_caption(update: Update, context: CallbackContext) -> int:
                 if len(files) <= 2000:
                     files=f"{files} {file_id}"
                 else:
-                    context.bot.send_message(chat_id=-1002316663794,text=f"{files}${photo_id}")
+                    context.bot.send_message(chat_id=-4739767236,text=f"{files}${photo_id}${na[0]}")
                     files="no"
-        context.bot.send_message(chat_id=-1002316663794,text=f"{files}${photo_id}")
+        context.bot.send_message(chat_id=-4739767236,text=f"{files}${photo_id}${na[0]}")
         bot_username = context.bot.get_me().username
 
         if file_ids:
