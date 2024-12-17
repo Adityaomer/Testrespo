@@ -548,6 +548,7 @@ def send_files(update: Update, context: CallbackContext) -> None:
             all_file_contents.append(files)  # Append content to the list
 
 def all_files(update, context):
+    response="hi"
     user_id = update.message.from_user.id
     if user_id == OWNER:
         # Allow the message if user is approved
