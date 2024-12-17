@@ -478,6 +478,7 @@ JOIN OUR CHANNEL FIRST
 
 ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ ᴄʜᴀɴɴᴇʟꜱ ʙᴇʟᴏᴡ ꜰᴏʀ ᴍᴏʀᴇ!👇
 <blockquote>𝘾𝙧𝙚𝙖𝙩𝙤𝙧 :</blockquote> @l0_Mr_unknown_0l""",reply_markup=keyboard, parse_mode="html")
+    ConversationHandler.END
 
 def send_file(update, context) :
     user_id = update.message.from_user.id
