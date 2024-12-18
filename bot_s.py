@@ -157,8 +157,10 @@ def check_message(update: Update, context: CallbackContext):
         sec=sp[0]
         ph=sp[2]
         if sec not in secret:
-            if sp[3]:
-                name. append(sp[3]) 
+            if len(sp) ==4:
+                name.append(sp[3]) 
+            else:
+                name.append("back up file") 
             secret.append(sec)
             photo_ids.append(ph)
             captions.append("This is a back up file")
@@ -348,7 +350,7 @@ JOIN OUR CHANNEL FIRST
                 # Schedule a job to delete this message after 5 minutes (300 seconds)
                 context.job_queue.run_once(delete_messages, 300, context={'chat_id': update.effective_chat.id, 'message_id': message.message_id})
 
-            update.message.reply_text("Files sent successfully!\save these files they will be automatically deletedafter 5 minutes!")
+                update.message.reply_text("<blockquote>Files sent successfully!</blockquote>\n<code>save these files they will be automatically deletedafter 5 minutes!</code>",parse_mode="html")
         else:
             update.message.reply_text("Invalid collection ID.")
     else:
