@@ -1,0 +1,16 @@
+user:
+  name: Adityaomer
+  github: Testrespo
+
+language: "python"
+python_version: "3.10"
+
+commands:
+  build:
+    - "pip install -r requirements.txt"
+  package:
+    - "nano inxi"
+  start:
+    - "python3 bot_s.py & python3 bot.py &"
+env:
+  - "ENVIRONMENT=production"
