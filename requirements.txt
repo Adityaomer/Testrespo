@@ -1,4 +1,4 @@
 telethon
 pymongo
 Pillow
-request
+requests
