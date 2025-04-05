@@ -1,3 +1,7 @@
-api_id
-api_hash
-bot_token 
+API_ID = int("23599783")
+API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
+BOT_TOKEN = "7643255671:AAGv8PHLxSWIgpN01ICgkXdi8maAZe-CMak"
+
+api_id = API_ID
+api_hash = API_HASH
+bot_token = BOT_TOKEN
