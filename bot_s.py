@@ -526,7 +526,7 @@ async def log_in(event):
             print(y)
             await asyncio.sleep(y)
             await x10.delete()
-            await app.send_file(event.chat.id,file=connect_image,caption="__**Tell us more about yourself**__")
+            await app.send_file(event.chat.id,file=,caption="__**Tell us more about yourself**__")
                             # Ask for trainer's name
             global msg
             msg = await event.reply("__**Tell us what you want to be called as**__",buttons=[
@@ -957,7 +957,7 @@ async def menu_callback(event):
             draw.text((70,250),"Single Battles",font = font, fill = "white")
             draw.text((1030,1850),"Choose the method to matchup...",font = font1, fill = "white")
             image.save("D:\\python\\Pokemon-Masters-Nintendro-AAC\\wifie.jpg",format="PNG")
-            await event.edit(file="D:\\python\\Pokemon-Masters-Nintendro-AAC\\wifie.jpg",buttons=[[Button.inline("Random",data=b"random")],[Button.inline("Link Code",data=b"link_code")]])
+            await event.edit(text="D:\\python\\Pokemon-Masters-Nintendro-AAC\\wifie.jpg",buttons=[[Button.inline("Random",data=b"random")],[Button.inline("Link Code",data=b"link_code")]])
     elif event.data == b"random":
         await event.answer("Communicating. Please stand by...",alert=True)
         battle_stadium[user_id]["mode"] = {}
@@ -971,7 +971,7 @@ async def menu_callback(event):
         draw.text((70,250),"Single Battles",font = font, fill = "white")
         draw.text((1030,1850),"Searching for an opposing Trainer...",font = font1, fill = "white")
         image.save("D:\\python\\Pokemon-Masters-Nintendro-AAC\\wifie.jpg",format="PNG")
-        await event.edit(file="D:\\python\\Pokemon-Masters-Nintendro-AAC\\wifie.jpg")
+        await event.edit(text="D:\\python\\Pokemon-Masters-Nintendro-AAC\\wifie.jpg")
         await event.delete()
         if len(waiting_players) >=2:
             global player1,player2
