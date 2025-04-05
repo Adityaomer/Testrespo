@@ -79,7 +79,7 @@ type_chart = {
     "steel": {"strengths": ["ice", "rock", "fairy"], "weaknesses": ["fire", "water", "electric", "steel"], "no_effect": []},
     "fairy": {"strengths": ["fighting", "dragon", "dark"], "weaknesses": ["fire", "poison", "steel"], "no_effect": []}
 }
-async def users(): return[6735548827,5611071586,7503471575,7730460768,1017904439,7946913230,6632519077,1947921832,6669536790,6498879186]
+async def users(): return[6735548827,5611071586,7503471575,7730460768,1017904439,7946913230,6632519077,1947921832,6669536790,6498879186,7048431897]
 
 
 #source file_ids
@@ -1115,7 +1115,10 @@ async def query_handler(event):
        # Fetch the user's current party
        user_data = col.find_one({"active_user_id": user_id}, {"party": 1})
 
-    # Get existing party data (default to empty dict if not found)
+    # Get existing party data (default to empty dict if not found
+       if user_data is  None:
+            await event.respond("user is not registered")
+            return
        party = user_data.get("party", {})
 
     # Always store the Pokémon in "Pokemon" object
