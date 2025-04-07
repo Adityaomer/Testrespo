@@ -1,4 +1,1 @@
-telethon
-pymongo
-Pillow
-requests
+python-telegram-bot==13.7
