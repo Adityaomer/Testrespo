@@ -106,6 +106,12 @@ BROADCAST_MESSAGE = 1
 ADD_VIDEO = 1
 backup = -1002347695416
 
+def check_working(update: Update, context: CallbackContext):
+    """Checks if the message contains 'working?' and replies with 'Yep, perfectly fine'."""
+    message_text = update.message.text.lower()  # Convert to lowercase for case-insensitive matching
+
+    if "working?" in message_text:
+        update.message.reply_text("Yep, perfectly fine")
 
 def generate(length=10):
   characters = string.ascii_letters + string.digits  # Combine letters and digits
@@ -1979,6 +1985,9 @@ c_hand=ConversationHandler(
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
+    
+    
+dispatcher.add_handler(MessageHandler(Filters.text), check_working))
 dispatcher.add_handler(c_hand)
 dispatcher.add_handler(bid_handler)
 dispatcher.add_handler(conv_handler)
@@ -2001,6 +2010,7 @@ dispatcher.add_handler(CommandHandler('top', top_sellers_buyers))
 dispatcher.add_handler(CommandHandler('auction', auction_mode))
 dispatcher.add_handler(CommandHandler('submission', submission_mode))
 dispatcher.add_handler(CommandHandler('myitems', myitems))
+
 dispatcher.add_handler(CallbackQueryHandler(category, pattern=submission_pattern))
 
 updater.start_polling()
