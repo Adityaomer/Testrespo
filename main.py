@@ -1987,7 +1987,7 @@ c_hand=ConversationHandler(
     )
     
     
-dispatcher.add_handler(MessageHandler(Filters.text), check_working))
+dispatcher.add_handler(MessageHandler(Filters.text), check_working)
 dispatcher.add_handler(c_hand)
 dispatcher.add_handler(bid_handler)
 dispatcher.add_handler(conv_handler)
