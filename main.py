@@ -1069,11 +1069,13 @@ Bidder      - None
         back[f"{category}"].append(bac.message_id)    
         
         context.bot.edit_message_text(chat_id = backup, message_id = bac.message_id, text= f"{category}:{item_id}:<a href='https://t.me/{AUC_NAME}/{msid}'>{item_name}</a>:{item_name}({nature}):{seller_name}-{seller_id}:{base_price}:None:{bac.message_id}:{rstr}:{neid}", disable_web_page_preview=True)
-    
-        context.bot.edit_message_caption(
+        try:
+            context.bot.edit_message_caption(
         chat_id=update.callback_query.message.chat_id,
         message_id=message_id,
         caption=f"{updated_text}\n Item Id `{rstr}`", parse_mode="markdown")
+        except:
+            query.edit_message_text("Error Occurred in editing but no problem should be there in approval") 
         if category == "legendary":
 
             legendary_list.append(f"{item_name}({nature}):{seller_name}-{seller_id}")
@@ -1139,11 +1141,14 @@ Bidder      - None
     reply_markup=reply_markup,
     parse_mode='HTML'
 )
-        context.bot.edit_message_text(
+        try:
+            context.bot.edit_message_text(
             chat_id=update.callback_query.message.chat_id,
             message_id=mid,
             text=f"{tupdated_text}\n Item Id `{rstr}`",parse_mode="html"
         )
+        except:
+            query.edit_message_text("Error Occurred in editing but no problem should be there in approval") 
         seller_lead[seller_id]["item"].append(f"{category}$<a href='https://t.me/{AUC_NAME}/{mm.message_id}'>{item_name}</a>")
         seller_old[seller_id]["item"]+=1
         bac= context.bot.send_message(chat_id = backup, text= f"{category}:{item_id}:<a href='https://t.me/{AUC_NAME}/{msid}'>{item_name}</a>:{item_name}:{seller_name}-{seller_id}:{base_price}:None", disable_web_page_preview=True)
