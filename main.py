@@ -960,10 +960,10 @@ Seller {seller.first_name}[@{seller.username}]
 """, buttons=inline_keyboard, parse_mode='html')
 
             event.context["number"] = len(pokemons["picture"])
-      if event.sender_id in current_add:
-       current_add.remove(event.sender_id)
-      return
-     
+            if event.sender_id in current_add:
+              current_add.remove(event.sender_id)
+            return
+      
 
     elif category in ['tm', 'team']:
       await event.reply(f"𝑇𝐻𝐴𝑁𝐾 𝑌𝑂𝑈 𝐹𝑂𝑅 𝐴𝐷𝐷 𝑌𝑂𝑈𝑅 𝐼𝑇𝐸𝑀 𝐼𝑁 𝐼𝐻𝐺 𝐴𝑈𝐶𝑇𝐼𝑂𝑁.<blockquote> 𝑌𝑂𝑈𝑅 {item_name} 𝐻𝐴𝑆 𝐵𝐸𝐸𝑁 𝑆𝐸𝑁𝑇 𝐹𝑂𝑅 𝑆𝑈𝐵𝑀𝐼𝑆𝑆𝐼𝑂𝑁</blockquote>",parse_mode="html")
