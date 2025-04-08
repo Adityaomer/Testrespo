@@ -109,10 +109,6 @@ def is_digit(s):
     except ValueError:
         return False
 
-
-import logging
-from telethon import TelegramClient
-
 async def check_channel_membership(client, user_id):
     for channel_username in channels:
         try:
