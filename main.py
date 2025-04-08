@@ -1399,6 +1399,6 @@ async def sellers_list(event):
 
 if __name__ == '__main__':
     try:
-        await client.run_until_disconnected()
+        client.run_until_disconnected()
     except KeyboardInterrupt:
         print('Exiting...')
