@@ -1041,7 +1041,7 @@ Seller <code>{s_n}</code>
 
   
 @client.on(events.CallbackQuery(pattern=r'^(papprove|disapprove|ripnature|ripivsevs|ripmoveset|ripall)_(\d+)$'))
-pokemon_submission_actions(event):
+async def pokemon_submission_actions(event):
     callback_data = event.data.decode()
     action, index = callback_data.split('_')
     index = int(index)
