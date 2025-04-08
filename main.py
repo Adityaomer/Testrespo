@@ -113,7 +113,7 @@ def is_digit(s):
 import logging
 from telethon import TelegramClient
 
-async def check_channel_membership(client, user_id, channels):
+async def check_channel_membership(client, user_id):
     for channel_username in channels:
         try:
             chat = await client.get_entity(channel_username)
