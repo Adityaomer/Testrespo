@@ -110,15 +110,20 @@ def is_digit(s):
         return False
 
 async def check_channel_membership(user_id, channels):
+    i=0
     for channel_username in channels:
         try:
             chat = await client.get_entity(channel_username)
             participants = await client.get_participants(chat)
             if any(part.id == user_id for part in participants):
-                return True
+                i+=1
         except Exception as e:
             client.bot.send_message(user_id,f"Error checking channel membership for {channel_username}: {e}")
-            return False
+    if i >= len(channels):
+        return True
+    else:
+        return False
+            
 async def send_long_message(chat_id, text):
     max_length = 4096
     for i in range(0, len(text), max_length):
