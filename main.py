@@ -2042,4 +2042,4 @@ def main():
     updater.idle() #Used for persistent running
 
 if __name__ == '__main__':
-    main()b
+    main()
