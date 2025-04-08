@@ -947,7 +947,7 @@ async def base_price_input(event):
        ]
 
       # Forward all information to submission group with inline buttons
-      await client.send_file(SUBMISSION_GROUP_ID, picture, caption=f"""𝐍𝐚𝐦𝐞: {item_name}
+            await client.send_file(SUBMISSION_GROUP_ID, picture, caption=f"""𝐍𝐚𝐦𝐞: {item_name}
 𝐓𝐲𝐩𝐞𝐬: {types}
 𝐋𝐯: {lv}
 𝐍𝐚𝐭𝐮𝐫𝐞: {nature}
