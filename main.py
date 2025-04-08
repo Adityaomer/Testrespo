@@ -12,7 +12,7 @@ from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 # Telegram API credentials (replace with your own)
 API_ID = int("23599783")
 API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
-BOT_TOKEN = '6911770505:AAHhWn20mQ0j2_Q6558oD59r4uR12G1D9p8'
+BOT_TOKEN = '7921044809:AAEtRGLlWVM6RzDVZis3QjZpIxW1l3Vfd5c'
 
 # Group and User IDs
 AUCTION_GROUP_ID = -1002455896075
