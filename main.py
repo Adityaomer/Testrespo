@@ -10,8 +10,8 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 
 # Telegram API credentials (replace with your own)
-API_ID = 20773809
-API_HASH = '03937249b091f49e8f6df929a3a5606f'
+API_ID = int("23599783")
+API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
 BOT_TOKEN = '6911770505:AAHhWn20mQ0j2_Q6558oD59r4uR12G1D9p8'
 
 # Group and User IDs
