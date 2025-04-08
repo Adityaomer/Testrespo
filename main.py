@@ -15,6 +15,16 @@ from threading import Thread
 import requests
 import time
 
+
+def send_message():
+    while True:
+        context.bot.send_message(chat_id=chat_id, text="still alive")
+        time.sleep(60)  # Wait for 1 minute
+
+
+    
+
+    
 app = Flask(__name__)
 
 URL = "https://hbg-slow.onrender.com"
@@ -2030,6 +2040,7 @@ updater.idle()
 
    
 if __name__ == '__main__':
+    threading.Thread(target=send_message, daemon=True).start()
     port = int(os.environ.get('PORT', 8080))
     start_keep_alive_thread() 
     app.run(host='0.0.0.0', port=port, debug=True)
