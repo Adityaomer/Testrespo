@@ -23,29 +23,20 @@ URL = "https://hbg-slow.onrender.com"
 def index():
     return "Alive"
 
-def run():
-    app.run(host='0.0.0.0', port=8080)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
 def request_url_every_minute():
     while True:
         try:
             response = requests.get(URL)
-            print(f"keep_alive.py => Status Code: {response.status_code}")
-            # Process the response if needed
-            # For example, print the content: print(response.content)
+            print(f"Keep-alive: Status Code: {response.status_code}")
         except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
-
-        # Wait for 1 minute
+            print(f"Keep-alive error: {e}")
         time.sleep(60)
 
-def start_requesting():
-    t = Thread(target=request_url_every_minute)
-    t.start()
+
+def start_keep_alive_thread():
+    thread = Thread(target=request_url_every_minute)
+    thread.daemon = True  # Allow the main program to exit even if this thread is running
+    thread.start()
     
 AUCTION_GROUP_ID=-1002455896075
 AUC_NAME="HBG_NEW_GROUP_FHG"
@@ -2037,4 +2028,9 @@ dispatcher.add_handler(CallbackQueryHandler(category, pattern=submission_pattern
 updater.start_polling()
 updater.idle()
 
+   
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8080))
+    start_keep_alive_thread() 
+    app.run(host='0.0.0.0', port=port, debug=True)
  
