@@ -1,5 +1,4 @@
 
-
 import asyncio
 import logging
 import random
@@ -821,7 +820,10 @@ async def base_price_input(event):
     try:
       number_text = event.text
       number = float(number_text[:-1]) * 1000 if number_text[-1].lower() == 'k' else float(number_text)
-      if number % 100 == 0:
+    except ValueError:
+      await event.reply("PLEASE ENTER YOUR PRICE IN NUMBER FORMAT")
+      return 
+    if number % 100 == 0:
         
         seller_data[seller_id] = {}
 
@@ -962,6 +964,7 @@ Seller {seller.first_name}[@{seller.username}]
        current_add.remove(event.sender_id)
       return
      
+
     elif category in ['tm', 'team']:
       await event.reply(f"𝑇𝐻𝐴𝑁𝐾 𝑌𝑂𝑈 𝐹𝑂𝑅 𝐴𝐷𝐷 𝑌𝑂𝑈𝑅 𝐼𝑇𝐸𝑀 𝐼𝑁 𝐼𝐻𝐺 𝐴𝑈𝐶𝑇𝐼𝑂𝑁.<blockquote> 𝑌𝑂𝑈𝑅 {item_name} 𝐻𝐴𝑆 𝐵𝐸𝐸𝑁 𝑆𝐸𝑁𝑇 𝐹𝑂𝑅 𝑆𝑈𝐵𝑀𝐼𝑆𝑆𝐼𝑂𝑁</blockquote>",parse_mode="html")
       context = {} # Using a simple dictionary for context
@@ -1042,9 +1045,7 @@ Seller {s_n}
    else:
     await event.reply("PLEASE ENTER YOUR PRICE IN NUMBER AND MULTIPLE OF 100")
     return
-  except ValueError:
-   await event.reply("PLEASE ENTER YOUR PRICE IN NUMBER FORMAT")
-   return
+  
 @client.on(events.CallbackQuery(pattern=r'^(papprove|disapprove|ripnature|ripivsevs|ripmoveset|ripall)_(\d+)$'))
 pokemon_submission_actions(event):
     callback_data = event.data.decode()
