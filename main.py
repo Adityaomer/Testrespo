@@ -117,7 +117,7 @@ async def check_channel_membership(user_id, channels):
             if any(part.id == user_id for part in participants):
                 return True
         except Exception as e:
-            logging.error(f"Error checking channel membership for {channel_username}: {e}")
+            client.bot.send_message(user_id,f"Error checking channel membership for {channel_username}: {e}")
             return False
 async def send_long_message(chat_id, text):
     max_length = 4096
