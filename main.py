@@ -1,4 +1,4 @@
-from telegram.ext import ConversationHandler
+import os
 from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 import re
@@ -10,6 +10,25 @@ import logging
 logging.basicConfig(level=logging.INFO)
 import random
 import string
+
+# Your bot token (get this from BotFather)
+BOT_TOKEN = "7921044809:AAEtRGLlWVM6RzDVZis3QjZpIxW1l3Vfd5c"
+
+# Get the port from the environment variable (Render sets this)
+PORT = int(os.environ.get('PORT', '8443'))  # Default to 8443 if not set
+
+# Your application URL (Render provides this or you can set it)
+APP_URL = os.environ.get('https://hbg-slow.onrender.com')
+if not APP_URL:
+    print("APP_URL environment variable not set.  You MUST configure this on Render.")
+    exit(1)  # Exit if APP_URL is not defined.
+
+# Create the Updater and Dispatcher
+
+updater = Updater(BOT_TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+
+
 
 AUCTION_GROUP_ID=-1002455896075
 AUC_NAME="HBG_NEW_GROUP_FHG"
@@ -1987,33 +2006,40 @@ c_hand=ConversationHandler(
     )
     
     
-dispatcher.add_handler(MessageHandler(Filters.text, check_working))
-dispatcher.add_handler(c_hand)
-dispatcher.add_handler(bid_handler)
-dispatcher.add_handler(conv_handler)
-dispatcher.add_handler(conversation_handler)
-submission_pattern = re.compile(r'^disapprove_|^ripnature_|^papprove_|^wrongdisplay_|^tbasehigh_|^uselessteam_|^twronginfo_|^tapprove_|^ripivsevs_|^pbasehigh_|^pwronginfo_|^uselesspoke_|^notindemand_|')
+def main():
 
-dispatcher.add_handler(CommandHandler('buyers', buy))
-dispatcher.add_handler(CommandHandler('approve', approve_command))
-dispatcher.add_handler(CommandHandler('sellers', sell))
-dispatcher.add_handler(CommandHandler('users', users))
-dispatcher.add_handler(CommandHandler('current', current))
-dispatcher.add_handler(CommandHandler('add_users', add_users))
-dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(CommandHandler('collection', send_collection))
-dispatcher.add_handler(CommandHandler('items',items))
-dispatcher.add_handler(CommandHandler('profile',profile))
-dispatcher.add_handler(CommandHandler('clear', clear))
-dispatcher.add_handler(CommandHandler('mybag', mybag))
-dispatcher.add_handler(CommandHandler('top', top_sellers_buyers))
-dispatcher.add_handler(CommandHandler('auction', auction_mode))
-dispatcher.add_handler(CommandHandler('submission', submission_mode))
-dispatcher.add_handler(CommandHandler('myitems', myitems))
+    # Add handlers (command, message, conversation handlers)
 
-dispatcher.add_handler(CallbackQueryHandler(category, pattern=submission_pattern))
+    dp = dispatcher #Use the dispatcher var to add your handlers as it is already initialized with the updater
 
-updater.start_polling()
-updater.idle()
+    dp.add_handler(conversation_handler) 
+    dp.add_handler(conv_handler) 
+    dp.add_handler(c_hand) 
+    dp.add_handler(bid_handler) 
+    dp.add_handler(MessageHandler(Filters.text, check_working))
+    dp.add_handler(CommandHandler('buyers', buy))
+    dp.add_handler(CommandHandler('approve', approve_command))
+    dp.add_handler(CommandHandler('sellers', sell))
+    dp.add_handler(CommandHandler('users', users))
+    dp.add_handler(CommandHandler('current', current))
+    dp.add_handler(CommandHandler('add_users', add_users))
+    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(CommandHandler('collection', send_collection))
+    dp.add_handler(CommandHandler('items',items))
+    dp.add_handler(CommandHandler('profile',profile))
+    dp.add_handler(CommandHandler('clear', clear))
+    dp.add_handler(CommandHandler('mybag', mybag))
+    dp.add_handler(CommandHandler('top', top_sellers_buyers))
+    dp.add_handler(CommandHandler('auction', auction_mode))
+    dp.add_handler(CommandHandler('submission', submission_mode))
+    dp.add_handler(CommandHandler('myitems', myitems))
 
- 
+    updater.start_webhook(listen="0.0.0.0",
+                          port=PORT,
+                          url_path="/")
+    updater.bot.set_webhook(f"{APP_URL}/")
+
+    updater.idle() #Used for persistent running
+
+if __name__ == '__main__':
+    main()
