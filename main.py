@@ -16,9 +16,7 @@ import string
 BOT_TOKEN = "7921044809:AAEtRGLlWVM6RzDVZis3QjZpIxW1l3Vfd5c"
 
 # Get the port from the environment variable (Render sets this)
-PORT = int(os.environ.get('PORT', '8443'))  # Default to 8443 if not set
-
-# Your application URL (Render provides this or you can set it)
+PORT = int(os.environ.get('PORT', '88'))  
 APP_URL = 'https://hbg-slow.onrender.com'
 if not APP_URL:
     print("APP_URL environment variable not set.  You MUST configure this on Render.")
