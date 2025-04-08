@@ -114,7 +114,7 @@ async def check_channel_membership(user_id, channels):
         try:
             chat = await client.get_entity(channel_username)
             participants = await client.get_participants(chat)
-            if any(part.user_id == user_id for part in participants):
+            if any(part.id == user_id for part in participants):
                 return True
         except Exception as e:
             logging.error(f"Error checking channel membership for {channel_username}: {e}")
