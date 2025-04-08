@@ -109,7 +109,7 @@ def is_digit(s):
     except ValueError:
         return False
 
-async def check_channel_membership(client, user_id):
+async def check_channel_membership(user_id, channels):
     for channel_username in channels:
         try:
             chat = await client.get_entity(channel_username)
