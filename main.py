@@ -18,7 +18,7 @@ BOT_TOKEN = "7921044809:AAEtRGLlWVM6RzDVZis3QjZpIxW1l3Vfd5c"
 PORT = int(os.environ.get('PORT', '8443'))  # Default to 8443 if not set
 
 # Your application URL (Render provides this or you can set it)
-APP_URL = os.environ.get('https://hbg-slow.onrender.com')
+APP_URL = 'https://hbg-slow.onrender.com'
 if not APP_URL:
     print("APP_URL environment variable not set.  You MUST configure this on Render.")
     exit(1)  # Exit if APP_URL is not defined.
@@ -2042,4 +2042,4 @@ def main():
     updater.idle() #Used for persistent running
 
 if __name__ == '__main__':
-    main()
+    main()b
