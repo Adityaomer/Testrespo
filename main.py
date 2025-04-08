@@ -15,7 +15,7 @@ from threading import Thread
 import requests
 import time
 
-
+chat_id = 1947921832
 def send_message():
     while True:
         context.bot.send_message(chat_id=chat_id, text="still alive")
