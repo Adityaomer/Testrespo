@@ -80,7 +80,9 @@ back = {
 current_add = []
 pokemons = {}
 items = {}
-
+status = {}
+status["1947921832"] = "OFF"
+status["1381668733"] = "OFF"
 user_list = []
 video = "https://files.catbox.moe/4v63m2.jpg"
 bot_name = "HBG_SLOW_AUCTIONBOT"
@@ -132,28 +134,32 @@ async def check_working(event):
 @client.on(events.NewMessage(pattern='(?i)/back_up'))
 async def back_up(event):
     user_id = event.sender_id
-    if user_id not in approved_users:
+    if user_id not in owners:
         await event.reply("You are not an approved user.")
         return
-    # Here, you could set a user-specific flag (e.g., in a dictionary) to indicate checking is active
-    # For simplicity, we'll just start the check immediately
+        
+    status["1947921832"] = "ON"
     await event.reply("Bot started! I'll check all messages for 'hi'. Use /stop to stop.")
 
 @client.on(events.NewMessage(pattern='(?i)/stop'))
 async def stop(event):
     user_id = event.sender_id
-    if user_id not in approved_users:
+    if user_id not in owners:
         await event.reply("You are not an approved user.")
         return
     # Remove the user-specific flag
+    status["1947921832"] = "OFF"
     await event.reply("Bot stopped! You can restart it with /back_up.")
 
 @client.on(events.NewMessage)
 async def check_message(event):
     user_id = event.sender_id
-    if user_id not in approved_users:
+    if user_id not in owners:
         return
-
+    if f"{user_id}" not in status:
+        return
+    if status[f"{user_id}"] != "ON":
+        return
     message = event.text
     part = message.split(":")
 
