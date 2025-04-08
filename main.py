@@ -109,23 +109,26 @@ def is_digit(s):
     except ValueError:
         return False
 
-async def check_channel_membership(user_id, channels):
+
+import logging
+from telethon import TelegramClient
+
+async def check_channel_membership(client, user_id, channels):
     for channel_username in channels:
         try:
             chat = await client.get_entity(channel_username)
-            member = await client.get_participant(chat, user_id)
-            if member:
+            participants = await client.get_participants(chat)
+            if any(part.user_id == user_id for part in participants):
                 return True
         except Exception as e:
             logging.error(f"Error checking channel membership for {channel_username}: {e}")
-    return False
-
+            return False
 async def send_long_message(chat_id, text):
     max_length = 4096
     for i in range(0, len(text), max_length):
         await client.send_message(chat_id, text[i:i + max_length], parse_mode='html')
 
-# Command handlers
+
 
 @client.on(events.NewMessage(pattern='(?i)working\?'))
 async def check_working(event):
