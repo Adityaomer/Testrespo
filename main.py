@@ -1394,11 +1394,11 @@ async def sellers_list(event):
 
 
 
-async def main():
-    await client.run_until_disconnected()
+
+    
 
 if __name__ == '__main__':
     try:
-        asyncio.run(main())
+        await client.run_until_disconnected()
     except KeyboardInterrupt:
         print('Exiting...')
