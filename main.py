@@ -818,16 +818,15 @@ async def base_price_input(event):
     category = event.context.get("category")
     picture = event.context.get("picture")
     try:
-      number_text = event.text
-      number = float(number_text[:-1]) * 1000 if number_text[-1].lower() == 'k' else float(number_text)
+        number_text = event.text
+        number = float(number_text[:-1]) * 1000 if number_text[-1].lower() == 'k' else float(number_text)
     except ValueError:
-      await event.reply("PLEASE ENTER YOUR PRICE IN NUMBER FORMAT")
-      return 
+        await event.reply("PLEASE ENTER YOUR PRICE IN NUMBER FORMAT")
+        return
     if number % 100 == 0:
-        
         seller_data[seller_id] = {}
 
-# Save each variable in the dictionary if it contains data
+        # Save each variable in the dictionary if it contains data
         seller_data[seller_id]["item_name"] = item_name
         seller_data[seller_id]["seller"] = seller
         seller_data[seller_id]["boosted"] = boosted
@@ -846,44 +845,43 @@ async def base_price_input(event):
             await event.reply(f"𝑇𝐻𝐴𝑁𝐾 𝑌𝑂𝑈 𝐹𝑂𝑅 𝐴𝐷𝐷 𝑌𝑂𝑈𝑅 𝑃𝑂𝐾𝐸𝑀𝑂𝑁 𝐼𝑁 𝐼𝐻𝐺 𝐴𝑈𝐶𝑇𝐼𝑂𝑁. <blockquote> 𝑌𝑂𝑈𝑅 {item_name}[{nature}] 𝐻𝐴𝑆 𝐵𝐸𝐸𝑁 𝑆𝐸𝑁𝑇 𝐹𝑂𝑅 𝑆𝑈𝐵𝑀𝐼𝑆𝑆𝐼𝑂𝑁</blockquote>",parse_mode="html")
             context = {}  # Using a simple dictionary for context
             if not hasattr(context, 'pokemons'):
-              context["pokemons"] = {}
+                context["pokemons"] = {}
 
-            
             if not hasattr(context["pokemons"], 'item_name'):
-              context["pokemons"]["item_name"] = []
+                context["pokemons"]["item_name"] = []
 
             if not hasattr(context["pokemons"], 'seller_id'):
-              context["pokemons"]["seller_id"] = []
+                context["pokemons"]["seller_id"] = []
 
             if not hasattr(context["pokemons"], 'boosted'):
-              context["pokemons"]["boosted"] = []
+                context["pokemons"]["boosted"] = []
 
             if not hasattr(context["pokemons"], 'moveset_page'):
-              context["pokemons"]["moveset_page"] = []
+                context["pokemons"]["moveset_page"] = []
 
             if not hasattr(context["pokemons"], 'iv_page'):
-              context["pokemons"]["iv_page"] = []
+                context["pokemons"]["iv_page"] = []
 
             if not hasattr(context["pokemons"], 'nature'):
-              context["pokemons"]["nature"] = []
+                context["pokemons"]["nature"] = []
 
             if not hasattr(context["pokemons"], 'lv'):
-              context["pokemons"]["lv"] = []
+                context["pokemons"]["lv"] = []
 
             if not hasattr(context["pokemons"], 'base'):
-              context["pokemons"]["base"] = []
+                context["pokemons"]["base"] = []
 
             if not hasattr(context["pokemons"], 'types'):
-              context["pokemons"]["types"] = []
+                context["pokemons"]["types"] = []
 
             if not hasattr(context["pokemons"], 'category'):
-              context["pokemons"]["category"] = []
+                context["pokemons"]["category"] = []
 
             if not hasattr(context["pokemons"], 'picture'):
-              context["pokemons"]["picture"] = []
+                context["pokemons"]["picture"] = []
 
             if not hasattr(context["pokemons"], 'msg_id'):
-              context["pokemons"]["msg_id"] = []
+                context["pokemons"]["msg_id"] = []
 
             # Append data to respective lists in pokemons dictionary
             if not hasattr(pokemons, 'item_name'):
@@ -897,7 +895,7 @@ async def base_price_input(event):
             if not hasattr(pokemons, 'boosted'):
                 pokemons["boosted"] = []
             pokemons["boosted"].append(boosted)
-            
+
             if not hasattr(pokemons, 'moveset_page'):
                 pokemons["moveset_page"] = []
             pokemons["moveset_page"].append(moveset_page)
@@ -934,117 +932,113 @@ async def base_price_input(event):
                 pokemons["name"] = []
             pokemons["name"].append(s_n)
 
-
             event.context["base"] = number
-                # Inline options
+            # Inline options
             inline_keyboard = [
               [Button.inline("Approve", f'papprove_{len(pokemons["picture"])-1}')],
               [Button.inline("Disapprove:👇", f'disapprove_{len(pokemons["picture"])-1}')],
               [Button.inline("RIP Nature", f'ripnature_{len(pokemons["picture"])-1}'),
                 Button.inline("RIP IVs/EVs", f'ripivsevs_{len(pokemons["picture"])-1}')],
-                [Button.inline("RIP Moveset", f'ripmoveset_{len(pokemons["picture"])-1}'),
-        Button.inline("RIP All", f'ripall_{len(pokemons["picture"])-1}')]
-       ]
+              [Button.inline("RIP Moveset", f'ripmoveset_{len(pokemons["picture"])-1}'),
+               Button.inline("RIP All", f'ripall_{len(pokemons["picture"])-1}')]
+            ]
 
-      # Forward all information to submission group with inline buttons
-            await client.send_file(SUBMISSION_GROUP_ID, picture, caption=f"""𝐍𝐚𝐦𝐞: {item_name}
-𝐓𝐲𝐩𝐞𝐬: {types}
-𝐋𝐯: {lv}
-𝐍𝐚𝐭𝐮𝐫𝐞: {nature}
-𝐈𝐕/𝐄𝐕: {iv_page}
-𝐌𝐨𝐯𝐞𝐬𝐞𝐭: {moveset_page}
-𝐁𝐨𝐨𝐬𝐭𝐞𝐝: {boosted}
-𝐁𝐀𝐒𝐄: {number}
-Seller {seller.first_name}[@{seller.username}]
+            # Forward all information to submission group with inline buttons
+            await client.send_file(SUBMISSION_GROUP_ID, picture, caption=f"""𝐍𝐚𝐦𝐞: <code>{item_name}</code>
+𝐓𝐲𝐩𝐞𝐬: <code>{types}</code>
+𝐋𝐯: <code>{lv}</code>
+𝐍𝐚𝐭𝐮𝐫𝐞: <code>{nature}</code>
+𝐈𝐕/𝐄𝐕: <code>{iv_page}</code>
+𝐌𝐨𝐯𝐞𝐬𝐞𝐭: <code>{moveset_page}</code>
+𝐁𝐨𝐨𝐬𝐭𝐞𝐝: <code>{boosted}</code>
+𝐁𝐀𝐒𝐄: <code>{number}</code>
+Seller <code>{seller.first_name}</code>[@{seller.username}]
 
 """, buttons=inline_keyboard, parse_mode='html')
 
             event.context["number"] = len(pokemons["picture"])
             if event.sender_id in current_add:
-              current_add.remove(event.sender_id)
+                current_add.remove(event.sender_id)
             return
-      
 
-    elif category in ['tm', 'team']:
-      await event.reply(f"𝑇𝐻𝐴𝑁𝐾 𝑌𝑂𝑈 𝐹𝑂𝑅 𝐴𝐷𝐷 𝑌𝑂𝑈𝑅 𝐼𝑇𝐸𝑀 𝐼𝑁 𝐼𝐻𝐺 𝐴𝑈𝐶𝑇𝐼𝑂𝑁.<blockquote> 𝑌𝑂𝑈𝑅 {item_name} 𝐻𝐴𝑆 𝐵𝐸𝐸𝑁 𝑆𝐸𝑁𝑇 𝐹𝑂𝑅 𝑆𝑈𝐵𝑀𝐼𝑆𝑆𝐼𝑂𝑁</blockquote>",parse_mode="html")
-      context = {} # Using a simple dictionary for context
-      if not hasattr(context, 'items'):
-       context["items"] = {}
+        elif category in ['tm', 'team']:
+            await event.reply(f"𝑇𝐻𝐴𝑁𝐾 𝑌𝑂𝑈 𝐹𝑂𝑅 𝐴𝐷𝐷 𝑌𝑂𝑈𝑅 𝐼𝑇𝐸𝑀 𝐼𝑁 𝐼𝐻𝐺 𝐴𝑈𝐶𝑇𝐼𝑂𝑁. <blockquote>𝑌𝑂𝑈𝑅 {item_name} 𝐻𝐴𝑆 𝐵𝐸𝐸𝑁 𝑆𝐸𝑁𝑇 𝐹𝑂𝑅 𝑆𝑈𝐵𝑀𝐼𝑆𝑆𝐼𝑂𝑁</blockquote>",parse_mode="html")
+            context = {}  # Using a simple dictionary for context
+            if not hasattr(context, 'items'):
+                context["items"] = {}
 
-      
-      if not hasattr(context["items"], 'item_name'):
-       context["items"]["item_name"] = []
+            if not hasattr(context["items"], 'item_name'):
+                context["items"]["item_name"] = []
 
-      if not hasattr(context["items"], 'details'):
-       context["items"]["details"] = []
+            if not hasattr(context["items"], 'details'):
+                context["items"]["details"] = []
 
-      if not hasattr(context["items"], 'category'):
-       context["items"]["category"] = []
+            if not hasattr(context["items"], 'category'):
+                context["items"]["category"] = []
 
-      if not hasattr(context["items"], 'picture'):
-       context["items"]["picture"] = []
+            if not hasattr(context["items"], 'picture'):
+                context["items"]["picture"] = []
 
-      if not hasattr(context["items"], 'base'):
-       context["items"]["base"] = []
+            if not hasattr(context["items"], 'base'):
+                context["items"]["base"] = []
 
-      
-      if not hasattr(context["items"], 'name'):
-       context["items"]["name"] = []
+            if not hasattr(context["items"], 'name'):
+                context["items"]["name"] = []
 
-      if not hasattr(context["items"], 'msg_id'):
-       context["items"]["msg_id"] = []
+            if not hasattr(context["items"], 'msg_id'):
+                context["items"]["msg_id"] = []
 
-      # Append data to respective lists in pokemons dictionary
-      if not hasattr(items, 'item_name'):
-        items["item_name"] = []
-      items["item_name"].append(item_name)
-    
-      if not hasattr(items, 'details'):
-        items["details"] = []
-      items["details"].append(details)
+            # Append data to respective lists in pokemons dictionary
+            if not hasattr(items, 'item_name'):
+                items["item_name"] = []
+            items["item_name"].append(item_name)
 
-      if not hasattr(items, 'category'):
-        items["category"] = []
-      items["category"].append(category)
-      
-      if not hasattr(items, 'picture'):
-        items["picture"] = []
-      items["picture"].append(event.message.media)
+            if not hasattr(items, 'details'):
+                items["details"] = []
+            items["details"].append(details)
 
-      if not hasattr(items, 'base'):
-        items["base"] = []
-      items["base"].append(number)
+            if not hasattr(items, 'category'):
+                items["category"] = []
+            items["category"].append(category)
 
-      if not hasattr(items, 'name'):
-        items["name"] = []
-      items["name"].append(s_n)
+            if not hasattr(items, 'picture'):
+                items["picture"] = []
+            items["picture"].append(event.message.media)
 
+            if not hasattr(items, 'base'):
+                items["base"] = []
+            items["base"].append(number)
 
-      event.context["base"] = number
-        # Inline options
-      inline_keyboard = [
-       [Button.inline("Approve", f'iapprove_{len(items["picture"])-1}')],
-       [Button.inline("Disapprove", f'idisapprove_{len(items["picture"])-1}')],
-      ]
+            if not hasattr(items, 'name'):
+                items["name"] = []
+            items["name"].append(s_n)
 
-      # Forward all information to submission group with inline buttons
-      await client.send_file(SUBMISSION_GROUP_ID, event.message.media, caption=f"""𝐍𝐚𝐦𝐞: {item_name}
-𝐃𝐞𝐭𝐚𝐢𝐥𝐬: {details}
-𝐁𝐀𝐒𝐄: {number}
-Seller {s_n}
+            event.context["base"] = number
+            # Inline options
+            inline_keyboard = [
+             [Button.inline("Approve", f'iapprove_{len(items["picture"])-1}')],
+             [Button.inline("Disapprove", f'idisapprove_{len(items["picture"])-1}')],
+            ]
+
+            # Forward all information to submission group with inline buttons
+            await client.send_file(SUBMISSION_GROUP_ID, event.message.media, caption=f"""𝐍𝐚𝐦𝐞: <code>{item_name}</code>
+𝐃𝐞𝐭𝐚𝐢𝐥𝐬: <code>{details}</code>
+𝐁𝐀𝐒𝐄: <code>{number}</code>
+Seller <code>{s_n}</code>
 
 """, buttons=inline_keyboard, parse_mode='html')
 
-      event.context["number"] = len(items["picture"])
-      if event.sender_id in current_add:
-       current_add.remove(event.sender_id)
-      return
+            event.context["number"] = len(items["picture"])
+            if event.sender_id in current_add:
+                current_add.remove(event.sender_id)
+            return
+        else:
+            await event.reply("SORRY I M NOT ABLE TO UNDERSTAND THE CATEGORY")
+            return
     else:
-     await event.reply("SORRY I M NOT ABLE TO UNDERSTAND THE CATEGORY")
-     return
-   else:
-    await event.reply("PLEASE ENTER YOUR PRICE IN NUMBER AND MULTIPLE OF 100")
-    return
+        await event.reply("PLEASE ENTER YOUR PRICE IN NUMBER AND MULTIPLE OF 100")
+        return
+
   
 @client.on(events.CallbackQuery(pattern=r'^(papprove|disapprove|ripnature|ripivsevs|ripmoveset|ripall)_(\d+)$'))
 pokemon_submission_actions(event):
