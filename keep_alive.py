@@ -47,8 +47,8 @@ async def combine_stickers(image_paths):
         return combined_image_bytes
 
     except Exception as e:
-        print(f"Error combining stickers in combine_stickers function: {e}")  # CRITICAL: Print the exception
-        return None # Indicate combination failed
+        print(f"Error combining stickers in combine_stickers function: {e}")  
+        return None 
 
 async def download_sticker(client, sticker_document, file_name):
     """Downloads a sticker from its document."""
@@ -116,7 +116,7 @@ async def sticker_handler(event):
 
             received_stickers.append(file_path) # Append the downloaded file path
 
-            # **VERIFY FILE DOWNLOAD:**
+           
             if not os.path.exists(file_path):
                 await event.respond(f"Error: Sticker file not found at {file_path}")
                 user_sticker_counts[user_id] -= 1
@@ -147,7 +147,7 @@ async def sticker_handler(event):
 
                 except Exception as e:
                     print(f"Error combining or sending stickers in sticker_handler: {e}")
-                    await event.respond("Sorry, there was an error combining the stickers.")
+                    await event.respond(f"Sorry, there was an error combining the stickers. {e}")
                 finally:
                     # Clean up sticker files
                     for sticker_file in received_stickers:
@@ -160,14 +160,14 @@ async def sticker_handler(event):
 
         except Exception as e:
             print(f"Error downloading sticker: {e}")
-            await event.respond("Sorry, there was an error downloading the sticker.")
+            await event.respond(f"Sorry, there was an error downloading the sticker.{e}")
             user_sticker_counts[user_id] -= 1  # Decrement count after download error
             try:
                 os.remove(sticker_file_name)
             except FileNotFoundError:
                 pass  # File may not have been downloaded
             except Exception as e2:
-                print(f"Could not delete sticker due to {e2}")
+                event.respond(f"Could not delete sticker due to {e2}")
 
 
 async def main():
