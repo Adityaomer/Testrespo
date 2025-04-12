@@ -22,6 +22,20 @@ received_stickers = []
 user_sticker_counts = {}  # Store sticker counts per user
 
 
+
+async def convert_webp_to_png(webp_path):
+    
+    png_path = webp_path.replace('.webp', '.png')
+    try:
+        image = Image.open(webp_path).convert("RGBA")
+        image.save(png_path, "PNG")
+        os.remove(webp_path) # Delete the webp image
+        return png_path  # Return the new png path
+    except Exception as e:
+        print(f"Error converting WEBP to PNG: {e}")
+        return None
+
+
 async def combine_stickers(image_paths):
     """Combines a list of image paths into a single image side-by-side."""
     try:
