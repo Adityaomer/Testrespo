@@ -154,4 +154,4 @@ async def message_handler(event):
 
 
 if __name__ == '__main__':
-    await client.run_until_disconnected()
+    client.run_until_disconnected()
