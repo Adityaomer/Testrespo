@@ -106,7 +106,7 @@ async def message_handler(event):
 
             except Exception as e:
                 await event.respond(f"Error processing sticker: {e}")
-                
+
         else:
             await event.respond("Please send a sticker.")
 
@@ -127,7 +127,7 @@ async def message_handler(event):
 
                     if combined_image:
                         try:
-                            await client.send_file(event.chat_id, combined_image, caption="Here's your image with stickers!")
+                            await client.send_file(event.chat_id, file=combined_image, caption="Here's your image with stickers!")  # Added 'file='
 
                         except Exception as e:
                              await event.respond(f"Error sending file: {e}")
@@ -150,7 +150,7 @@ async def message_handler(event):
 
 
 
-    
+
 
 
 if __name__ == '__main__':
