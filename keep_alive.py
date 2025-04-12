@@ -1,3 +1,4 @@
+
 import asyncio
 import io
 from PIL import Image, UnidentifiedImageError
@@ -48,8 +49,11 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
             row = i // 4  # Determine row (0 or 1)
             col = i % 4   # Determine column (0 to 3)
 
-            x = (image_width // 5) * (col + 1) - (sticker_width // 2)
-            y = (image_height // 3) * (row + 1) - (sticker_height // 2)
+            # Adjust the spacing factor to increase distance between stickers
+            spacing_factor_x = 6  # Increase this value for more horizontal space
+            spacing_factor_y = 3 #Keep this value
+            x = (image_width // spacing_factor_x) * (col + 1) - (sticker_width // 2)
+            y = (image_height // spacing_factor_y) * (row + 1) - (sticker_height // 2)
 
             image.paste(sticker, (int(x), int(y)), sticker)
 
@@ -63,6 +67,7 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
     except Exception as e:
         await event.respond(f"Error adding stickers: {e}")
         return None
+
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
     await event.respond("Welcome! Send me eight stickers first, then a photo. I will combine them!")
