@@ -21,6 +21,7 @@ session_name = 'sticker_combiner_bot'
 
 user_sticker_counts = {}  # Store sticker counts per user
 
+client = TelegramClient(session_name, api_id, api_hash)
 
 async def combine_stickers(image_paths):
     """Combines a list of image paths into a single image side-by-side."""
@@ -52,7 +53,6 @@ async def download_sticker(client, sticker_document, file_name):
     return sticker_file
 
 
-client = TelegramClient(session_name, api_id, api_hash)
 
 @client.on(events.NewMessage(pattern='/combine'))
 async def combine_command_handler(event):
@@ -131,12 +131,10 @@ async def sticker_handler(event):
                 print(f"Could not delete sticker due to {e2}")
 
 
-async def main():
-    # Use bot_token instead of phone when starting the client
+
+    
+
+if __name__ == '__main__':
     await client.start(bot_token=bot_token)
     print("Bot started. Listening for messages...")
     await client.run_until_disconnected()
-
-if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
