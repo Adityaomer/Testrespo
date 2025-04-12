@@ -36,7 +36,7 @@ async def convert_webp_to_png(webp_path):
         return None
 
 
-async def combine_stickers(image_paths):
+async def combine_stickers(image_paths,event):
     """Combines a list of image paths into a single image side-by-side."""
     try:
         images = [Image.open(path) for path in image_paths]
@@ -152,7 +152,7 @@ async def sticker_handler(event):
             if user_sticker_counts[user_id] == 8:
                 try:
                     await event.respond("Combining your stickers...")
-                    combined_image = await combine_stickers(received_stickers)
+                    combined_image = await combine_stickers(received_stickers, event)
                     if combined_image: 
                         await client.send_file(event.chat_id, file=combined_image, caption="Here's your combined sticker!", filename="combined.webp")
                     else:
