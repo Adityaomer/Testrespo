@@ -19,62 +19,66 @@ user_data = {}
 
 async def download_media(message):
     try:
-        media = message.message.media
-        if media is None:
+        if message.message.media:  # Check if media exists
+            data = await client.download_media(message.message.media)
+            return data
+        else:
             return None
-        data = await client.download_media(media)
-        return data
     except Exception as e:
         await message.respond(f"Error downloading media: {e}")
         return None
 
-
 async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
     try:
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGBA")  # Open from bytes directly
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGBA") # Open image from bytes
+
         image_width, image_height = image.size
         num_stickers = len(sticker_bytes_list)
 
-        # Calculate sticker size
-        max_sticker_size = min(image_width // 4, image_height // 4)
-        resized = False  # Track if resizing happened
-
-        sticker_images = []
-        for sticker_bytes in sticker_bytes_list:
-            sticker = Image.open(io.BytesIO(sticker_bytes)).convert("RGBA")  # Open from bytes directly
+        for i, sticker_bytes in enumerate(sticker_bytes_list):
+            sticker = Image.open(io.BytesIO(sticker_bytes)).convert("RGBA") # Open sticker from bytes
             sticker_width, sticker_height = sticker.size
+
+            # Resize the sticker if it's too big
+            max_sticker_size = min(image_width // 4, image_height // 4)  # Reduced size
             if sticker_width > max_sticker_size or sticker_height > max_sticker_size:
                 ratio = min(max_sticker_size / sticker_width, max_sticker_size / sticker_height)
                 sticker = sticker.resize((int(sticker_width * ratio), int(sticker_height * ratio)), Image.LANCZOS)
                 sticker_width, sticker_height = sticker.size
-                resized = True
-            sticker_images.append(sticker)
 
-        # Positioning logic
-        row1_count = min(4, num_stickers)
-        row2_count = max(0, num_stickers - 4)
-        y_offset_row1 = image_height // 4 - sticker_images[0].height // 2 if sticker_images else 0 # Place row 1 stickers at the top quarter
-        y_offset_row2 = 3 * image_height // 4 - (sticker_images[0].height // 2) if sticker_images else 0  # Place row 2 at bottom
+            # Calculate position (distribute evenly)
+            if num_stickers == 1:
+                x = (image_width - sticker_width) // 2
+                y = (image_height - sticker_height) // 2
+            elif num_stickers == 2:
+                x = (image_width // 3) - (sticker_width // 2) if i == 0 else (2 * image_width // 3) - (sticker_width // 2)
+                y = (image_height - sticker_height) // 2
+            elif num_stickers == 3:
+                if i == 0:
+                    x = (image_width // 2) - (sticker_width // 2)
+                    y = (image_height // 4) - (sticker_height // 2)
+                elif i == 1:
+                    x = (image_width // 4) - (sticker_width // 2)
+                    y = (3 * image_height // 4) - (sticker_height // 2)
+                else:
+                    x = (3 * image_width // 4) - (sticker_width // 2)
+                    y = (3 * image_height // 4) - (sticker_height // 2)
+            else:  # 4 stickers
+                if i == 0:
+                    x = (image_width // 4) - (sticker_width // 2)
+                    y = (image_height // 4) - (sticker_height // 2)
+                elif i == 1:
+                    x = (3 * image_width // 4) - (sticker_width // 2)
+                    y = (image_height // 4) - (sticker_height // 2)
+                elif i == 2:
+                    x = (image_width // 4) - (sticker_width // 2)
+                    y = (3 * image_height // 4) - (sticker_height // 2)
+                else:
+                    x = (3 * image_width // 4) - (sticker_width // 2)
+                    y = (3 * image_height // 4) - (sticker_height // 2)
 
-        # Place stickers in row 1
-        if row1_count > 0:
-            x_start_row1 = (image_width - sum(sticker.width for sticker in sticker_images[:row1_count])) // (row1_count + 1) if row1_count + 1 > 0 else 0
 
-            x_pos = x_start_row1
-            for i in range(row1_count):
-                image.paste(sticker_images[i], (int(x_pos), int(y_offset_row1)), sticker_images[i])
-                x_pos += sticker_images[i].width + x_start_row1
-
-        # Place stickers in row 2
-        if row2_count > 0:
-            x_start_row2 = (image_width - sum(sticker.width for sticker in sticker_images[4:])) // (row2_count + 1) if row2_count + 1 > 0 else 0
-
-            x_pos = x_start_row2
-            for i in range(4, num_stickers):
-                image.paste(sticker_images[i], (int(x_pos), int(y_offset_row2)), sticker_images[i])
-                x_pos += sticker_images[i].width + x_start_row2
-
-
+            image.paste(sticker, (int(x), int(y)), sticker)
 
         output = io.BytesIO()
         image.save(output, format="PNG")
@@ -87,63 +91,37 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
         await event.respond(f"Error adding stickers: {e}")
         return None
 
-
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
+    await event.respond("Welcome! Send me four stickers first, then a photo. I will combine them!")
     user_id = event.sender_id
-    user_data[user_id] = {'stickers': [], 'photo': None, 'stopped': False}  # Add a stopped flag
-    await event.respond("Welcome! Send me stickers (up to 8). Send /stop when you're done, then send the photo.")
-
-
-@client.on(events.NewMessage(pattern='/stop'))
-async def stop_handler(event):
-    user_id = event.sender_id
-    if user_id in user_data:
-        user_data[user_id]['stopped'] = True  # Set the stopped flag
-        await event.respond("Sticker collection stopped. Now send me the photo.")
-    else:
-        await event.respond("Please send /start first.")
+    user_data[user_id] = {'stickers': [], 'photo': None}
 
 @client.on(events.NewMessage)
 async def message_handler(event):
     user_id = event.sender_id
-
     if user_id not in user_data:
-        if event.text != '/start':  # Only allow /start if no user data
-            await event.respond("Please send /start first.")
-            return
-        else: # Handles /start when user is not in user_data
-            await start_handler(event)
-            return
+        await event.respond("Please send /start first.")
+        return
 
-    if event.text == '/stop':
-        return  # ignore messages with /stop content, already handled
+    if len(user_data[user_id]['stickers']) < 4:
+        if event.sticker:
+            try:
+                sticker_bytes = await download_media(event)
+                if sticker_bytes:
+                    user_data[user_id]['stickers'].append(sticker_bytes)
+                    await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/4 received.")
+                    if len(user_data[user_id]['stickers']) == 4:
+                        await event.respond("Great! Now send me a photo.")
+                else:
+                     await event.respond("Failed to download sticker. Please try again.")
 
-    if not user_data[user_id]['stopped']: # collecting stickers
-        if len(user_data[user_id]['stickers']) < 8:
-            if event.sticker:
-                try:
-                    sticker_bytes = await download_media(event)
-                    if sticker_bytes:
-                        user_data[user_id]['stickers'].append(sticker_bytes)
-                        await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/8 received.")
-                    else:
-                         await event.respond("Failed to download sticker. Please try again.")
-
-                except Exception as e:
-                    await event.respond(f"Error processing sticker: {e}")
-            elif event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')): # Catch stray photo send before /stop
-                await event.respond("Please send /stop first before sending a photo.")
-            else:
-                await event.respond("Please send a sticker or /stop.")
-
-
+            except Exception as e:
+                await event.respond(f"Error processing sticker: {e}")
         else:
-            await event.respond("You have sent the maximum number of stickers. Please send /stop to continue with the photo.")
+            await event.respond("Please send a sticker.")
 
-
-
-    else: # waiting for photo
+    elif user_data[user_id]['photo'] is None:
         if event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')):
             try:
                 photo_bytes = await download_media(event)
@@ -168,8 +146,7 @@ async def message_handler(event):
                     else:
                         await event.respond("Failed to combine stickers with the image.  Make sure the image is in a valid format (PNG, JPG, etc.)")
 
-                    del user_data[user_id]  # Reset by deleting the user data
-
+                    user_data[user_id] = {'stickers': [], 'photo': None}
                 else:
                     await event.respond("Failed to download the photo. Please try again.")
 
