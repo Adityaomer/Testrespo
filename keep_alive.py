@@ -135,6 +135,6 @@ async def sticker_handler(event):
     
 
 if __name__ == '__main__':
-    await client.start(bot_token=bot_token)
+    client.start(bot_token=bot_token)
     print("Bot started. Listening for messages...")
-    await client.run_until_disconnected()
+    client.run_until_disconnected()
