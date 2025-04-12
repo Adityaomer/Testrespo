@@ -1,4 +1,5 @@
 
+
 from telethon import TelegramClient, events, types
 from telethon.tl.types import InputStickerSetID
 from telethon.tl.functions.messages import GetStickerSetRequest
@@ -23,7 +24,7 @@ user_sticker_counts = {}  # Store sticker counts per user
 
 
 
-async def convert_webp_to_png(webp_path):
+async def convert_webp_to_png(webp_path, event):
     
     png_path = webp_path.replace('.webp', '.png')
     try:
@@ -36,7 +37,7 @@ async def convert_webp_to_png(webp_path):
         return None
 
 
-async def combine_stickers(image_paths,event):
+async def combine_stickers(image_paths, event):
     """Combines a list of image paths into a single image side-by-side."""
     try:
         images = [Image.open(path) for path in image_paths]
@@ -60,9 +61,12 @@ async def combine_stickers(image_paths,event):
         combined_image_bytes.seek(0)  # Reset the buffer to the beginning
         return combined_image_bytes
 
+    except FileNotFoundError as e:
+        await event.respond(f"Error: File not found: {e}")
+        return None
     except Exception as e:
         await event.respond(f"Error combining stickers in combine_stickers function: {e}")  
-        return None 
+        return None
 
 async def download_sticker(client, sticker_document, file_name):
     """Downloads a sticker from its document."""
@@ -121,7 +125,7 @@ async def sticker_handler(event):
             file_path = await download_sticker(client, sticker_document, sticker_file_name)  # Download the sticker
 
             if file_ext == '.webp':
-                new_path = await convert_webp_to_png(file_path)
+                new_path = await convert_webp_to_png(file_path, event)
                 if new_path is None:
                     await event.respond("Could not convert webp to png")
                     user_sticker_counts[user_id] -= 1
@@ -134,18 +138,19 @@ async def sticker_handler(event):
             if not os.path.exists(file_path):
                 await event.respond(f"Error: Sticker file not found at {file_path}")
                 user_sticker_counts[user_id] -= 1
-                received_stickers.remove(file_path)
+                if file_path in received_stickers:
+                    received_stickers.remove(file_path)
                 return
 
             file_size = os.path.getsize(file_path)
             if file_size == 0:
                 await event.respond(f"Error: Sticker file is empty at {file_path}")
                 user_sticker_counts[user_id] -= 1
-                received_stickers.remove(file_path)
-
+                if file_path in received_stickers:
+                    received_stickers.remove(file_path)
                 return
 
-            event.respond(f"Sticker downloaded successfully to {file_path} (size: {file_size} bytes)") # Print confirmation
+            #await event.respond(f"Sticker downloaded successfully to {file_path} (size: {file_size} bytes)") # Print confirmation
             await event.respond(f"Sticker {user_sticker_counts[user_id]}/8 received.")
 
 
@@ -156,7 +161,7 @@ async def sticker_handler(event):
                     if combined_image: 
                         await client.send_file(event.chat_id, file=combined_image, caption="Here's your combined sticker!", filename="combined.webp")
                     else:
-                        await event.respond(f"Sorry, there was an error combining the stickers.{received_stickers}")
+                        await event.respond(f"Sorry, there was an error combining the stickers.")
 
 
                 except Exception as e:
@@ -181,7 +186,7 @@ async def sticker_handler(event):
             except FileNotFoundError:
                 pass  # File may not have been downloaded
             except Exception as e2:
-                event.respond(f"Could not delete sticker due to {e2}")
+                await event.respond(f"Could not delete sticker due to {e2}")
 
 
 async def main():
