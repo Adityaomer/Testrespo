@@ -5,9 +5,9 @@ from PIL import Image, UnidentifiedImageError
 from telethon import TelegramClient, events, types
 import os
 
-API_ID = int("23599783")
-API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
-BOT_TOKEN = "7541028256:AAHwPTJw7SltuagihXg2hDErXJiZdKZL2zE"
+API_ID = int("YOUR_API_ID")  # Replace with your API ID
+API_HASH = "YOUR_API_HASH"  # Replace with your API Hash
+BOT_TOKEN = "YOUR_BOT_TOKEN"  # Replace with your Bot Token
 api_id = API_ID
 api_hash = API_HASH
 bot_token = BOT_TOKEN
@@ -19,9 +19,11 @@ user_data = {}
 
 async def download_media(message):
     try:
-        data = await client.download_media(message.message.media)
-        return data
-        
+        if message.media:  # Check if media exists
+            data = await client.download_media(message.media)
+            return data
+        else:
+            return None
     except Exception as e:
         await message.respond(f"Error downloading media: {e}")
         return None
@@ -55,7 +57,7 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
 
         # Place stickers in row 1
         if row1_count > 0:
-            x_start_row1 = (image_width - (sum(sticker.width for sticker in sticker_images[:row1_count]))) // (row1_count + 1)
+            x_start_row1 = (image_width - sum(sticker.width for sticker in sticker_images[:row1_count])) // (row1_count + 1) if row1_count + 1 > 0 else 0
 
             x_pos = x_start_row1
             for i in range(row1_count):
@@ -64,7 +66,7 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
 
         # Place stickers in row 2
         if row2_count > 0:
-            x_start_row2 = (image_width - (sum(sticker.width for sticker in sticker_images[4:]))) // (row2_count + 1)
+            x_start_row2 = (image_width - sum(sticker.width for sticker in sticker_images[4:])) // (row2_count + 1) if row2_count + 1 > 0 else 0
 
             x_pos = x_start_row2
             for i in range(4, num_stickers):
@@ -81,7 +83,7 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
         await event.respond(f"Error processing image (likely invalid format): {e}")
         return None
     except Exception as e:
-        await event.respond(f"Error adding stickers: {e}")
+        await event.respond(f"Error adding stickers: {e}\n{type(e)}")
         return None
 
 
