@@ -54,7 +54,7 @@ async def download_sticker(client, sticker_document, file_name):
 
 client = TelegramClient(session_name, api_id, api_hash)
 
-@client.on(events.NewMessage(pattern='(?i)/combine'))
+@client.on(events.NewMessage(pattern='/combine'))
 async def combine_command_handler(event):
     """Handles the /combine command to start collecting stickers."""
     user_id = event.sender_id
