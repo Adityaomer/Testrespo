@@ -1,36 +1,140 @@
-from flask import Flask
-from threading import Thread
-import requests
-import time
 
-app = Flask(__name__)
+from telethon import TelegramClient, events, types
+from telethon.tl.types import InputStickerSetID
+from telethon.tl.functions.messages import GetStickerSetRequest
+from PIL import Image
+import io
+import asyncio
+import os
 
-URL = "https://hbg-slow.onrender.com"
 
-@app.route('/')
-def index():
-    return "Alive"
+api_id = 123456
+api_hash = 'YOUR_API_HASH'  
 
-def run():
-    app.run(host='0.0.0.0', port=8080)
 
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
+bot_token = 'YOUR_BOT_TOKEN' 
 
-def request_url_every_minute():
-    while True:
+session_name = 'sticker_combiner_bot'
+
+
+user_sticker_counts = {}  # Store sticker counts per user
+
+
+async def combine_stickers(image_paths):
+    """Combines a list of image paths into a single image side-by-side."""
+
+    images = [Image.open(path) for path in image_paths]
+    widths, heights = zip(*(i.size for i in images))
+
+    # Find maximum height to align the stickers vertically
+    max_height = max(heights)
+    new_width = sum(widths)
+    new_img = Image.new('RGBA', (new_width, max_height), (0, 0, 0, 0))  # Use RGBA for transparency
+
+    x_offset = 0
+    for img in images:
+        # Paste the image onto the new image, padding the top if necessary
+        padding = (max_height - img.size[1]) // 2
+        new_img.paste(img, (x_offset, padding))
+        x_offset += img.size[0]
+
+    # Save the combined image to a BytesIO object
+    combined_image_bytes = io.BytesIO()
+    new_img.save(combined_image_bytes, format='PNG')
+    combined_image_bytes.seek(0)  # Reset the buffer to the beginning
+    return combined_image_bytes
+
+async def download_sticker(client, sticker_document, file_name):
+    """Downloads a sticker from its document."""
+    sticker_file = await client.download_media(sticker_document, file=file_name)
+    return sticker_file
+
+
+client = TelegramClient(session_name, api_id, api_hash)
+
+@client.on(events.NewMessage(pattern='(?i)/combine'))
+async def combine_command_handler(event):
+    """Handles the /combine command to start collecting stickers."""
+    user_id = event.sender_id
+    received_stickers.clear()  # Clear stickers for this user
+    user_sticker_counts[user_id] = 0  # Initialize count for this user
+
+    await event.respond("Okay, send me 8 stickers and I'll combine them!")
+
+
+@client.on(events.NewMessage)
+async def sticker_handler(event):
+    """Handles incoming stickers."""
+    user_id = event.sender_id
+    if user_id not in user_sticker_counts:
+        return  # Ignore stickers if the user hasn't started the command
+
+    if event.sticker:
+        user_sticker_counts[user_id] += 1
+        sticker_document = event.message.document
+
+        # Check if it is a sticker using attributes
+        is_sticker = False
+        for attr in sticker_document.attributes:
+            if isinstance(attr, types.DocumentAttributeSticker):
+                is_sticker = True
+                sticker_set_input = attr.stickerset
+                break
+
+        if not is_sticker:
+            await event.respond("That was not recognized as a sticker. Please send valid stickers.")
+            user_sticker_counts[user_id] -= 1 # Decrement sticker count, as this message wasn't a sticker
+            return
+
+        file_ext = '.png'  # Default to PNG
+        if sticker_document.mime_type == 'image/webp':  # Webp is also acceptable
+            file_ext = '.webp'
+
+        sticker_file_name = f"sticker_{user_sticker_counts[user_id]}_{user_id}{file_ext}" # Unique file name
         try:
-            response = requests.get(URL)
-            print(f"keep_alive.py => Status Code: {response.status_code}")
-            # Process the response if needed
-            # For example, print the content: print(response.content)
-        except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
+            file_path = await download_sticker(client, sticker_document, sticker_file_name)  # Download the sticker
+            received_stickers.append(file_path) # Append the downloaded file path
 
-        # Wait for 1 minute
-        time.sleep(60)
+            await event.respond(f"Sticker {user_sticker_counts[user_id]}/8 received.")
 
-def start_requesting():
-    t = Thread(target=request_url_every_minute)
-    t.start()
+
+            if user_sticker_counts[user_id] == 8:
+                try:
+                    await event.respond("Combining your stickers...")
+                    combined_image = await combine_stickers(received_stickers)
+                    await client.send_file(event.chat_id, file=combined_image, caption="Here's your combined sticker!")
+
+                except Exception as e:
+                    print(f"Error combining or sending stickers: {e}")
+                    await event.respond("Sorry, there was an error combining the stickers.")
+                finally:
+                    # Clean up sticker files
+                    for sticker_file in received_stickers:
+                        try:
+                            os.remove(sticker_file)  # Delete the temporary sticker file
+                        except Exception as e:
+                            print(f"Error deleting sticker file: {e}")
+                    received_stickers.clear()  # Clear list
+                    user_sticker_counts[user_id] = 0 # Reset count
+
+        except Exception as e:
+            print(f"Error downloading sticker: {e}")
+            await event.respond("Sorry, there was an error downloading the sticker.")
+            user_sticker_counts[user_id] -= 1  # Decrement count after download error
+            try:
+                os.remove(sticker_file_name)
+            except FileNotFoundError:
+                pass  # File may not have been downloaded
+            except Exception as e2:
+                print(f"Could not delete sticker due to {e2}")
+
+
+async def main():
+    # Use bot_token instead of phone when starting the client
+    await client.start(bot_token=bot_token)
+    print("Bot started. Listening for messages...")
+    await client.run_until_disconnected()
+
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(main())
