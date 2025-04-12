@@ -90,7 +90,7 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
     user_id = event.sender_id
-    user_data[user_id] = {'stickers': [], 'photo': None}
+    user_data[user_id] = {'stickers': [], 'photo': None, 'stopped': False}  # Add a stopped flag
     await event.respond("Welcome! Send me stickers (up to 8). Send /stop when you're done, then send the photo.")
 
 
@@ -98,6 +98,7 @@ async def start_handler(event):
 async def stop_handler(event):
     user_id = event.sender_id
     if user_id in user_data:
+        user_data[user_id]['stopped'] = True  # Set the stopped flag
         await event.respond("Sticker collection stopped. Now send me the photo.")
     else:
         await event.respond("Please send /start first.")
@@ -113,28 +114,35 @@ async def message_handler(event):
         else: # Handles /start when user is not in user_data
             await start_handler(event)
             return
+
     if event.text == '/stop':
-            return # ignores
+        return  # ignore messages with /stop content, already handled
 
-    if len(user_data[user_id]['stickers']) < 8 and user_data[user_id].get('photo') is None:
-        if event.sticker:
-            try:
-                sticker_bytes = await download_media(event)
-                if sticker_bytes:
-                    user_data[user_id]['stickers'].append(sticker_bytes)
-                    await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/8 received.")
-                else:
-                     await event.respond("Failed to download sticker. Please try again.")
+    if not user_data[user_id]['stopped']: # collecting stickers
+        if len(user_data[user_id]['stickers']) < 8:
+            if event.sticker:
+                try:
+                    sticker_bytes = await download_media(event)
+                    if sticker_bytes:
+                        user_data[user_id]['stickers'].append(sticker_bytes)
+                        await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/8 received.")
+                    else:
+                         await event.respond("Failed to download sticker. Please try again.")
 
-            except Exception as e:
-                await event.respond(f"Error processing sticker: {e}")
-        elif event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')): # Catch stray photo send before /stop
-            await event.respond("Please send /stop first before sending a photo.")
+                except Exception as e:
+                    await event.respond(f"Error processing sticker: {e}")
+            elif event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')): # Catch stray photo send before /stop
+                await event.respond("Please send /stop first before sending a photo.")
+            else:
+                await event.respond("Please send a sticker or /stop.")
+
+
         else:
-            await event.respond("Please send a sticker or /stop.")
+            await event.respond("You have sent the maximum number of stickers. Please send /stop to continue with the photo.")
 
 
-    elif user_data[user_id].get('photo') is None:
+
+    else: # waiting for photo
         if event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')):
             try:
                 photo_bytes = await download_media(event)
@@ -168,7 +176,6 @@ async def message_handler(event):
                 await event.respond(f"Error processing photo: {e}")
         else:
             await event.respond("Please send a photo.")
-
 
 if __name__ == '__main__':
     client.run_until_disconnected()
