@@ -24,7 +24,7 @@ user_data = {}  # Dict to store user-specific data (stickers and photo)
 
 async def download_media(message):
     try:
-        media = message.media
+        media = message.message.media
         if media is None:
             return None
 
