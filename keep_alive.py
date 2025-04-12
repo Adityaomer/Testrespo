@@ -1,6 +1,7 @@
+
 import asyncio
 import io
-from PIL import Image, UnidentifiedImageError, ImageDraw, ImageFont
+from PIL import Image, UnidentifiedImageError
 from telethon import TelegramClient, events, types
 import os
 
@@ -13,70 +14,23 @@ bot_token = BOT_TOKEN
 
 client = TelegramClient('sticker_bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
+# Store the stickers and photo for each user
 user_data = {}
 
 async def download_media(message):
     try:
-        media = message.message.media
-        if media is None:
+        if message.media:  # Check if media exists
+            data = await client.download_media(message.media)
+            return data
+        else:
             return None
-        data = await client.download_media(media)
-        return data
     except Exception as e:
         await message.respond(f"Error downloading media: {e}")
         return None
 
-async def create_sticker_pack(sticker_bytes_list, event):
+async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
     try:
-        num_stickers = len(sticker_bytes_list)
-
-        # Create a base image
-        base_width = 512  # Standard sticker width
-        base_height = 512  # Adjust based on number of stickers
-        base_image = Image.new("RGBA", (base_width, base_height), (0, 0, 0, 0))  # Transparent background
-
-        # Resize and load stickers as images
-        sticker_images = []
-        for sticker_bytes in sticker_bytes_list:
-            sticker = Image.open(sticker_bytes).convert("RGBA")
-            sticker_width, sticker_height = sticker.size
-            max_sticker_size = base_width // 4
-            if sticker_width > max_sticker_size or sticker_height > max_sticker_size:
-                ratio = min(max_sticker_size / sticker_width, max_sticker_size / sticker_height)
-                sticker = sticker.resize((int(sticker_width * ratio), int(sticker_height * ratio)), Image.LANCZOS)
-            sticker_images.append(sticker)
-
-        # Calculate positioning
-        row1_count = min(4, num_stickers)
-        row2_count = max(0, num_stickers - 4)
-        y_offset_row1 = base_height // 4 - sticker_images[0].height // 2 if sticker_images else 0
-        y_offset_row2 = 3 * base_height // 4 - sticker_images[0].height // 2 if sticker_images else 0
-
-
-        # Place row 1 stickers
-        x_start_row1 = (base_width - (sum(sticker.width for sticker in sticker_images[:row1_count]))) // (row1_count + 1)
-        x_pos = x_start_row1
-        for i in range(row1_count):
-             base_image.paste(sticker_images[i], (int(x_pos), int(y_offset_row1)), sticker_images[i])
-             x_pos += sticker_images[i].width + x_start_row1
-
-        # Place row 2 stickers
-        x_start_row2 = (base_width - (sum(sticker.width for sticker in sticker_images[4:]))) // (row2_count + 1)
-        x_pos = x_start_row2
-        for i in range(4, num_stickers):
-            base_image.paste(sticker_images[i], (int(x_pos), int(y_offset_row2)), sticker_images[i])
-            x_pos += sticker_images[i].width + x_start_row2
-        output = io.BytesIO()
-        base_image.save(output, format="WEBP")  # Save as WebP
-        output.seek(0)
-        return output
-    except Exception as e:
-        await event.respond(f"Error creating sticker pack: {e}")
-        return None
-
-async def add_stickers_to_image(image_bytes, sticker_bytes_list, event): # this is for image
-    try:
-        image = Image.open(image_bytes).convert("RGBA")
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGBA")  # Open from bytes directly
         image_width, image_height = image.size
         num_stickers = len(sticker_bytes_list)
 
@@ -86,7 +40,7 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event): # this 
 
         sticker_images = []
         for sticker_bytes in sticker_bytes_list:
-            sticker = Image.open(sticker_bytes).convert("RGBA")
+            sticker = Image.open(io.BytesIO(sticker_bytes)).convert("RGBA")  # Open from bytes directly
             sticker_width, sticker_height = sticker.size
             if sticker_width > max_sticker_size or sticker_height > max_sticker_size:
                 ratio = min(max_sticker_size / sticker_width, max_sticker_size / sticker_height)
@@ -102,20 +56,22 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event): # this 
         y_offset_row2 = 3 * image_height // 4 - (sticker_images[0].height // 2) if sticker_images else 0  # Place row 2 at bottom
 
         # Place stickers in row 1
-        x_start_row1 = (image_width - (sum(sticker.width for sticker in sticker_images[:row1_count]))) // (row1_count + 1)
+        if row1_count > 0:
+            x_start_row1 = (image_width - (sum(sticker.width for sticker in sticker_images[:row1_count]))) // (row1_count + 1)
 
-        x_pos = x_start_row1
-        for i in range(row1_count):
-            image.paste(sticker_images[i], (int(x_pos), int(y_offset_row1)), sticker_images[i])
-            x_pos += sticker_images[i].width + x_start_row1
+            x_pos = x_start_row1
+            for i in range(row1_count):
+                image.paste(sticker_images[i], (int(x_pos), int(y_offset_row1)), sticker_images[i])
+                x_pos += sticker_images[i].width + x_start_row1
 
         # Place stickers in row 2
-        x_start_row2 = (image_width - (sum(sticker.width for sticker in sticker_images[4:]))) // (row2_count + 1)
+        if row2_count > 0:
+            x_start_row2 = (image_width - (sum(sticker.width for sticker in sticker_images[4:]))) // (row2_count + 1)
 
-        x_pos = x_start_row2
-        for i in range(4, num_stickers):
-            image.paste(sticker_images[i], (int(x_pos), int(y_offset_row2)), sticker_images[i])
-            x_pos += sticker_images[i].width + x_start_row2
+            x_pos = x_start_row2
+            for i in range(4, num_stickers):
+                image.paste(sticker_images[i], (int(x_pos), int(y_offset_row2)), sticker_images[i])
+                x_pos += sticker_images[i].width + x_start_row2
 
 
 
@@ -133,15 +89,16 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event): # this 
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
-    await event.respond("Welcome! Send me stickers (up to 8). Send /stop when you're done, then send a photo or 'NO PHOTO'.")
     user_id = event.sender_id
     user_data[user_id] = {'stickers': [], 'photo': None}
+    await event.respond("Welcome! Send me stickers (up to 8). Send /stop when you're done, then send the photo.")
+
 
 @client.on(events.NewMessage(pattern='/stop'))
 async def stop_handler(event):
     user_id = event.sender_id
     if user_id in user_data:
-        await event.respond("Sticker collection stopped. Now send a photo or 'NO PHOTO'.")
+        await event.respond("Sticker collection stopped. Now send me the photo.")
     else:
         await event.respond("Please send /start first.")
 
@@ -159,7 +116,7 @@ async def message_handler(event):
     if event.text == '/stop':
             return # ignores
 
-    if len(user_data[user_id]['stickers']) < 8 and 'photo' not in user_data[user_id]:
+    if len(user_data[user_id]['stickers']) < 8 and user_data[user_id].get('photo') is None:
         if event.sticker:
             try:
                 sticker_bytes = await download_media(event)
@@ -172,31 +129,13 @@ async def message_handler(event):
             except Exception as e:
                 await event.respond(f"Error processing sticker: {e}")
         elif event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')): # Catch stray photo send before /stop
-            await event.respond("Please send /stop first before sending a photo or 'NO PHOTO'.")
+            await event.respond("Please send /stop first before sending a photo.")
         else:
             await event.respond("Please send a sticker or /stop.")
 
 
-    elif 'photo' not in user_data[user_id]:
-        if event.text == "NO PHOTO":
-            try:
-                sticker_pack = await create_sticker_pack(user_data[user_id]['stickers'], event)
-                if sticker_pack:
-                    try:
-                        image_path = f"temp_sticker_pack_{user_id}.webp"
-                        with open(image_path, "wb") as f:
-                            f.write(sticker_pack.getvalue())
-                        await client.send_file(event.chat_id, image_path, caption="Here's your sticker pack!", mime_type="image/webp")  # Set MIME type
-                        os.remove(image_path)
-
-                    except Exception as e:
-                        await event.respond(f"Error sending file: {e}")
-                else:
-                    await event.respond("Failed to create sticker pack.")
-
-            except Exception as e:
-                await event.respond(f"Error processing request: {e}")
-        elif event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')):
+    elif user_data[user_id].get('photo') is None:
+        if event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')):
             try:
                 photo_bytes = await download_media(event)
                 if photo_bytes:
@@ -220,16 +159,16 @@ async def message_handler(event):
                     else:
                         await event.respond("Failed to combine stickers with the image.  Make sure the image is in a valid format (PNG, JPG, etc.)")
 
+                    del user_data[user_id]  # Reset by deleting the user data
+
                 else:
                     await event.respond("Failed to download the photo. Please try again.")
 
             except Exception as e:
                 await event.respond(f"Error processing photo: {e}")
         else:
-            await event.respond("Please send a photo or 'NO PHOTO'.")
+            await event.respond("Please send a photo.")
 
-        # reset user data after processing
-        user_data[user_id] = {'stickers': [], 'photo': None}
 
 if __name__ == '__main__':
     client.run_until_disconnected()
