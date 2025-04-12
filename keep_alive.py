@@ -8,11 +8,13 @@ import asyncio
 import os
 
 
-api_id = 123456
-api_hash = 'YOUR_API_HASH'  
 
-
-bot_token = 'YOUR_BOT_TOKEN' 
+API_ID = int("23599783")
+API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
+BOT_TOKEN = "7541028256:AAHwPTJw7SltuagihXg2hDErXJiZdKZL2zE"
+api_id = API_ID
+api_hash = API_HASH
+bot_token = BOT_TOKEN
 
 session_name = 'sticker_combiner_bot'
 
