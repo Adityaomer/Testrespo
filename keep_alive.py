@@ -7,12 +7,13 @@ from telethon.tl.functions.messages import GetStickerSetRequest
 from telethon.tl.types import InputStickerSetID
 import os  # Import the os module
 
-API_ID = int("YOUR_API_ID")  # Replace with your API ID
-API_HASH = "YOUR_API_HASH"  # Replace with your API Hash
-BOT_TOKEN = "YOUR_BOT_TOKEN"  # Replace with your Bot Token
+API_ID = int("23599783")
+API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
+BOT_TOKEN = "7541028256:AAHwPTJw7SltuagihXg2hDErXJiZdKZL2zE"
 api_id = API_ID
 api_hash = API_HASH
 bot_token = BOT_TOKEN
+
 
 
 client = TelegramClient('sticker_bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
