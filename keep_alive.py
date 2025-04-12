@@ -19,12 +19,13 @@ bot_token = BOT_TOKEN
 session_name = 'sticker_combiner_bot'
 
 
-user_sticker_counts = {}  # Store sticker counts per user
+user_sticker_counts = {}  
+received_stickers = []
 
 client = TelegramClient(session_name, api_id, api_hash)
 
 async def combine_stickers(image_paths):
-    """Combines a list of image paths into a single image side-by-side."""
+    
 
     images = [Image.open(path) for path in image_paths]
     widths, heights = zip(*(i.size for i in images))
