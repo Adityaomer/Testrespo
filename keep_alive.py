@@ -1,14 +1,15 @@
+
 import asyncio
 import io
 from PIL import Image, UnidentifiedImageError
 from telethon import TelegramClient, events, types
 from telethon.tl.functions.messages import GetStickerSetRequest
 from telethon.tl.types import InputStickerSetID
+import os  # Import the os module
 
-
-API_ID = int("23599783")
-API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
-BOT_TOKEN = "7541028256:AAHwPTJw7SltuagihXg2hDErXJiZdKZL2zE"
+API_ID = int("YOUR_API_ID")  # Replace with your API ID
+API_HASH = "YOUR_API_HASH"  # Replace with your API Hash
+BOT_TOKEN = "YOUR_BOT_TOKEN"  # Replace with your Bot Token
 api_id = API_ID
 api_hash = API_HASH
 bot_token = BOT_TOKEN
@@ -57,9 +58,9 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
 
             # Paste the sticker onto the image
             image.paste(sticker, (x, y), sticker) # 'sticker' is the mask
-        output.jpg = io.BytesIO()
-        image.save(output.jpg, format="PNG")
-        output.jpg.seek(0)
+        output = io.BytesIO()
+        image.save(output, format="PNG")
+        output.seek(0)
         return output
     except UnidentifiedImageError as e:
         await event.respond(f"Error processing image (likely invalid format): {e}")
@@ -119,7 +120,16 @@ async def message_handler(event):
 
                     if combined_image:
                         try:
-                            await client.send_file(event.chat_id, combined_image, caption="Here's your image with stickers!")
+                            # Save the image to a temporary file
+                            image_path = f"temp_image_{user_id}.png"  # Unique filename per user
+                            with open(image_path, "wb") as f:
+                                f.write(combined_image.getvalue())  # Write bytes to file
+
+                            # Send the file
+                            await client.send_file(event.chat_id, image_path, caption="Here's your image with stickers!")
+
+                            # Clean up the temporary file
+                            os.remove(image_path)
 
                         except Exception as e:
                              await event.respond(f"Error sending file: {e}")
