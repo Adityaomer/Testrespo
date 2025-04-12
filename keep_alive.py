@@ -28,16 +28,12 @@ async def download_media(message):
         if media is None:
             return None
 
-        if isinstance(media, types.MessageMediaPhoto):
-            data = await client.download_media(media) #  photo
-
-        elif isinstance(media, types.MessageMediaDocument):
-            data = await client.download_media(media) # sticker document
+        data = await client.download_media(media) # sticker document
 
         else:
              return None
 
-        return io.BytesIO(data)
+        return data
     except Exception as e:
         await message.respond(f"Error downloading media: {e}")
         return None
@@ -127,7 +123,7 @@ async def message_handler(event):
 
                     if combined_image:
                         try:
-                            await client.send_file(event.chat_id, file=combined_image, caption="Here's your image with stickers!")  # Added 'file='
+                            await client.send_file(event.chat_id, combined_image, caption="Here's your image with stickers!")
 
                         except Exception as e:
                              await event.respond(f"Error sending file: {e}")
