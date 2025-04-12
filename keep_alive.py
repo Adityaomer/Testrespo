@@ -50,12 +50,12 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
             col = i % 4   # Determine column (0 to 3)
 
             # Adjust the spacing factor to increase distance between stickers
-            spacing_factor_x = 4.5 # Increase this value for more horizontal space
+            spacing_factor_x = 4.5  # Increased horizontal space
             spacing_factor_y = 3 #Keep this value
-            x = (image_width // spacing_factor_x) * (col + 1) - (sticker_width // 2)
+            x = (image_width / spacing_factor_x) * (col + 1) - (sticker_width // 2)
             y = (image_height // spacing_factor_y) * (row + 1) - (sticker_height // 2)
 
-            image.paste(sticker, (float(x), float(y)), sticker)
+            image.paste(sticker, (int(x), int(y)), sticker)
 
         output = io.BytesIO()
         image.save(output, format="PNG")
