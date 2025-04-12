@@ -19,17 +19,15 @@ user_data = {}
 
 async def download_media(message):
     try:
-        if message.media:  # Check if media exists
-            data = await client.download_media(message.media)
-            if isinstance(data, str):
-                print("WARNING: Downloaded media is a string, not bytes.")
-                return None  # Or handle the string, if possible.  Returning None will prevent processing
-            return data
-        else:
+        media = message.message.media
+        if media is None:
             return None
+        data = await client.download_media(media)
+        return data
     except Exception as e:
         await message.respond(f"Error downloading media: {e}")
         return None
+
 
 async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
     try:
