@@ -11,6 +11,6 @@ commands:
   package:
     - "nano inxi"
   start:
-    - "python3 bot_s.py"
+    - "python3 keep_alive.py"
 env:
   - "ENVIRONMENT=production"
