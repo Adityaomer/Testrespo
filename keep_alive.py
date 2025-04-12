@@ -117,7 +117,7 @@ async def message_handler(event):
     if len(user_data[user_id]['stickers']) < 8 and 'photo' not in user_data[user_id]:
         if event.sticker:
             try:
-                sticker_bytes = await download_media(event)
+                sticker_bytes = await download_media(event.message.media)
                 if sticker_bytes:
                     user_data[user_id]['stickers'].append(sticker_bytes)
                     await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/8 received.")
@@ -135,7 +135,7 @@ async def message_handler(event):
     elif 'photo' not in user_data[user_id]:
         if event.photo or (event.media and isinstance(event.media, types.MessageMediaDocument) and event.media.mime_type.startswith('image')):
             try:
-                photo_bytes = await download_media(event)
+                photo_bytes = await download_media(event.message.media)
                 if photo_bytes:
                     user_data[user_id]['photo'] = photo_bytes
                     await event.respond("Photo received. Processing...")
