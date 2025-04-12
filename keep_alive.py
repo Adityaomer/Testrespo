@@ -95,8 +95,8 @@ async def sticker_handler(event):
 
         sticker_file_name = f"sticker_{user_sticker_counts[user_id]}_{user_id}{file_ext}" # Unique file name
         try:
-            file_path = await download_sticker(client, sticker_document, sticker_file_name)  # Download the sticker
-            received_stickers.append(file_path) # Append the downloaded file path
+            file_path = await download_sticker(client, sticker_document, sticker_file_name)  
+            received_stickers.append(file_path) 
 
             await event.respond(f"Sticker {user_sticker_counts[user_id]}/8 received.")
 
@@ -109,7 +109,7 @@ async def sticker_handler(event):
 
                 except Exception as e:
                     print(f"Error combining or sending stickers: {e}")
-                    await event.respond("Sorry, there was an error combining the stickers.")
+                    await event.respond(f"Sorry, there was an error combining the stickers.{e}")
                 finally:
                     # Clean up sticker files
                     for sticker_file in received_stickers:
