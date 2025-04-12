@@ -19,11 +19,9 @@ user_data = {}
 
 async def download_media(message):
     try:
-        if message.media:  # Check if media exists
-            data = await client.download_media(message.media)
-            return data
-        else:
-            return None
+        data = await client.download_media(message.message.media)
+        return data
+        
     except Exception as e:
         await message.respond(f"Error downloading media: {e}")
         return None
