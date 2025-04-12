@@ -32,7 +32,7 @@ async def convert_webp_to_png(webp_path):
         os.remove(webp_path) # Delete the webp image
         return png_path  # Return the new png path
     except Exception as e:
-        print(f"Error converting WEBP to PNG: {e}")
+        await event.respond(f"Error converting WEBP to PNG: {e}")
         return None
 
 
@@ -61,7 +61,7 @@ async def combine_stickers(image_paths,event):
         return combined_image_bytes
 
     except Exception as e:
-        event.respond(f"Error combining stickers in combine_stickers function: {e}")  
+        await event.respond(f"Error combining stickers in combine_stickers function: {e}")  
         return None 
 
 async def download_sticker(client, sticker_document, file_name):
