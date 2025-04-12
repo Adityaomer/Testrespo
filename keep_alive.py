@@ -1,5 +1,4 @@
 
-
 from telethon import TelegramClient, events, types
 from telethon.tl.types import InputStickerSetID
 from telethon.tl.functions.messages import GetStickerSetRequest
@@ -40,7 +39,22 @@ async def convert_webp_to_png(webp_path, event):
 async def combine_stickers(image_paths, event):
     """Combines a list of image paths into a single image side-by-side."""
     try:
-        images = [Image.open(path) for path in image_paths]
+        images = []
+        for path in image_paths:
+            try:
+                img = Image.open(path)
+                images.append(img)
+            except FileNotFoundError as e:
+                await event.respond(f"Error: File not found: {e}")
+                return None
+            except Exception as e:
+                await event.respond(f"Error opening image {path}: {e}")
+                return None
+
+        if not images:
+            await event.respond("Error: No images could be opened for combining.")
+            return None
+
         widths, heights = zip(*(i.size for i in images))
 
         # Find maximum height to align the stickers vertically
@@ -61,17 +75,19 @@ async def combine_stickers(image_paths, event):
         combined_image_bytes.seek(0)  # Reset the buffer to the beginning
         return combined_image_bytes
 
-    except FileNotFoundError as e:
-        await event.respond(f"Error: File not found: {e}")
-        return None
+
     except Exception as e:
         await event.respond(f"Error combining stickers in combine_stickers function: {e}")  
         return None
 
-async def download_sticker(client, sticker_document, file_name):
+async def download_sticker(client, sticker_document, file_name, event):
     """Downloads a sticker from its document."""
-    sticker_file = await client.download_media(sticker_document, file=file_name)
-    return sticker_file
+    try:
+        sticker_file = await client.download_media(sticker_document, file=file_name)
+        return sticker_file
+    except Exception as e:
+        await event.respond(f"Error downloading sticker: {e}")
+        return None
 
 
 client = TelegramClient(session_name, api_id, api_hash)
@@ -121,8 +137,12 @@ async def sticker_handler(event):
             file_ext = '.webp'
 
         sticker_file_name = f"sticker_{user_sticker_counts[user_id]}_{user_id}{file_ext}" # Unique file name
+        
+        file_path = await download_sticker(client, sticker_document, sticker_file_name, event)  # Download the sticker
+        if file_path is None:
+            user_sticker_counts[user_id] -= 1
+            return
         try:
-            file_path = await download_sticker(client, sticker_document, sticker_file_name)  # Download the sticker
 
             if file_ext == '.webp':
                 new_path = await convert_webp_to_png(file_path, event)
@@ -178,8 +198,8 @@ async def sticker_handler(event):
                     user_sticker_counts[user_id] = 0 # Reset count
 
         except Exception as e:
-            print(f"Error downloading sticker: {e}")
-            await event.respond(f"Sorry, there was an error downloading the sticker.{e}")
+            print(f"Error in sticker_handler: {e}")
+            await event.respond(f"Sorry, there was an error processing the sticker.{e}")
             user_sticker_counts[user_id] -= 1  # Decrement count after download error
             try:
                 os.remove(sticker_file_name)
