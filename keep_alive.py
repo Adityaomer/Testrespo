@@ -57,9 +57,9 @@ async def add_stickers_to_image(image_bytes, sticker_bytes_list, event):
 
             # Paste the sticker onto the image
             image.paste(sticker, (x, y), sticker) # 'sticker' is the mask
-        output = io.BytesIO()
-        image.save(output, format="PNG")
-        output.seek(0)
+        output.jpg = io.BytesIO()
+        image.save(output.jpg, format="PNG")
+        output.jpg.seek(0)
         return output
     except UnidentifiedImageError as e:
         await event.respond(f"Error processing image (likely invalid format): {e}")
