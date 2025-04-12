@@ -1,4 +1,3 @@
-
 import asyncio
 import io
 from PIL import Image, UnidentifiedImageError
@@ -28,10 +27,7 @@ async def download_media(message):
         if media is None:
             return None
 
-        data = await client.download_media(media) # sticker document
-
-        else:
-             return None
+        data = await client.download_media(media) 
 
         return data
     except Exception as e:
