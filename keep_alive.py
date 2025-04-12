@@ -133,7 +133,7 @@ async def message_handler(event):
 
                     if combined_image:
                         try:
-                            image_path = f"temp_image_{user_id}.png"
+                            image_path = f"temp_image_{user_id}.webp"
                             with open(image_path, "wb") as f:
                                 f.write(combined_image.getvalue())
 
