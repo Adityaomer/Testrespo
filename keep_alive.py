@@ -4,7 +4,9 @@ import io
 from PIL import Image, UnidentifiedImageError, ImageDraw, ImageFont
 from telethon import TelegramClient, events, types
 import os
-import API_ID = int("23599783")
+import random
+
+API_ID = int("23599783")
 API_HASH = "62c4987db06716e25c4d68dcdcdc1ea5"
 BOT_TOKEN = "7541028256:AAHwPTJw7SltuagihXg2hDErXJiZdKZL2zE"
 api_id = API_ID
