@@ -61,7 +61,7 @@ async def combine_stickers(image_paths):
         return combined_image_bytes
 
     except Exception as e:
-        print(f"Error combining stickers in combine_stickers function: {e}")  
+        event.respond(f"Error combining stickers in combine_stickers function: {e}")  
         return None 
 
 async def download_sticker(client, sticker_document, file_name):
@@ -145,7 +145,7 @@ async def sticker_handler(event):
 
                 return
 
-            print(f"Sticker downloaded successfully to {file_path} (size: {file_size} bytes)") # Print confirmation
+            event.respond(f"Sticker downloaded successfully to {file_path} (size: {file_size} bytes)") # Print confirmation
             await event.respond(f"Sticker {user_sticker_counts[user_id]}/8 received.")
 
 
@@ -153,10 +153,10 @@ async def sticker_handler(event):
                 try:
                     await event.respond("Combining your stickers...")
                     combined_image = await combine_stickers(received_stickers)
-                    if combined_image: # Check if combining was successful
+                    if combined_image: 
                         await client.send_file(event.chat_id, file=combined_image, caption="Here's your combined sticker!", filename="combined.webp")
                     else:
-                        await event.respond("Sorry, there was an error combining the stickers.")
+                        await event.respond(f"Sorry, there was an error combining the stickers.{received_stickers}")
 
 
                 except Exception as e:
