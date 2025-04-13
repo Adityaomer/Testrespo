@@ -37,8 +37,8 @@ async def create_sticker_pack(sticker_bytes_list):
         cols = min(num_stickers, 4)  # Number of columns depends on how many stickers we have
 
         # Calculate the dimensions of the image
-        sticker_width = 1024  # Increased sticker width
-        sticker_height = 1024# Increased sticker height
+        sticker_width = 720  # Increased sticker width
+        sticker_height = 720# Increased sticker height
         image_width = cols * sticker_width
         image_height = rows * sticker_height
 
