@@ -32,8 +32,8 @@ async def create_sticker_grid(sticker_bytes_list):
     try:
         num_stickers = len(sticker_bytes_list)
         # Calculate the required dimensions for the image
-        rows = 2  # Fixed to 2 rows to use all 8 stickers
-        cols = 4  # Fixed to 4 stickers per row
+        rows = 4  # Fixed to 4 rows
+        cols = 2  # Fixed to 2 columns
         if num_stickers != 8:
             raise ValueError("Exactly 8 stickers are required")
 
@@ -53,8 +53,8 @@ async def create_sticker_grid(sticker_bytes_list):
             if current_width != sticker_width or current_height != sticker_height:
                 sticker = sticker.resize((sticker_width, sticker_height), Image.LANCZOS)
 
-            row = i // 4  # Calculate row based on index
-            col = i % 4   # Calculate column based on index
+            row = i // 2  # Calculate row based on index
+            col = i % 2   # Calculate column based on index
 
             x = col * sticker_width
             y = row * sticker_height
@@ -70,7 +70,7 @@ async def create_sticker_grid(sticker_bytes_list):
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
-    await event.respond("Welcome! Send me eight stickers. I will create a sticker with them in a 2x4 grid.")
+    await event.respond("Welcome! Send me eight stickers. I will create a sticker with them in a 4x2 grid (4 rows, 2 columns).")
     user_id = event.sender_id
     user_data[user_id] = {'stickers': []}  # Only store stickers
 
