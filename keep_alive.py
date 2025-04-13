@@ -1,3 +1,4 @@
+
 import asyncio
 import io
 from PIL import Image, UnidentifiedImageError, ImageDraw, ImageFont
@@ -28,17 +29,17 @@ async def download_media(message):
         await message.respond(f"Error downloading media: {e}")
         return None
 
-async def create_sticker_pack(sticker_bytes_list):
+async def create_sticker_row(sticker_bytes_list):
     try:
         num_stickers = len(sticker_bytes_list)
         # Calculate the required dimensions for the image
         # We'll arrange stickers in two rows, with maximum 4 stickers per row
-        rows = 2
+        rows = 1
         cols = min(num_stickers, 4)  # Number of columns depends on how many stickers we have
 
         # Calculate the dimensions of the image
-        sticker_width = 720  # Increased sticker width
-        sticker_height = 720# Increased sticker height
+        sticker_width = 512  # Increased sticker width. 512 is max for stickers
+        sticker_height = 512 # Increased sticker height. 512 is max for stickers
         image_width = cols * sticker_width
         image_height = rows * sticker_height
 
@@ -52,11 +53,8 @@ async def create_sticker_pack(sticker_bytes_list):
             if current_width != sticker_width or current_height != sticker_height:
                 sticker = sticker.resize((sticker_width, sticker_height), Image.LANCZOS)
 
-            row = i // 4
-            col = i % 4
-
-            x = col * sticker_width
-            y = row * sticker_height
+            x = i * sticker_width
+            y = 0
             img.paste(sticker, (x, y), sticker)
 
         output = io.BytesIO()
@@ -69,7 +67,7 @@ async def create_sticker_pack(sticker_bytes_list):
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
-    await event.respond("Welcome! Send me eight stickers. I will create a sticker pack for you.")
+    await event.respond("Welcome! Send me eight stickers. I will create two sticker rows for you.")
     user_id = event.sender_id
     user_data[user_id] = {'stickers': []}  # Only store stickers
 
@@ -88,28 +86,47 @@ async def message_handler(event):
                     user_data[user_id]['stickers'].append(sticker_bytes)
                     await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/8 received.")
                     if len(user_data[user_id]['stickers']) == 8:
-                        await event.respond("Creating sticker pack...")
+                        await event.respond("Creating sticker rows...")
 
-                        sticker_pack_image = await create_sticker_pack(user_data[user_id]['stickers'])
-                        if sticker_pack_image:
+                        # Create the first sticker row
+                        first_row_stickers = user_data[user_id]['stickers'][:4]
+                        first_row_image = await create_sticker_row(first_row_stickers)
+
+                        # Create the second sticker row
+                        second_row_stickers = user_data[user_id]['stickers'][4:]
+                        second_row_image = await create_sticker_row(second_row_stickers)
+
+                        if first_row_image and second_row_image:
                             try:
-                                image_path = f"sticker_pack_{user_id}.png"
-                                with open(image_path, "wb") as f:
-                                    f.write(sticker_pack_image.getvalue())
-                                # Convert PNG to WebP using Pillow
-                                img = Image.open(image_path)
-                                webp_path = f"sticker_pack_{user_id}.webp"
-                                img.save(webp_path, "WEBP", lossless=True)
+                                # Send the first sticker row
+                                image_path_1 = f"sticker_row_1_{user_id}.png"
+                                with open(image_path_1, "wb") as f:
+                                    f.write(first_row_image.getvalue())
+                                img1 = Image.open(image_path_1)
+                                webp_path_1 = f"sticker_row_1_{user_id}.webp"
+                                img1.save(webp_path_1, "WEBP", lossless=True)
+                                await client.send_file(event.chat_id, webp_path_1, caption="First sticker row")
+                                os.remove(image_path_1)
+                                os.remove(webp_path_1)
 
-                                await client.send_file(event.chat_id, webp_path, caption="Here's your sticker pack!")
-                                os.remove(image_path)  # Remove the temporary PNG file
-                                os.remove(webp_path)   # Remove the temporary WebP file
+                                # Send the second sticker row
+                                image_path_2 = f"sticker_row_2_{user_id}.png"
+                                with open(image_path_2, "wb") as f:
+                                    f.write(second_row_image.getvalue())
+                                img2 = Image.open(image_path_2)
+                                webp_path_2 = f"sticker_row_2_{user_id}.webp"
+                                img2.save(webp_path_2, "WEBP", lossless=True)
+                                await client.send_file(event.chat_id, webp_path_2, caption="Second sticker row")
+                                os.remove(image_path_2)
+                                os.remove(webp_path_2)
 
                             except Exception as e:
-                                await event.respond(f"Error sending sticker pack: {e}")
+                                await event.respond(f"Error sending sticker rows: {e}")
                         else:
-                            await event.respond("Failed to create sticker pack.")
+                            await event.respond("Failed to create sticker rows.")
+
                         del user_data[user_id]  # Reset user data
+
                 else:
                      await event.respond("Failed to download sticker. Please try again.")
 
@@ -119,7 +136,6 @@ async def message_handler(event):
             await event.respond("Please send a sticker.")
     else:
         await event.respond("You already sent eight stickers.  Please send /start to create another sticker pack.")
-
 
 if __name__ == '__main__':
     client.run_until_disconnected()
