@@ -12,7 +12,6 @@ api_id = API_ID
 api_hash = API_HASH
 bot_token = BOT_TOKEN
 
-
 client = TelegramClient('sticker_bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
 # Store the stickers and photo for each user
@@ -38,8 +37,8 @@ async def create_sticker_pack(sticker_bytes_list):
         cols = min(num_stickers, 4)  # Number of columns depends on how many stickers we have
 
         # Calculate the dimensions of the image
-        sticker_width = 256  # Fixed width as per Telegram sticker requirements
-        sticker_height = 256 # Fixed height as per Telegram sticker requirements
+        sticker_width = 512  # Increased sticker width
+        sticker_height = 512 # Increased sticker height
         image_width = cols * sticker_width
         image_height = rows * sticker_height
 
@@ -49,7 +48,7 @@ async def create_sticker_pack(sticker_bytes_list):
         for i, sticker_bytes in enumerate(sticker_bytes_list):
             sticker = Image.open(sticker_bytes).convert("RGBA")
             current_width, current_height = sticker.size
-            # Resize the sticker if it's not 256x256
+            # Resize the sticker if it's not 512x512
             if current_width != sticker_width or current_height != sticker_height:
                 sticker = sticker.resize((sticker_width, sticker_height), Image.LANCZOS)
 
