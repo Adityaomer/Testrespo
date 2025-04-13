@@ -1,3 +1,4 @@
+
 import asyncio
 import io
 from PIL import Image, UnidentifiedImageError, ImageDraw, ImageFont
@@ -32,10 +33,8 @@ async def create_sticker_grid(sticker_bytes_list):
     try:
         num_stickers = len(sticker_bytes_list)
         # Calculate the required dimensions for the image
-        rows = 4  # Fixed to 4 rows
+        rows = 2  # Fixed to 2 rows
         cols = 2  # Fixed to 2 columns
-        if num_stickers != 8:
-            raise ValueError("Exactly 8 stickers are required")
 
         # Calculate the dimensions of the image
         sticker_width = 512
@@ -70,7 +69,7 @@ async def create_sticker_grid(sticker_bytes_list):
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
-    await event.respond("Welcome! Send me eight stickers. I will create a sticker with them in a 4x2 grid (4 rows, 2 columns).")
+    await event.respond("Welcome! Send me eight stickers. I will create two stickers with 2x2 grids each.")
     user_id = event.sender_id
     user_data[user_id] = {'stickers': []}  # Only store stickers
 
@@ -89,26 +88,44 @@ async def message_handler(event):
                     user_data[user_id]['stickers'].append(sticker_bytes)
                     await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/8 received.")
                     if len(user_data[user_id]['stickers']) == 8:
-                        await event.respond("Creating sticker...")
+                        await event.respond("Creating stickers...")
 
-                        sticker_grid_image = await create_sticker_grid(user_data[user_id]['stickers'])
-                        if sticker_grid_image:
+                        # First sticker: Stickers 0, 1, 2, 3
+                        first_sticker_stickers = user_data[user_id]['stickers'][:4]
+                        first_sticker_image = await create_sticker_grid(first_sticker_stickers)
+
+                        # Second sticker: Stickers 4, 5, 6, 7
+                        second_sticker_stickers = user_data[user_id]['stickers'][4:]
+                        second_sticker_image = await create_sticker_grid(second_sticker_stickers)
+
+                        if first_sticker_image and second_sticker_image:
                             try:
-                                image_path = f"sticker_grid_{user_id}.png"
-                                with open(image_path, "wb") as f:
-                                    f.write(sticker_grid_image.getvalue())
-                                img = Image.open(image_path)
-                                webp_path = f"sticker_grid_{user_id}.webp"
-                                img.save(webp_path, "WEBP", lossless=True)
+                                # Send first sticker
+                                image_path_1 = f"sticker_1_{user_id}.png"
+                                with open(image_path_1, "wb") as f:
+                                    f.write(first_sticker_image.getvalue())
+                                img1 = Image.open(image_path_1)
+                                webp_path_1 = f"sticker_1_{user_id}.webp"
+                                img1.save(webp_path_1, "WEBP", lossless=True)
+                                await client.send_file(event.chat_id, webp_path_1, caption="First sticker (2x2)")
+                                os.remove(image_path_1)
+                                os.remove(webp_path_1)
 
-                                await client.send_file(event.chat_id, webp_path, caption="Here's your sticker!")
-                                os.remove(image_path)
-                                os.remove(webp_path)
+                                # Send second sticker
+                                image_path_2 = f"sticker_2_{user_id}.png"
+                                with open(image_path_2, "wb") as f:
+                                    f.write(second_sticker_image.getvalue())
+                                img2 = Image.open(image_path_2)
+                                webp_path_2 = f"sticker_2_{user_id}.webp"
+                                img2.save(webp_path_2, "WEBP", lossless=True)
+                                await client.send_file(event.chat_id, webp_path_2, caption="Second sticker (2x2)")
+                                os.remove(image_path_2)
+                                os.remove(webp_path_2)
 
                             except Exception as e:
-                                await event.respond(f"Error sending sticker: {e}")
+                                await event.respond(f"Error sending stickers: {e}")
                         else:
-                            await event.respond("Failed to create sticker.")
+                            await event.respond("Failed to create stickers.")
 
                         del user_data[user_id]  # Reset user data
 
@@ -120,7 +137,7 @@ async def message_handler(event):
         else:
             await event.respond("Please send a sticker.")
     else:
-        await event.respond("You already sent eight stickers.  Please send /start to create another sticker pack.")
+        await event.respond("You already sent eight stickers.  Please send /start to create another pack.")
 
 if __name__ == '__main__':
     client.run_until_disconnected()
