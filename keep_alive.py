@@ -1,4 +1,3 @@
-
 import asyncio
 import io
 from PIL import Image, UnidentifiedImageError, ImageDraw, ImageFont
@@ -29,17 +28,18 @@ async def download_media(message):
         await message.respond(f"Error downloading media: {e}")
         return None
 
-async def create_sticker_row(sticker_bytes_list):
+async def create_sticker_grid(sticker_bytes_list):
     try:
         num_stickers = len(sticker_bytes_list)
         # Calculate the required dimensions for the image
-        # We'll arrange stickers in two rows, with maximum 4 stickers per row
-        rows = 1
-        cols = min(num_stickers, 4)  # Number of columns depends on how many stickers we have
+        rows = 2  # Fixed to 2 rows to use all 8 stickers
+        cols = 4  # Fixed to 4 stickers per row
+        if num_stickers != 8:
+            raise ValueError("Exactly 8 stickers are required")
 
         # Calculate the dimensions of the image
-        sticker_width = 512  # Increased sticker width. 512 is max for stickers
-        sticker_height = 512 # Increased sticker height. 512 is max for stickers
+        sticker_width = 512
+        sticker_height = 512
         image_width = cols * sticker_width
         image_height = rows * sticker_height
 
@@ -49,12 +49,15 @@ async def create_sticker_row(sticker_bytes_list):
         for i, sticker_bytes in enumerate(sticker_bytes_list):
             sticker = Image.open(sticker_bytes).convert("RGBA")
             current_width, current_height = sticker.size
-            # Resize the sticker if it's not 512x512
+
             if current_width != sticker_width or current_height != sticker_height:
                 sticker = sticker.resize((sticker_width, sticker_height), Image.LANCZOS)
 
-            x = i * sticker_width
-            y = 0
+            row = i // 4  # Calculate row based on index
+            col = i % 4   # Calculate column based on index
+
+            x = col * sticker_width
+            y = row * sticker_height
             img.paste(sticker, (x, y), sticker)
 
         output = io.BytesIO()
@@ -67,7 +70,7 @@ async def create_sticker_row(sticker_bytes_list):
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
-    await event.respond("Welcome! Send me eight stickers. I will create two sticker rows for you.")
+    await event.respond("Welcome! Send me eight stickers. I will create a sticker with them in a 2x4 grid.")
     user_id = event.sender_id
     user_data[user_id] = {'stickers': []}  # Only store stickers
 
@@ -86,44 +89,26 @@ async def message_handler(event):
                     user_data[user_id]['stickers'].append(sticker_bytes)
                     await event.respond(f"Sticker {len(user_data[user_id]['stickers'])}/8 received.")
                     if len(user_data[user_id]['stickers']) == 8:
-                        await event.respond("Creating sticker rows...")
+                        await event.respond("Creating sticker...")
 
-                        # Create the first sticker row
-                        first_row_stickers = user_data[user_id]['stickers'][:4]
-                        first_row_image = await create_sticker_row(first_row_stickers)
-
-                        # Create the second sticker row
-                        second_row_stickers = user_data[user_id]['stickers'][4:]
-                        second_row_image = await create_sticker_row(second_row_stickers)
-
-                        if first_row_image and second_row_image:
+                        sticker_grid_image = await create_sticker_grid(user_data[user_id]['stickers'])
+                        if sticker_grid_image:
                             try:
-                                # Send the first sticker row
-                                image_path_1 = f"sticker_row_1_{user_id}.png"
-                                with open(image_path_1, "wb") as f:
-                                    f.write(first_row_image.getvalue())
-                                img1 = Image.open(image_path_1)
-                                webp_path_1 = f"sticker_row_1_{user_id}.webp"
-                                img1.save(webp_path_1, "WEBP", lossless=True)
-                                await client.send_file(event.chat_id, webp_path_1, caption="First sticker row")
-                                os.remove(image_path_1)
-                                os.remove(webp_path_1)
+                                image_path = f"sticker_grid_{user_id}.png"
+                                with open(image_path, "wb") as f:
+                                    f.write(sticker_grid_image.getvalue())
+                                img = Image.open(image_path)
+                                webp_path = f"sticker_grid_{user_id}.webp"
+                                img.save(webp_path, "WEBP", lossless=True)
 
-                                # Send the second sticker row
-                                image_path_2 = f"sticker_row_2_{user_id}.png"
-                                with open(image_path_2, "wb") as f:
-                                    f.write(second_row_image.getvalue())
-                                img2 = Image.open(image_path_2)
-                                webp_path_2 = f"sticker_row_2_{user_id}.webp"
-                                img2.save(webp_path_2, "WEBP", lossless=True)
-                                await client.send_file(event.chat_id, webp_path_2, caption="Second sticker row")
-                                os.remove(image_path_2)
-                                os.remove(webp_path_2)
+                                await client.send_file(event.chat_id, webp_path, caption="Here's your sticker!")
+                                os.remove(image_path)
+                                os.remove(webp_path)
 
                             except Exception as e:
-                                await event.respond(f"Error sending sticker rows: {e}")
+                                await event.respond(f"Error sending sticker: {e}")
                         else:
-                            await event.respond("Failed to create sticker rows.")
+                            await event.respond("Failed to create sticker.")
 
                         del user_data[user_id]  # Reset user data
 
