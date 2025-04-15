@@ -5,8 +5,10 @@ from config import api_id,api_hash,bot_token
 import time
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+from telethon.tl.functions.messages import SendMediaRequest
 
-#from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
+
+from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
 from pymongo import MongoClient
 import asyncio
 import random
@@ -125,6 +127,7 @@ StartTime = time.time()
 
 # Command prefixes
 prefix = [".", "!", "?", "*", "$", "#", "/"]
+
 
 
 
@@ -600,7 +603,36 @@ async def handle_message(event):
             Button.inline("Next", data="next"),
         ]
     )
+@app.on(events.NewMessage)
+async def checke(event):
+    if not event.message.video:
+        return
+    message = event.message.video
+    await send_unforward(app, event.sender_id,message, "This is a cool video!")
+    
 
+async def send_unforward(bot, chat_id, media, caption="", random_id=None):
+    
+    try:
+        if random_id is None:
+            random_id = generate_random_long()
+
+        await bot(
+            SendMediaRequest(
+                peer=chat_id,
+                media=media,
+                message=caption,
+                random_id=random_id,
+                noforwards=True
+            )
+        )
+
+    except Exception as e:
+        print(f"Error sending unforwardable media: {e}")
+
+
+def generate_random_long():
+    return random.getrandbits(63) 
 @app.on(events.NewMessage(pattern="/delete"))
 #to delete all documents in the db
 async def delete(event):
