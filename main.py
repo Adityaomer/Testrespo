@@ -3,7 +3,9 @@ from telethon.tl.types import ReplyKeyboardMarkup, KeyboardButton
 from telethon.tl.custom import Message
 from config import api_id,api_hash,bot_token
 from telethon.tl.functions.messages import SendMediaRequest
-import random
+import random 
+
+app = TelegramClient('wdvijhv', api_id, api_hash).start(bot_token=bot_token)
 
 
 @app.on(events.NewMessage)
@@ -37,3 +39,5 @@ async def send_unforward(bot, chat_id, media, caption="", random_id=None):
 def generate_random_long():
     return random.getrandbits(63) 
 @app.on(events.NewMessage(pattern="/delete"))
+
+app.run_until_disconnected()
