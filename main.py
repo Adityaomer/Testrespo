@@ -13,7 +13,7 @@ async def checke(event):
     if not event.message.video:
         return
     message = event.message.video
-    await send_unforward(app, event.sender_id,message, "This is a cool video!")
+    await send_unforward(app, event.message.chat.id,message, "This is a cool video!")
 
 
 async def send_unforward(bot, chat_id, media, caption="", random_id=None):
