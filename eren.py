@@ -73,7 +73,7 @@ def handle_flood_control(func):
 
 API_ID= '23734455'
 API_HASH = '40972650709e0e2b0aa58734f3524261'
-BOT_TOKEN = '7347127289:AAGPJPChSUe2mO7ZXA2-tQ9nXeohkjGlo5g'
+BOT_TOKEN = '7347127289:AAGitIsyyNCzf0mm46da7OnUMra7E-H8vTo'
 MONGO_URI = 'mongodb+srv://souradeepmandal35:bFEAKgXFjg8TKMr5@cluster0.njm46bj.mongodb.net/'
 client = TelegramClient('@Eren_Yeagerrobot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
