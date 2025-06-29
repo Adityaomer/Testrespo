@@ -2,4 +2,3 @@ telethon
 pymongo
 requests
 flask
-fuck
