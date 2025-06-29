@@ -10,20 +10,9 @@ from telethon.errors import  FloodWaitError
 from telethon.tl.custom import Button
 from telethon.tl.types import User as TelegramUser 
 from datetime import datetime, timedelta
-import threading
-import flask
-import os
+from keep_alive import keep_alive, start_requesting
 
-def keep_alive():
-    from flask import Flask
-    app = Flask('')
 
-    @app.route('/')
-    def home():
-        return "Bot is running!"
-
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
 def check_suspension(func):
     async def wrapper(event):
         print(f"[DEBUG] Entering check_suspension for user {event.sender_id}")
@@ -5426,7 +5415,7 @@ async def search_character_command(event):
             await event.reply(response_text, parse_mode='md') # Send text only if image fails
     else:
         await event.reply(response_text, parse_mode='md')
-threading.Thread(target=keep_alive).start()    
+keep_alive()
+start_requesting()
 print("Bot is running...")
 client.run_until_disconnected()
-l
